@@ -4,10 +4,10 @@ using UnityEngine;
 using HarmonyLib;
 using Parkitect;
 
-namespace RotationAnarchy
+namespace RotationAnarchy.Patches
 {
     [HarmonyPatch(typeof(Builder), "changeRotation")]
-    internal static class RotationModifier
+    internal static class Patch_Builder_changeRotation
     {
         static bool Prefix(Quaternion ___rotation, ref Quaternion __state)
         {
@@ -16,9 +16,9 @@ namespace RotationAnarchy
         }
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
-            bool orientationKey = InputManager.getKey("orientationKey");
-            float angle = (float)direction * Settings.rotationAngle;
-            if (orientationKey)
+            bool directionKey = RotationAnarchyMod.Direction.Pressed;
+            float angle = (float)direction * RotationAnarchyMod.RotationAngle.Value;
+            if (directionKey)
             {
                 ___rotation = Quaternion.Euler(0f, 0f, angle) * __state;
             }
