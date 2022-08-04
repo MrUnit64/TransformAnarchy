@@ -3,7 +3,7 @@
     using UnityEngine;
     using RotationAnarchy.Internal;
 
-    public class RotationAnarchyMod : ModBase, IModSettings
+    public class RotationAnarchyMod : ModBase<RotationAnarchyMod>, IModSettings
     {
         public override string AUTHOR => "parkitectCommunity";
         public override string MODKEY => "rotationAnarchy";
@@ -29,6 +29,10 @@
 
             // Hotkeys registration      -------------------------------------------------------
             Direction = NewHotkey("direction", "Rotation direction", "Change the rotation direction from horizontal to vertical", KeyCode.LeftShift);
+
+            // Mod changes registration --------------------------------------------------------
+            RegisterChange(new HUDBackgroundGraphicResizer());
+            RegisterChange(new HUDGizmoButtonCreator());
         }
     }
 }

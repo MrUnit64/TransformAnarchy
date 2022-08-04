@@ -141,6 +141,10 @@
         /// </summary>
         private List<Sprite> createdSprites = new List<Sprite>();
         /// <summary>
+        /// All registered sprites
+        /// </summary>
+        private List<ModChange> changes = new List<ModChange>();
+        /// <summary>
         /// Mod hotkey group
         /// </summary>
         private KeyGroup keyGroup;
@@ -245,6 +249,21 @@
             value.SetModBase(this);
             prefsValues.Add(value);
             value.Load(false);
+        }
+
+        protected void RegisterChange(ModChange change)
+        {
+            try
+            {
+                change.OnChangeApplied();
+            }
+            catch(Exception e)
+            {
+                LogInternalError("Failed to apply change: " + change.GetType());
+                throw e;
+            }
+
+            changes.Add(change);
         }
 
         /// <summary>
@@ -434,6 +453,22 @@
                 exceptions = new List<Exception>();
                 exceptions.Add(new Exception("Failed to cleanly disable mod, attempting cleanup", ex));
                 LogInternalError("<b>Your code</b> caused the mod to FAIL TO DISABLE!");
+            }
+
+            ModChange change = null;
+            try
+            {
+                for (int i = changes.Count - 1; i >= 0; i--)
+                {
+                    change = changes[i];
+                    change.OnChangeReverted();
+                }
+
+                changes.Clear();
+            }
+            catch(Exception ex)
+            {
+                exceptions.Add(new Exception("Failed to revert change:" + change?.GetType().Name, ex));
             }
 
             try // unregister key group

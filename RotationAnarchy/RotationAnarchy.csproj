@@ -71,6 +71,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Changes\HUDBackgroundGraphicResizer.cs" />
+    <Compile Include="Changes\HUDGizmoButtonCreator.cs" />
+    <Compile Include="Internal\ModChange.cs" />
     <Compile Include="Internal\Utils\InputUtil.cs" />
     <Compile Include="Internal\Utils\MathUtil.cs" />
     <Compile Include="Internal\PrefsValue.cs" />
@@ -84,6 +87,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>COPY "$(TargetDir)$(TargetFileName)" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\$(TargetFileName)"
-COPY "$(SolutionDir)preview.png" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\preview.png"</PostBuildEvent>
+COPY "$(SolutionDir)preview.png" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\preview.png"
+xcopy "$(SolutionDir)img" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\img" /e /y /i /r</PostBuildEvent>
   </PropertyGroup>
 </Project>
