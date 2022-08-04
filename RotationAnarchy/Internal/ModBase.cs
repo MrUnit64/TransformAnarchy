@@ -247,7 +247,7 @@
         /// <param name="value"></param>
         protected void RegisterAndLoadPrefsValue(PrefsValue value)
         {
-            value.SetModBase(this);
+            value.Initialize(this);
             prefsValues.Add(value);
             value.Load(false);
         }

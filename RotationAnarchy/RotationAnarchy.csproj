@@ -60,6 +60,10 @@
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>..\Libs\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.InputModule">
       <HintPath>..\Libs\UnityEngine.InputModule.dll</HintPath>
     </Reference>
@@ -76,6 +80,7 @@
   <ItemGroup>
     <Compile Include="Changes\HUDBackgroundGraphicResizer.cs" />
     <Compile Include="Changes\HUDGizmoButtonCreator.cs" />
+    <Compile Include="Internal\BaseHotkey.cs" />
     <Compile Include="Internal\ModChange.cs" />
     <Compile Include="Internal\Utils\InputUtil.cs" />
     <Compile Include="Internal\Utils\MathUtil.cs" />
@@ -85,6 +90,7 @@
     <Compile Include="Internal\ModBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Patches\Patch_Builder_changeRotation.cs" />
+    <Compile Include="Window\RAWindow.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
