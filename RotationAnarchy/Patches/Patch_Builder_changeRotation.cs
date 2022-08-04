@@ -17,17 +17,40 @@ namespace RotationAnarchy.Patches
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
             bool directionKey = RotationAnarchyMod.Direction.Pressed;
+            bool localSpaceKey = RotationAnarchyMod.DoLocalRotation.Pressed;
+
             float angle = (float)direction * RotationAnarchyMod.RotationAngle.Value;
+
             if (directionKey)
             {
-                ___rotation = Quaternion.Euler(0f, 0f, angle) * __state;
+                // Local Space
+                if (localSpaceKey)
+                {
+                    ___rotation = __state * Quaternion.Euler(0f, 0f, angle);
+                }
+                // World Space
+                else
+                {
+                    ___rotation = Quaternion.Euler(0f, 0f, angle) * __state;
+                }
             }
             else
             {
-                ___rotation = Quaternion.Euler(0f, angle, 0f) * __state;
+                // Local Space
+                if (localSpaceKey)
+                {
+                    ___rotation = __state * Quaternion.Euler(0f, angle, 0f);
+                }
+                // World Space
+                else
+                {
+                    ___rotation = Quaternion.Euler(0f, angle, 0f) * __state;
+                }
             }
+
             ___dontAutoRotate = true;
             ___forward = ___rotation * Vector3.forward;
+
         }
     }
 }

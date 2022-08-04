@@ -15,6 +15,7 @@
         public static PrefsFloat RotationAngle { get; private set; }
         // Hotkeys      -------------------------------------------------------
         public static BaseHotkey Direction { get; private set; }
+        public static BaseHotkey DoLocalRotation { get; private set; }
 
         protected override void OnModEnabled()
         {
@@ -28,7 +29,8 @@
             RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloat("rotationAngle", 90, 0, 360, "Rotation Angle"));
 
             // Hotkeys registration      -------------------------------------------------------
-            Direction = NewHotkey("direction", "Rotation direction", "Change the rotation direction from horizontal to vertical", KeyCode.LeftShift);
+            Direction = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftShift);
+            DoLocalRotation = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
 
             // Mod changes registration --------------------------------------------------------
             RegisterChange(new HUDBackgroundGraphicResizer());
