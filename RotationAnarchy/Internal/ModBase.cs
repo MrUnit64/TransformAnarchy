@@ -3,6 +3,7 @@
     using HarmonyLib;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using UnityEngine;
 
@@ -143,7 +144,7 @@
         /// <summary>
         /// All registered sprites
         /// </summary>
-        private List<ModChange> changes = new List<ModChange>();
+        private Dictionary<Type, ModChange> changes = new Dictionary<Type, ModChange>();
         /// <summary>
         /// Mod hotkey group
         /// </summary>
@@ -263,7 +264,7 @@
                 throw e;
             }
 
-            changes.Add(change);
+            changes.Add(change.GetType(), change);
         }
 
         /// <summary>
@@ -337,6 +338,20 @@
             else
                 createdSprites.Add(tex);
             return tex;
+        }
+
+        public T GetChange<T>() where T : ModChange
+        {
+            if (changes.TryGetValue(typeof(T), out var change))
+                return change as T;
+            return null;
+        }
+
+        public ModChange GetChange(Type type) 
+        {
+            if (changes.TryGetValue(type, out var change))
+                return change;
+            return null;
         }
 
         /*  ========================================================================================================================
@@ -458,9 +473,10 @@
             ModChange change = null;
             try
             {
-                for (int i = changes.Count - 1; i >= 0; i--)
+                var values = changes.Values.ToArray();
+                for (int i = values.Length - 1; i >= 0; i--)
                 {
-                    change = changes[i];
+                    change = values[i];
                     change.OnChangeReverted();
                 }
 
