@@ -24,6 +24,9 @@
         public static BaseHotkey Direction { get; private set; }
         public static BaseHotkey DoLocalRotation { get; private set; }
 
+        // Features    -------------------------------------------------------
+        public static RAWindowController WindowController { get; private set; }
+
         protected override void OnModEnabled()
         {
             base.OnModEnabled();
@@ -41,8 +44,9 @@
             DoLocalRotation = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
 
             // Mod changes registration --------------------------------------------------------
-            RegisterChange(new HUDBackgroundGraphicResizer());
-            RegisterChange(new HUDGizmoButtonCreator());
+            RegisterChange(WindowController = new RAWindowController());
+            RegisterChange(new ChangeUIBackgroundGraphics());
+            RegisterChange(new ConstructWindowToggle());
         }
     }
 }

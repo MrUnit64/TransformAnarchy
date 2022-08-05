@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using UnityEngine;
 
-    public class HUDBackgroundGraphicResizer : ModChange
+    public class ChangeUIBackgroundGraphics : ModChange
     {
         private GameObject menuCanvasRoot;
 

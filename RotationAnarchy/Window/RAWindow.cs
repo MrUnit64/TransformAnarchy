@@ -1,15 +1,13 @@
 ﻿namespace RotationAnarchy
 {
+    using Parkitect.UI;
     using System;
     using System.Collections.Generic;
-    using UnityEngine;
 
-    public class RAWindow
+    public class RAWindow : UIWindow
     {
-        public GameObject ConstructGameObject()
-        {
-            return null;
-        }
+
     }
+
 
 }

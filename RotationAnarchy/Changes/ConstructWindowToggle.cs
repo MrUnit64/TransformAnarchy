@@ -7,13 +7,11 @@
     using UnityEngine;
     using UnityEngine.UI;
 
-    public class HUDGizmoButtonCreator : ModChange
+    public class ConstructWindowToggle : ModChange
     {
         private GameObject menuCanvasRoot;
-        private GameObject gizmoButtonGo;
+        private GameObject raButtonGo;
         private Sprite gizmoButtonSprite;
-
-        private RAWindow window;
 
         public override void OnChangeApplied()
         {
@@ -22,37 +20,41 @@
             //Disable the painter button before cloning, so we can initialize it before its Awake is called
             painterButton.SetActive(false);
 
-            gizmoButtonGo = GameObject.Instantiate(painterButton, painterButton.transform.parent);
-            gizmoButtonGo.name = RotationAnarchyMod.Instance.getName();
+            raButtonGo = GameObject.Instantiate(painterButton, painterButton.transform.parent);
+            raButtonGo.name = RotationAnarchyMod.Instance.getName();
 
             //Features setup
-            var windowButton = gizmoButtonGo.GetComponent<UIMenuWindowButton>();
+            GameObject.Destroy(raButtonGo.GetComponent<UIMenuWindowButton>());
+            var raWindowButton = raButtonGo.AddComponent<RAWindowButton>();
             //at this point we expect the hotkey to be already registered
-            windowButton.hotkeyIdentifier = RotationAnarchyMod.ActiveToggle.Identifier;
-            //windowButton.windowContentGO = new RAWindow().ConstructGameObject();
+            raWindowButton.hotkeyIdentifier = RotationAnarchyMod.ActiveToggle.Identifier;
+            var toggle = raButtonGo.GetComponent<Toggle>();
+            UIUtil.RemoveListeners(toggle);
+            toggle.onValueChanged.AddListener( x => raWindowButton.onChanged() );
 
             //Graphical adjustments
             gizmoButtonSprite = RotationAnarchyMod.Instance.LoadSpritePNG("img/ui_icon_rotationGizmo");
-            var tooltip = gizmoButtonGo.GetComponent<UITooltip>();
-            tooltip.text = gizmoButtonGo.name;
-            var toggle = gizmoButtonGo.GetComponent<Toggle>();
+            var tooltip = raButtonGo.GetComponent<UITooltip>();
+            tooltip.text = raButtonGo.name;
+
             var colors = toggle.colors;
             colors.normalColor = new Color(0.792f, 0.805f, 1f, 1f);
             colors.highlightedColor = Color.white;
             toggle.colors = colors;
-            var rect = gizmoButtonGo.GetComponent<RectTransform>();
+            
+            var rect = raButtonGo.GetComponent<RectTransform>();
             rect.anchoredPosition = new Vector2(531, -15);
-            Image image = gizmoButtonGo.transform.Find("Image").GetComponent<Image>();
+            
+            Image image = raButtonGo.transform.Find("Image").GetComponent<Image>();
             image.sprite = gizmoButtonSprite;
 
-
             painterButton.SetActive(true);
-            gizmoButtonGo.SetActive(true);
+            raButtonGo.SetActive(true);
         }
 
         public override void OnChangeReverted()
         {
-            GameObject.Destroy(gizmoButtonGo);
+            GameObject.Destroy(raButtonGo);
         }
 
     }
