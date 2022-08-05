@@ -16,12 +16,12 @@ namespace RotationAnarchy.Patches
         }
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
-            bool directionKey = RotationAnarchyMod.DirectionHotkey.Pressed;
-            bool localSpaceKey = RotationAnarchyMod.LocalRotationHotkey.Pressed;
+            bool directionKey = RA.DirectionHotkey.Pressed;
+            bool localSpaceKey = RA.LocalRotationHotkey.Pressed;
 
-            float angle = (float)direction * RotationAnarchyMod.RotationAngle.Value;
+            float angle = (float)direction * RA.RotationAngle.Value;
 
-            if (RotationAnarchyMod.Controller.Active)
+            if (RA.Controller.Active)
             {
                 if (directionKey)
                 {

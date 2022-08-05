@@ -14,7 +14,7 @@ namespace RotationAnarchy.Patches
         {
 
             // Call as active
-            RotationAnarchyMod.Controller.SetBuildState(true, __instance);
+            RA.Controller.NotifyBuildState(true, __instance);
             return true;
 
         }

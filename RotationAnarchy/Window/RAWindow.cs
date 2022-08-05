@@ -6,9 +6,23 @@
 
     public class RAWindow : UIWindow
     {
+        public static RAWindow Instance { get; private set; }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            Instance = this;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            Instance = null;
+        }
+
         private void Update()
         {
-            if (!RotationAnarchyMod.Controller.Active)
+            if (!RA.Controller.Active)
                 this.windowFrame.close();
         }
     }

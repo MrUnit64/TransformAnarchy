@@ -2,8 +2,6 @@
 {
     using Parkitect.UI;
     using RotationAnarchy.Internal;
-    using System;
-    using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.UI;
 
@@ -11,7 +9,6 @@
     {
         private GameObject menuCanvasRoot;
         private GameObject raButtonGo;
-        private Sprite gizmoButtonSprite;
 
         public override void OnChangeApplied()
         {
@@ -21,13 +18,13 @@
             painterButton.SetActive(false);
 
             raButtonGo = GameObject.Instantiate(painterButton, painterButton.transform.parent);
-            raButtonGo.name = RotationAnarchyMod.Instance.getName();
+            raButtonGo.name = RA.Instance.getName();
 
             //Features setup
             GameObject.Destroy(raButtonGo.GetComponent<UIMenuWindowButton>());
             var raWindowButton = raButtonGo.AddComponent<RAWindowButton>();
             //at this point we expect the hotkey to be already registered
-            raWindowButton.hotkeyIdentifier = RotationAnarchyMod.RAActiveHotkey.Identifier;
+            raWindowButton.hotkeyIdentifier = RA.RAActiveHotkey.Identifier;
             var toggle = raButtonGo.GetComponent<Toggle>();
             UIUtil.RemoveListeners(toggle);
             toggle.onValueChanged.AddListener( x => raWindowButton.onChanged() );
@@ -40,8 +37,5 @@
         {
             GameObject.Destroy(raButtonGo);
         }
-
     }
-
-
 }

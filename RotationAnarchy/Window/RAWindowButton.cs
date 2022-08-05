@@ -9,12 +9,16 @@
 
     public class RAWindowButton : UIMenuButton, IPointerClickHandler
     {
+        public static RAWindowButton Instance { get; private set; }
+
         private Image icon;
         private Toggle toggle;
 
         protected override void Awake()
         {
             base.Awake();
+
+            Instance = this;
 
             //Graphical adjustments
             var tooltip = gameObject.GetComponent<UITooltip>();
@@ -30,22 +34,39 @@
             rect.anchoredPosition = new Vector2(531, -15);
 
             icon = gameObject.transform.Find("Image").GetComponent<Image>();
+        }
 
-            RotationAnarchyMod.Controller.OnActiveChanged += OnRAActiveChanged;
-            OnRAActiveChanged(RotationAnarchyMod.Controller.Active);
+        public void SetButtonEnabled(bool state)
+        {
+            if (state)
+            {
+                toggle.enabled = true;
+                icon.sprite = RA.Instance.LoadSpritePNG("img/ui_icon_rotationGizmo");
+            }
+            else
+            {
+                toggle.isOn = state;
+                toggle.enabled = false;
+                icon.sprite = RA.Instance.LoadSpritePNG("img/ui_icon_rotationGizmoDisabled");
+            }
+        }
+
+        public void SetWindowOpened(bool state)
+        {
+            toggle.isOn = state;
         }
 
         protected override void onSelected()
         {
-            if (!RotationAnarchyMod.Controller.Active)
+            if (!RA.Controller.Active)
                 return;
 
-            var prefab = RotationAnarchyMod.Controller.ConstructWindowPrefab();
+            var prefab = ConstructWindowPrefab();
             if (prefab == null)
-                RotationAnarchyMod.Instance.ERROR("Window prefab is null");
+                RA.Instance.ERROR("Window prefab is null");
 
             if(ScriptableSingleton<UIAssetManager>.Instance.uiWindowFrameGO == null)
-                RotationAnarchyMod.Instance.ERROR("uiWindowFrameGO is null, what?");
+                RA.Instance.ERROR("uiWindowFrameGO is null, what?");
 
             this.windowInstance = UIWindowsController.Instance.spawnWindow(prefab, null);
             this.windowInstance.OnClose += this.onWindowClose;
@@ -60,6 +81,27 @@
             }
         }
 
+        public RAWindow ConstructWindowPrefab()
+        {
+            var WindowPrefab = new GameObject(RA.Instance.getName());
+            WindowPrefab.SetActive(false);
+
+            var rect = WindowPrefab.AddComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(98, 43);
+            WindowPrefab.AddComponent<CanvasRenderer>();
+            var window = WindowPrefab.AddComponent<RAWindow>();
+
+            var windowSettings = WindowPrefab.AddComponent<UIWindowSettings>();
+            windowSettings.closable = true;
+            windowSettings.defaultWindowPosition = new Vector2(Screen.width / 2f, 200);
+            windowSettings.title = RA.Instance.getName();
+            windowSettings.uniqueTag = RA.Instance.getName();
+            windowSettings.uniqueTagString = RA.Instance.getName();
+
+            WindowPrefab.SetActive(true);
+            return window;
+        }
+
         private void onWindowClose(UIWindowFrame window)
         {
             base.setSelected(false);
@@ -69,23 +111,7 @@
         {
             if(eventData.button == PointerEventData.InputButton.Right)
             {
-                RotationAnarchyMod.Controller.ToggleRAActive();
-            }
-        }
-
-        private void OnRAActiveChanged(bool state)
-        {
-            if(state)
-            {
-                toggle.enabled = true;
-                toggle.isOn = false;
-                icon.sprite = RotationAnarchyMod.Instance.LoadSpritePNG("img/ui_icon_rotationGizmo");
-            }
-            else
-            {
-                toggle.isOn = state;
-                toggle.enabled = false;
-                icon.sprite = RotationAnarchyMod.Instance.LoadSpritePNG("img/ui_icon_rotationGizmoDisabled");
+                RA.Controller.ToggleRAActive();
             }
         }
 

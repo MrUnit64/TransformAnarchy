@@ -3,7 +3,7 @@
     using UnityEngine;
     using RotationAnarchy.Internal;
 
-    public class RotationAnarchyMod : ModBase<RotationAnarchyMod>, IModSettings
+    public class RA : ModBase<RA>, IModSettings
     {
         public override string AUTHOR => "parkitectCommunity";
         public override string MODKEY => "rotationAnarchy";

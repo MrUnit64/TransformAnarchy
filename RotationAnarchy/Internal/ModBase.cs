@@ -256,8 +256,7 @@
         {
             try
             {
-                change.Initialize(this);
-                change.OnChangeApplied();
+                change.InjectDependencies(this);
             }
             catch(Exception e)
             {
@@ -386,6 +385,11 @@
 
         }
 
+        /// <summary>
+        /// Strategy for enabling the mod -
+        /// Each initialization step is guarded by try catch, attempting to give information as to which stage failed.
+        /// As soon as exception is thrown, we rethrow it so that Parkitect handles it and aborts, then disables the mod.
+        /// </summary>
         public sealed override void onEnabled()
         {
             base.onEnabled();
@@ -446,6 +450,16 @@
                 throw ex;
             }
 
+            try // Apply the changes in two phases
+            {
+                ApplyChanges();
+            }
+            catch (Exception ex)
+            {
+                LogInternalError("<b>Your code</b> Failed to apply changes!");
+                throw ex;
+            }
+
             try // Apply harmony patches
             {
                 var assembly = Assembly.GetExecutingAssembly();
@@ -464,6 +478,12 @@
             }
         }
 
+        /// <summary>
+        /// Strategy for disabling the mod -
+        /// Instead of instantly rethrowing the exception, we instead hold it, and proceed the the next deinitialization step.
+        /// We attempt to perform all deinitialization steps, despite any exceptions, and then rethrow them all at once at the end.
+        /// This is supposed to ensure that we do maximum cleanup of the mod we can.
+        /// </summary>
         public sealed override void onDisabled()
         {
             base.onDisabled();
@@ -572,6 +592,45 @@
                 }
 
                 throw new Exception("MOD FAILED TO DISABLE CLEANLY");
+            }
+        }
+
+        /// <summary>
+        /// This processes changes after the ModEnable in two phases.
+        /// Similar to how Unity handles its MonoBehaviour,
+        /// we first do OnChangesApplied on all changes (think of this as Awake/Constructor)
+        /// then we call OnChangeStart on all changes (think of it as Start())
+        /// </summary>
+        private void ApplyChanges()
+        {
+            ModChange _change = null;
+
+            try
+            {
+                foreach (ModChange change in changes.Values)
+                {
+                    _change = change;
+                    _change.OnChangeApplied();
+                }
+            }
+            catch(Exception e)
+            {
+                LogInternalError($"ModChange {_change} failed to Apply.");
+                throw e;
+            }
+
+            try
+            {
+                foreach (ModChange change in changes.Values)
+                {
+                    _change = change;
+                    _change.OnModStart();
+                }
+            }
+            catch (Exception e)
+            {
+                LogInternalError($"ModChange {_change} failed to Start.");
+                throw e;
             }
         }
 

@@ -15,9 +15,28 @@
     public class RAController : ModChange
     {
         public event Action<bool> OnActiveChanged;
-        public bool Active { get; private set; }
+        public event Action<ParkitectState> OnGameStateChanged;
 
-        public ParkitectState GameState { get; private set; }
+        public bool Active { get; private set; }
+        public bool IsWindowOpened => RAWindow.Instance != null;
+
+        public ParkitectState GameState
+        {
+            get => _gameState;
+            set
+            {
+                if (value != _gameState)
+                {
+                    PreviousGameState = _gameState;
+                    _gameState = value;
+                    HandleGameStateChange();
+                    OnGameStateChanged?.Invoke(value);
+                }
+            }
+        }
+        private ParkitectState _gameState;
+
+        public ParkitectState PreviousGameState { get; private set; }
 
         private HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
@@ -27,33 +46,18 @@
 
         public override void OnChangeApplied()
         {
-            RotationAnarchyMod.RAActiveHotkey.onKeyDown += ToggleRAActive;
+            RA.RAActiveHotkey.onKeyDown += ToggleRAActive;
+        }
+
+        public override void OnModStart()
+        {
+            HandleActiveStateChange();
+            HandleGameStateChange();
         }
 
         public override void OnChangeReverted() { }
 
-        public RAWindow ConstructWindowPrefab()
-        {
-            var WindowPrefab = new GameObject(RotationAnarchyMod.Instance.getName());
-            WindowPrefab.SetActive(false);
-
-            var rect = WindowPrefab.AddComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(98, 43);
-            WindowPrefab.AddComponent<CanvasRenderer>();
-            var window = WindowPrefab.AddComponent<RAWindow>();
-
-            var windowSettings = WindowPrefab.AddComponent<UIWindowSettings>();
-            windowSettings.closable = true;
-            windowSettings.defaultWindowPosition = new Vector2(Screen.width / 2f, 200);
-            windowSettings.title = RotationAnarchyMod.Instance.getName();
-            windowSettings.uniqueTag = RotationAnarchyMod.Instance.getName();
-            windowSettings.uniqueTagString = RotationAnarchyMod.Instance.getName();
-
-            WindowPrefab.SetActive(true);
-            return window;
-        }
-
-        public void SetBuildState(bool building, Builder builder)
+        public void NotifyBuildState(bool building, Builder builder)
         {
             // If builder has been opened
             if (building)
@@ -79,12 +83,40 @@
 
         public void SetRAActive(bool state)
         {
-            if(state != Active)
+            if (state != Active)
             {
                 Active = state;
+                HandleActiveStateChange();
                 OnActiveChanged?.Invoke(Active);
             }
         }
-    }
 
+        private void HandleActiveStateChange()
+        {
+            if(Active)
+            {
+                RAWindowButton.Instance.SetButtonEnabled(true);
+                HandleGameStateChange();
+            }
+            else
+            {
+                RAWindowButton.Instance.SetButtonEnabled(false);
+                RAWindowButton.Instance.SetWindowOpened(false);
+            }
+        }
+
+        private void HandleGameStateChange()
+        {
+            if (Active)
+            {
+                if (GameState == ParkitectState.Placement)
+                {
+                    if (!IsWindowOpened)
+                    {
+                        RAWindowButton.Instance.SetWindowOpened(true);
+                    }
+                }
+            }
+        }
+    }
 }
