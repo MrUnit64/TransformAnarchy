@@ -2,8 +2,7 @@
 A mod created to freely rotate objects in Parkitect.
 
 ## Cloning
-When you clone, create a local directory called Libs/ next to the `sln` file.
-Copy the following dlls (All from \Parkitect\Parkitect_Data\Managed\ with the exception of 0Harmony) into this folder.
+When you clone, create a local directory called Libs/ next to the `sln` file. Copy the following dlls (All from \Parkitect\Parkitect_Data\Managed\ with the exception of 0Harmony) into this folder.
 
 0Harmony
 Parkitect
@@ -18,8 +17,7 @@ UnityEngine.UI
 UnityEngine.UIModule
 
 ## Build Events
-There are build events that copy mod `dll`, `preview.png` and `img/` to `Documents/Parkitect/Mods/RotationAnarchy`
-If you don't have that folder created on that exact path, the build will fail at copying files.
+There are build events that copy mod `dll`, `preview.png` and `img/` to `Documents/Parkitect/Mods/RotationAnarchy`. If you don't have that folder created on that exact path, the build will fail at copying files.
 
 ## Terms
 - **Placement mode** - when user selects a deco to place, and has only hotkey control over rotation.
