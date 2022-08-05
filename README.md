@@ -2,7 +2,7 @@
 A mod created to freely rotate objects in Parkitect.
 
 ## Cloning
-When you clone, create a local directory called Libs/ next to the `sln` file. Copy the following dlls (All from \Parkitect\Parkitect_Data\Managed\ with the exception of 0Harmony) into this folder.
+When you clone, create a local directory called Libs/ next to the `sln` file. Copy the following dlls (All from `\Parkitect\Parkitect_Data\Managed\` with the exception of `0Harmony`) into this folder.
 
 - 0Harmony
 - Parkitect
