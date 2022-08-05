@@ -136,11 +136,11 @@
         /// <summary>
         /// All registered textures
         /// </summary>
-        private List<Texture2D> createdTextures = new List<Texture2D>();
+        private Dictionary<string, Texture2D> createdTextures = new Dictionary<string, Texture2D>();
         /// <summary>
         /// All registered sprites
         /// </summary>
-        private List<Sprite> createdSprites = new List<Sprite>();
+        private Dictionary<string, Sprite> createdSprites = new Dictionary<string, Sprite>();
         /// <summary>
         /// All registered sprites
         /// </summary>
@@ -312,11 +312,17 @@
         public Texture2D LoadPNG(string name)
         {
             LOG("Trying to load png: " + name);
-            var tex = UIUtil.LoadTexture(MODPATH, name, ".png");
+            if (createdTextures.TryGetValue(name, out var tex))
+            {
+                LOG("Already loaded returning cached: " + name);
+                return tex;
+            }
+
+            tex = UIUtil.LoadTexture(MODPATH, name, ".png");
             if (tex == null)
                 ERROR("FAILED to load png: " + name);
             else
-                createdTextures.Add(tex);
+                createdTextures.Add(name, tex);
             return tex;
         }
 
@@ -332,11 +338,18 @@
         public Sprite LoadSpritePNG(string name)
         {
             LOG("Trying to load sprite png: " + name);
-            var tex = UIUtil.LoadSprite(MODPATH, name, ".png");
+
+            if (createdSprites.TryGetValue(name, out var tex))
+            {
+                LOG("Already loaded returning cached: " + name);
+                return tex;
+            }
+
+            tex = UIUtil.LoadSprite(MODPATH, name, ".png");
             if (tex == null)
                 ERROR("FAILED to load sprite png: " + name);
             else
-                createdSprites.Add(tex);
+                createdSprites.Add(name, tex);
             return tex;
         }
 
@@ -565,16 +578,18 @@
         /// </summary>
         private void UnloadResources()
         {
-            for (int i = 0; i < createdSprites.Count; i++)
+            var sprites = createdSprites.Values.ToArray();
+            for (int i = 0; i < sprites.Length; i++)
             {
-                if (createdSprites[i])
-                    GameObject.Destroy(createdSprites[i]);
+                if (sprites[i])
+                    GameObject.Destroy(sprites[i]);
             }
             createdSprites.Clear();
-            for (int i = 0; i < createdTextures.Count; i++)
+            var textures = createdTextures.Values.ToArray();
+            for (int i = 0; i < textures.Length; i++)
             {
-                if (createdTextures[i])
-                    GameObject.Destroy(createdTextures[i]);
+                if (textures[i])
+                    GameObject.Destroy(textures[i]);
             }
             createdTextures.Clear();
 

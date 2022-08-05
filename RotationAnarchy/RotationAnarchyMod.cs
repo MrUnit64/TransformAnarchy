@@ -20,12 +20,12 @@
         /// When set to false mod should not interfere in any way with rotation,
         /// if deactivated mid rotation, should also reset the rotated deco to default, if in placement mode.
         /// </summary>
-        public static BaseHotkey ActiveToggle { get; private set; }
-        public static BaseHotkey Direction { get; private set; }
-        public static BaseHotkey DoLocalRotation { get; private set; }
+        public static BaseHotkey RAActiveHotkey { get; private set; }
+        public static BaseHotkey DirectionHotkey { get; private set; }
+        public static BaseHotkey LocalRotationHotkey { get; private set; }
 
         // Features    -------------------------------------------------------
-        public static RAWindowController WindowController { get; private set; }
+        public static RAController Controller { get; private set; }
 
         protected override void OnModEnabled()
         {
@@ -39,12 +39,12 @@
             RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 90, 0, 360, 90, "Rotation Angle"));
 
             // Hotkeys registration      -------------------------------------------------------
-            ActiveToggle = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
-            Direction = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftShift);
-            DoLocalRotation = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
+            RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
+            DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftShift);
+            LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
 
             // Mod changes registration --------------------------------------------------------
-            RegisterChange(WindowController = new RAWindowController());
+            RegisterChange(Controller = new RAController());
             RegisterChange(new ChangeUIBackgroundGraphics());
             RegisterChange(new ConstructWindowToggle());
         }

@@ -27,26 +27,10 @@
             GameObject.Destroy(raButtonGo.GetComponent<UIMenuWindowButton>());
             var raWindowButton = raButtonGo.AddComponent<RAWindowButton>();
             //at this point we expect the hotkey to be already registered
-            raWindowButton.hotkeyIdentifier = RotationAnarchyMod.ActiveToggle.Identifier;
+            raWindowButton.hotkeyIdentifier = RotationAnarchyMod.RAActiveHotkey.Identifier;
             var toggle = raButtonGo.GetComponent<Toggle>();
             UIUtil.RemoveListeners(toggle);
             toggle.onValueChanged.AddListener( x => raWindowButton.onChanged() );
-
-            //Graphical adjustments
-            gizmoButtonSprite = RotationAnarchyMod.Instance.LoadSpritePNG("img/ui_icon_rotationGizmo");
-            var tooltip = raButtonGo.GetComponent<UITooltip>();
-            tooltip.text = raButtonGo.name;
-
-            var colors = toggle.colors;
-            colors.normalColor = new Color(0.792f, 0.805f, 1f, 1f);
-            colors.highlightedColor = Color.white;
-            toggle.colors = colors;
-            
-            var rect = raButtonGo.GetComponent<RectTransform>();
-            rect.anchoredPosition = new Vector2(531, -15);
-            
-            Image image = raButtonGo.transform.Find("Image").GetComponent<Image>();
-            image.sprite = gizmoButtonSprite;
 
             painterButton.SetActive(true);
             raButtonGo.SetActive(true);

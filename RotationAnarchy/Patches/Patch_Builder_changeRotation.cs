@@ -16,36 +16,43 @@ namespace RotationAnarchy.Patches
         }
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
-            bool directionKey = RotationAnarchyMod.Direction.Pressed;
-            bool localSpaceKey = RotationAnarchyMod.DoLocalRotation.Pressed;
+            bool directionKey = RotationAnarchyMod.DirectionHotkey.Pressed;
+            bool localSpaceKey = RotationAnarchyMod.LocalRotationHotkey.Pressed;
 
             float angle = (float)direction * RotationAnarchyMod.RotationAngle.Value;
 
-            if (directionKey)
+            if (RotationAnarchyMod.Controller.Active)
             {
-                // Local Space
-                if (localSpaceKey)
+                if (directionKey)
                 {
-                    ___rotation = __state * Quaternion.Euler(0f, 0f, angle);
+                    // Local Space
+                    if (localSpaceKey)
+                    {
+                        ___rotation = __state * Quaternion.Euler(0f, 0f, angle);
+                    }
+                    // World Space
+                    else
+                    {
+                        ___rotation = Quaternion.Euler(0f, 0f, angle) * __state;
+                    }
                 }
-                // World Space
                 else
                 {
-                    ___rotation = Quaternion.Euler(0f, 0f, angle) * __state;
+                    // Local Space
+                    if (localSpaceKey)
+                    {
+                        ___rotation = __state * Quaternion.Euler(0f, angle, 0f);
+                    }
+                    // World Space
+                    else
+                    {
+                        ___rotation = Quaternion.Euler(0f, angle, 0f) * __state;
+                    }
                 }
             }
             else
             {
-                // Local Space
-                if (localSpaceKey)
-                {
-                    ___rotation = __state * Quaternion.Euler(0f, angle, 0f);
-                }
-                // World Space
-                else
-                {
-                    ___rotation = Quaternion.Euler(0f, angle, 0f) * __state;
-                }
+                ___rotation = Quaternion.Euler(0f, angle, 0f) * __state;
             }
 
             ___dontAutoRotate = true;

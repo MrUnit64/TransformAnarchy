@@ -92,7 +92,7 @@
     <Compile Include="Patches\Patch_Builder_changeRotation.cs" />
     <Compile Include="Window\RAWindow.cs" />
     <Compile Include="Window\RAWindowButton.cs" />
-    <Compile Include="Window\RAWindowController.cs" />
+    <Compile Include="RAController.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

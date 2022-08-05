@@ -6,16 +6,23 @@
     using System.Collections.Generic;
     using UnityEngine;
 
-    public class RAWindowController : ModChange
+    public enum ParkitectState
     {
+        None,
+        Placement
+    }
+
+    public class RAController : ModChange
+    {
+        public event Action<bool> OnActiveChanged;
+        public bool Active { get; private set; }
+
         public override void OnChangeApplied()
         {
+            RotationAnarchyMod.RAActiveHotkey.onKeyDown += ToggleRAActive;
         }
 
-        public override void OnChangeReverted()
-        {
-        }
-
+        public override void OnChangeReverted() { }
 
         public RAWindow ConstructWindowPrefab()
         {
@@ -36,6 +43,20 @@
 
             WindowPrefab.SetActive(true);
             return window;
+        }
+
+        public void ToggleRAActive()
+        {
+            SetRAActive(!Active);
+        }
+
+        public void SetRAActive(bool state)
+        {
+            if(state != Active)
+            {
+                Active = state;
+                OnActiveChanged?.Invoke(Active);
+            }
         }
     }
 
