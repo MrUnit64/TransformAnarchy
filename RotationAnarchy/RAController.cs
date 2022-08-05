@@ -17,6 +17,36 @@
         public event Action<bool> OnActiveChanged;
         public bool Active { get; private set; }
 
+        public ParkitectState GameState { get; private set; }
+
+        public HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
+        {
+            typeof(DecoBuilder),
+            typeof(FlatRideBuilder)
+        };
+
+        public void SetBuildState(bool building, Builder builder)
+        {
+
+            // If builder has been opened
+            if (building)
+            {
+
+                // If this builder is one of the allowed builder types
+                if (AllowedBuilderTypes.Contains(builder.GetType())){
+
+                    GameState = ParkitectState.Placement;
+                    ModBase.LOG("Building");
+
+                }
+            }
+            else
+            {
+                ModBase.LOG("Not Building");
+                GameState = ParkitectState.None;
+            }
+        }
+
         public override void OnChangeApplied()
         {
             RotationAnarchyMod.RAActiveHotkey.onKeyDown += ToggleRAActive;

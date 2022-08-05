@@ -257,6 +257,7 @@
             try
             {
                 change.OnChangeApplied();
+                change.Initialize(this);
             }
             catch(Exception e)
             {
