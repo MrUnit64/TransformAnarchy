@@ -256,8 +256,8 @@
         {
             try
             {
-                change.OnChangeApplied();
                 change.Initialize(this);
+                change.OnChangeApplied();
             }
             catch(Exception e)
             {
@@ -424,6 +424,7 @@
 
             // Construct root game object
             GameObject = new GameObject(AUTHOR + "@" + MODKEY);
+            LOG(GameObject.name);
 
             try
             {

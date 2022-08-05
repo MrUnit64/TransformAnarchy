@@ -35,7 +35,6 @@
             NewVersion("0.1", "Baseline");
 
             // Prefs values registration -------------------------------------------------------
-            //TODO: replace with functional snap angle ui
             RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 90, 0, 360, 90, "Rotation Angle"));
 
             // Hotkeys registration      -------------------------------------------------------

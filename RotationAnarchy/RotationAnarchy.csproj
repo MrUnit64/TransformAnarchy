@@ -86,6 +86,8 @@
     <Compile Include="Internal\Utils\MathUtil.cs" />
     <Compile Include="Internal\PrefsValue.cs" />
     <Compile Include="Internal\Utils\UIUtil.cs" />
+    <Compile Include="Patches\Patch_Builder_onMouseToolDisable.cs" />
+    <Compile Include="Patches\Patch_Builder_onMouseToolEnable.cs" />
     <Compile Include="RotationAnarchyMod.cs" />
     <Compile Include="Internal\ModBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

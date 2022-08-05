@@ -15,7 +15,6 @@
             this.ModBase = _base;
         }
 
-
         public abstract void OnChangeApplied();
         public abstract void OnChangeReverted();
 
