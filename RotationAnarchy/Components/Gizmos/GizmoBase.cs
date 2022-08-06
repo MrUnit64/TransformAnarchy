@@ -8,6 +8,11 @@
     public abstract class GizmoBase
     {
         public GameObject GameObject { get; private set; }
+        public Vector3 LocalPositionOffset { get; private set; }
+        public Quaternion LocalRotationOffset { get; private set; }
+
+        protected float localPosOffsetMagnitude;
+
         public Material material
         {
             get => meshRenderer.material;
@@ -19,8 +24,11 @@
         protected MeshRenderer meshRenderer;
         protected MeshCollider meshCollider;
 
-        public GizmoBase()
+        public GizmoBase(Vector3 localPositionOffset, Quaternion localRotationOffset)
         {
+            this.LocalPositionOffset = localPositionOffset;
+            this.localPosOffsetMagnitude = localPositionOffset.magnitude;
+            this.LocalRotationOffset = localRotationOffset;
             Construct();
         }
 
@@ -63,19 +71,27 @@
 
         }
 
+        public virtual void SnapTo(Vector3 position, Quaternion rotation)
+        {
+            Vector3 dir = (rotation * LocalPositionOffset) * localPosOffsetMagnitude;
+            GameObject.transform.position = position + dir;
+            GameObject.transform.rotation = rotation * LocalRotationOffset;
+        }
+
         public virtual void SnapToTransform(Transform transform)
         {
-
+            SnapTo(transform.position, transform.rotation);
         }
 
         public virtual void SnapToBuildable(BuildableObject buildable)
         {
-
+            SnapToTransform(buildable.transform);
         }
 
-        public virtual void SnapToBuilder(Builder builder)
+        public virtual void SnapToActiveBuilder()
         {
-
+            var tr = RA.Controller.ActiveGhost.transform;
+            SnapTo(tr.position, tr.rotation);
         }
 
         /// <summary>
@@ -84,9 +100,9 @@
         /// <returns></returns>
         protected virtual float ComputeGizmoWidth(Vector3 point)
         {
-            float minRadius = 0.05f;
-            float maxRadius = 0.5f;
-            float maxDistance = 200;
+            float minRadius = 0.025f;
+            float maxRadius = 0.35f;
+            float maxDistance = 500;
             float minDistance = 10;
 
             var cam = Camera.main;

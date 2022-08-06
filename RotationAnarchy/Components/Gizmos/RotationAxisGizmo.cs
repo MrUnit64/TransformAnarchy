@@ -13,7 +13,6 @@
             set
             {
                 _radius = value;
-                UpdateMesh();
             }
         }
 
@@ -23,7 +22,6 @@
             set
             {
                 _tubeRadius = value;
-                UpdateMesh();
             }
         }
 
@@ -33,7 +31,6 @@
             set
             {
                 _radialSegments = value;
-                UpdateMesh();
             }
         }
 
@@ -43,7 +40,6 @@
             set
             {
                 _tubeSegments = value;
-                UpdateMesh();
             }
         }
 
@@ -55,32 +51,34 @@
         private List<Vector3> verts = new List<Vector3>();
         private List<int> tris = new List<int>();
 
-        protected override void Construct()
+        public RotationAxisGizmo(Vector3 localPositionOffset, Quaternion localRotationOffset) : base(localPositionOffset, localRotationOffset)
         {
-            base.Construct();
         }
 
-        public override void SnapToTransform(Transform transform)
+        public override void SnapToActiveBuilder()
         {
-            base.SnapToTransform(transform);
-
-            GameObject.transform.position = transform.position;
-            GameObject.transform.rotation = transform.rotation;
-        }
-
-        public override void SnapToBuilder(Builder builder)
-        {
-            base.SnapToBuilder(builder);
+            base.SnapToActiveBuilder();
 
             // first we need total bounds of the object
-            var buildable = builder.getBuiltObject();
-            var bounds = GameObjectUtil.ComputeTotalBounds(buildable.gameObject);
+            var buildable = RA.Controller.ActiveBuilder.getBuiltObject();
+            if(RA.Controller.ActiveGhost)
+            {
+                var ghost = RA.Controller.ActiveGhost;
 
-            // now we need to update gizmo dimensions to the size of the object
-            float xWidth = bounds.max.x - bounds.min.x;
-            Radius = xWidth / 2f;
-            TubeRadius = ComputeGizmoWidth(buildable.transform.position);
-            SnapToTransform(buildable.transform);
+                // we are going to do a funny hack here
+                var originalRotation = ghost.transform.rotation;
+                ghost.transform.rotation = Quaternion.identity;
+                var bounds = GameObjectUtil.ComputeTotalBounds(ghost);
+                ghost.transform.rotation = originalRotation;
+
+                TubeRadius = ComputeGizmoWidth(ghost.transform.position);
+                // now we need to update gizmo dimensions to the size of the object
+                float xWidth = bounds.max.x - bounds.min.x;
+                float zWidth = bounds.max.z - bounds.min.z;
+                float width = Mathf.Max(xWidth, zWidth) + (TubeRadius * 2 + 0.5f);
+                Radius = width / 2f;
+                UpdateMesh();
+            }
         }
 
         public override void UpdateMesh()

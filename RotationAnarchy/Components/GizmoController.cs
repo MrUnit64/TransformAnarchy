@@ -14,7 +14,7 @@
 
         public override void OnApplied()
         {
-            testGizmo = new RotationAxisGizmo();
+            testGizmo = new RotationAxisGizmo(new Vector3(0,0.1f, 0), Quaternion.LookRotation(Vector3.up));
         }
 
         public override void OnUpdate()
@@ -27,11 +27,13 @@
             {
                 if(RA.Controller.GameState == ParkitectState.Placement)
                 {
-                    var builder = RA.Controller.ActiveBuilder;
-                    if(builder)
+                    if(RA.Controller.ActiveBuilder)
                     {
-                        testGizmo.SetActive(true);
-                        testGizmo.SnapToBuilder(builder);
+                        if(RA.Controller.ActiveGhost)
+                        {
+                            testGizmo.SetActive(true);
+                            testGizmo.SnapToActiveBuilder();
+                        }
                     }
                 }
             }
@@ -47,15 +49,15 @@
             //    }
             //}
 
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                var debug = GetComponent<RADebug>();
-                testGizmo.material = debug.allMaterials[currentDebugMaterial++];
-                if (currentDebugMaterial >= debug.allMaterials.Count)
-                {
-                    currentDebugMaterial = 0;
-                }
-            }
+            //if (Input.GetKeyDown(KeyCode.Space))
+            //{
+            //    var debug = GetComponent<RADebug>();
+            //    testGizmo.material = debug.allMaterials[currentDebugMaterial++];
+            //    if (currentDebugMaterial >= debug.allMaterials.Count)
+            //    {
+            //        currentDebugMaterial = 0;
+            //    }
+            //}
         }
 
         public override void OnReverted()

@@ -12,11 +12,9 @@ namespace RotationAnarchy.Patches
 
         static bool Prefix(Builder __instance)
         {
-
             // Call as active
             RA.Controller.NotifyBuildState(true, __instance);
             return true;
-
         }
     }
 }

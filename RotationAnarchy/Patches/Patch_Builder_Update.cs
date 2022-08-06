@@ -11,7 +11,7 @@ namespace RotationAnarchy.Patches
     {
         private static bool _previousFrameActive;
 
-        static void Postfix(ref Quaternion ___rotation, ref Vector3 ___forward)
+        static void Postfix(ref Quaternion ___rotation, ref Vector3 ___forward, ref GameObject ___ghost)
         {
             // We reset the rotation of the Builder if RA has just deactivated.
             if (!RA.Controller.Active)
@@ -21,6 +21,10 @@ namespace RotationAnarchy.Patches
                     ___forward = Vector3.forward;
                     ___rotation = Quaternion.LookRotation(___forward);
                 }
+            }
+            else
+            {
+                RA.Controller.NotifyGhost(___ghost);
             }
 
             _previousFrameActive = RA.Controller.Active;

@@ -19,6 +19,7 @@
 
         public bool IsWindowOpened => RAWindow.Instance != null;
         public Builder ActiveBuilder { get; private set; }
+        public GameObject ActiveGhost { get; private set; }
 
         public bool Active
         {
@@ -92,6 +93,18 @@
                     GameState = ParkitectState.None;
                     ModBase.LOG($"Not building  {builder.GetType()} : {builder.name}");
                 }
+            }
+        }
+
+        public void NotifyGhost(GameObject ghost)
+        {
+            if(ActiveBuilder)
+            {
+                ActiveGhost = ghost;
+            }
+            else
+            {
+                ActiveGhost = null;
             }
         }
 
