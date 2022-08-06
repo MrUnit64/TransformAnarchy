@@ -39,6 +39,8 @@
 
         public bool IsLocalRotation { get; private set; }
 
+        public bool IsDirectionHorizontal { get; private set; }
+
         public ParkitectState GameState
         {
             get => _gameState;
@@ -66,6 +68,7 @@
         {
             RA.RAActiveHotkey.onKeyDown += ToggleRAActive;
             RA.LocalRotationHotkey.onKeyDown += ToggleLocalRotationActive;
+            RA.DirectionHotkey.onKeyDown += ToggleDirection;
         }
 
         public override void OnStart()
@@ -118,8 +121,11 @@
 
         public void ToggleLocalRotationActive()
         {
-            Debug.Log("Toggled Local Rotation");
             IsLocalRotation = !IsLocalRotation;
+        }
+        public void ToggleDirection()
+        {
+            IsDirectionHorizontal = !IsDirectionHorizontal;
         }
 
         private void HandleActiveStateChange()
