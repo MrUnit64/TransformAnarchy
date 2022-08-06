@@ -16,6 +16,7 @@ When you clone, create a local directory called Libs/ next to the `sln` file. Co
 - UnityEngine.UI
 - UnityEngine.UIModule
 - UnityEngine.PhysicsModule.dll
+- Unity.TextMeshPro
 
 ## Build Events
 There are build events that copy mod `dll`, `preview.png` and `img/` to `Documents/Parkitect/Mods/RotationAnarchy`. If you don't have that folder created on that exact path, the build will fail at copying files.
