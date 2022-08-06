@@ -13,6 +13,7 @@
 
         // Prefs values -------------------------------------------------------
         public static PrefsFloat RotationAngle { get; private set; }
+        public static PrefsBool ActiveOnLoad { get; private set; }
 
         // Hotkeys      -------------------------------------------------------
 
@@ -36,6 +37,7 @@
 
             // Prefs values registration -------------------------------------------------------
             RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 90, 0, 360, 90, "Rotation Angle"));
+            RegisterAndLoadPrefsValue(ActiveOnLoad = new PrefsBool("activeOnLoad", true, "Active On Load"));
 
             // Hotkeys registration      -------------------------------------------------------
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);

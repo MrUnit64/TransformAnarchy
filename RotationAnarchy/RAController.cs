@@ -66,8 +66,7 @@
 
         public override void OnStart()
         {
-            HandleActiveStateChange();
-            HandleGameStateChange();
+            Active = RA.ActiveOnLoad.Value;
         }
 
         public override void OnReverted() { }
