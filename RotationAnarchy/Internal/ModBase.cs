@@ -144,7 +144,7 @@
         /// <summary>
         /// All registered sprites
         /// </summary>
-        private Dictionary<Type, ModChange> changes = new Dictionary<Type, ModChange>();
+        private Dictionary<Type, ModComponent> components = new Dictionary<Type, ModComponent>();
         /// <summary>
         /// Mod hotkey group
         /// </summary>
@@ -255,19 +255,19 @@
             value.Load(false);
         }
 
-        protected void RegisterChange(ModChange change)
+        protected void RegisterComponent(ModComponent component)
         {
             try
             {
-                change.InjectDependencies(this);
+                component.InjectDependencies(this);
             }
             catch (Exception e)
             {
-                LogInternalError("Failed to apply change: " + change.GetType());
+                LogInternalError("Failed to apply component: " + component.GetType());
                 throw e;
             }
 
-            changes.Add(change.GetType(), change);
+            components.Add(component.GetType(), component);
         }
 
         /// <summary>
@@ -356,17 +356,17 @@
             return tex;
         }
 
-        public T GetChange<T>() where T : ModChange
+        public T GetComponent<T>() where T : ModComponent
         {
-            if (changes.TryGetValue(typeof(T), out var change))
-                return change as T;
+            if (components.TryGetValue(typeof(T), out var component))
+                return component as T;
             return null;
         }
 
-        public ModChange GetChange(Type type)
+        public ModComponent GetComponent(Type type)
         {
-            if (changes.TryGetValue(type, out var change))
-                return change;
+            if (components.TryGetValue(type, out var component))
+                return component;
             return null;
         }
 
@@ -463,13 +463,13 @@
                 throw ex;
             }
 
-            try // Apply the changes in two phases
+            try // Apply the components in two phases
             {
-                ProcessChanges();
+                ProcessComponent();
             }
             catch (Exception ex)
             {
-                LogInternalError("<b>Your code</b> Failed to apply changes!");
+                LogInternalError("<b>Your code</b> Failed to process components!");
                 throw ex;
             }
 
@@ -518,21 +518,21 @@
                 LogInternalError("<b>Your code</b> caused the mod to FAIL TO DISABLE!");
             }
 
-            ModChange change = null;
+            ModComponent component = null;
             try
             {
-                var values = changes.Values.ToArray();
+                var values = components.Values.ToArray();
                 for (int i = values.Length - 1; i >= 0; i--)
                 {
-                    change = values[i];
-                    change.OnReverted();
+                    component = values[i];
+                    component.OnReverted();
                 }
 
-                changes.Clear();
+                components.Clear();
             }
             catch (Exception ex)
             {
-                exceptions.Add(new Exception("Failed to revert change:" + change?.GetType().Name, ex));
+                exceptions.Add(new Exception("Failed to revert component:" + component?.GetType().Name, ex));
             }
 
             try // unregister key group
@@ -609,40 +609,40 @@
         }
 
         /// <summary>
-        /// This processes changes after the ModEnable in two phases.
+        /// This processes components after the ModEnable in two phases.
         /// Similar to how Unity handles its MonoBehaviour,
-        /// we first do OnChangesApplied on all changes (think of this as Awake/Constructor)
-        /// then we call OnModStart on all changes (think of it as Start())
+        /// we first do OnApplied on all components (think of this as Awake/Constructor)
+        /// then we call Ontart on all components  (think of it as Start())
         /// </summary>
-        private void ProcessChanges()
+        private void ProcessComponent()
         {
-            ModChange _change = null;
+            ModComponent _component = null;
 
             try
             {
-                foreach (ModChange change in changes.Values)
+                foreach (ModComponent component in components.Values)
                 {
-                    _change = change;
-                    _change.OnApplied();
+                    _component = component;
+                    _component.OnApplied();
                 }
             }
             catch (Exception e)
             {
-                LogInternalError($"ModChange {_change} failed to Apply.");
+                LogInternalError($"ModComponent {_component} failed to Apply.");
                 throw e;
             }
 
             try
             {
-                foreach (ModChange change in changes.Values)
+                foreach (ModComponent component in components.Values)
                 {
-                    _change = change;
-                    _change.OnStart();
+                    _component = component;
+                    _component.OnStart();
                 }
             }
             catch (Exception e)
             {
-                LogInternalError($"ModChange {_change} failed to Start.");
+                LogInternalError($"ModComponent {_component} failed to Start.");
                 throw e;
             }
         }
@@ -676,18 +676,18 @@
             {
                 OnModUpdate();
 
-                ModChange _change = null;
+                ModComponent _component = null;
 
-                foreach (var change in changes.Values)
+                foreach (var component in components.Values)
                 {
-                    _change = change;
+                    _component = component;
                     try
                     {
-                        _change.OnUpdate();
+                        _component.OnUpdate();
                     }
                     catch(Exception e)
                     {
-                        LogInternalError("Failed OnUpdate() in: " + _change.GetType().Name);
+                        LogInternalError("Failed OnUpdate() in: " + _component.GetType().Name);
                         UnityEngine.Debug.LogException(e);
                         continue;
                     }
@@ -701,18 +701,18 @@
             {
                 OnModLateUpdate();
 
-                ModChange _change = null;
+                ModComponent _component = null;
 
-                foreach (var change in changes.Values)
+                foreach (var component in components.Values)
                 {
-                    _change = change;
+                    _component = component;
                     try
                     {
-                        _change.OnLateUpdate();
+                        _component.OnLateUpdate();
                     }
                     catch (Exception e)
                     {
-                        LogInternalError("Failed OnLateUpdate() in: " + _change.GetType().Name);
+                        LogInternalError("Failed OnLateUpdate() in: " + _component.GetType().Name);
                         UnityEngine.Debug.LogException(e);
                         continue;
                     }
@@ -726,18 +726,18 @@
             {
                 OnModFixedUpdate();
 
-                ModChange _change = null;
+                ModComponent _component = null;
 
-                foreach (var change in changes.Values)
+                foreach (var component in components.Values)
                 {
-                    _change = change;
+                    _component = component;
                     try
                     {
-                        _change.OnFixedUpdate();
+                        _component.OnFixedUpdate();
                     }
                     catch (Exception e)
                     {
-                        LogInternalError("Failed OnFixedUpdate() in: " + _change.GetType().Name);
+                        LogInternalError("Failed OnFixedUpdate() in: " + _component.GetType().Name);
                         UnityEngine.Debug.LogException(e);
                         continue;
                     }

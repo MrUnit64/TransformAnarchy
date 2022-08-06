@@ -43,9 +43,9 @@
             LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
 
             // Mod changes registration --------------------------------------------------------
-            RegisterChange(Controller = new RAController());
-            RegisterChange(new ChangeUIBackgroundGraphics());
-            RegisterChange(new ConstructWindowToggle());
+            RegisterComponent(Controller = new RAController());
+            RegisterComponent(new ChangeUIBackgroundGraphics());
+            RegisterComponent(new ConstructWindowToggle());
         }
     }
 }

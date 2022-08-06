@@ -67,6 +67,10 @@
     <Reference Include="UnityEngine.InputModule">
       <HintPath>..\Libs\UnityEngine.InputModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>..\Libs\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
@@ -78,10 +82,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Changes\ChangeUIBackgroundGraphics.cs" />
-    <Compile Include="Changes\ConstructWindowToggle.cs" />
+    <Compile Include="Components\ChangeUIBackgroundGraphics.cs" />
+    <Compile Include="Components\ConstructWindowToggle.cs" />
+    <Compile Include="Components\GizmoController.cs" />
+    <Compile Include="Components\Gizmos\GizmoBase.cs" />
+    <Compile Include="Components\Gizmos\RotationAxisGizmo.cs" />
     <Compile Include="Internal\BaseHotkey.cs" />
-    <Compile Include="Internal\ModChange.cs" />
+    <Compile Include="Internal\ModComponent.cs" />
     <Compile Include="Internal\UnityCallbacksHandler.cs" />
     <Compile Include="Internal\Utils\InputUtil.cs" />
     <Compile Include="Internal\Utils\MathUtil.cs" />

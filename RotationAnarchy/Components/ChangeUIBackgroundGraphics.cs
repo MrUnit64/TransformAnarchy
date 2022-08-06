@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using UnityEngine;
 
-    public class ChangeUIBackgroundGraphics : ModChange
+    public class ChangeUIBackgroundGraphics : ModComponent
     {
         private GameObject menuCanvasRoot;
 

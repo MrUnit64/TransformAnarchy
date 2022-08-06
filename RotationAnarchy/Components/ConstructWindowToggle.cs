@@ -5,7 +5,7 @@
     using UnityEngine;
     using UnityEngine.UI;
 
-    public class ConstructWindowToggle : ModChange
+    public class ConstructWindowToggle : ModComponent
     {
         private GameObject menuCanvasRoot;
         private GameObject raButtonGo;

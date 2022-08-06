@@ -12,12 +12,13 @@
         Placement
     }
 
-    public class RAController : ModChange
+    public class RAController : ModComponent
     {
         public event Action<bool> OnActiveChanged;
         public event Action<ParkitectState> OnGameStateChanged;
 
         public bool IsWindowOpened => RAWindow.Instance != null;
+        public Builder ActiveBuilder { get; private set; }
 
         public bool Active
         {
@@ -72,20 +73,25 @@
 
         public void NotifyBuildState(bool building, Builder builder)
         {
-            // If builder has been opened
-            if (building)
+            if (builder == null)
+                return;
+
+            // If this builder is one of the allowed builder types
+            if (AllowedBuilderTypes.Contains(builder.GetType()))
             {
-                // If this builder is one of the allowed builder types
-                if (AllowedBuilderTypes.Contains(builder.GetType()))
+                // If builder has been opened
+                if (building)
                 {
+                    ActiveBuilder = builder;
                     GameState = ParkitectState.Placement;
-                    ModBase.LOG("Building");
+                    ModBase.LOG($"Building  {builder.GetType()} : {builder.name}");
                 }
-            }
-            else
-            {
-                ModBase.LOG("Not Building");
-                GameState = ParkitectState.None;
+                else
+                {
+                    ActiveBuilder = null;
+                    GameState = ParkitectState.None;
+                    ModBase.LOG($"Not building  {builder.GetType()} : {builder.name}");
+                }
             }
         }
 
@@ -105,7 +111,7 @@
             else
             {
                 RAWindowButton.Instance.SetButtonEnabled(false);
-                if(IsWindowOpened)
+                if (IsWindowOpened)
                     RAWindowButton.Instance.SetWindowOpened(false);
             }
         }

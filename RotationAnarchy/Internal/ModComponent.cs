@@ -1,9 +1,9 @@
 ﻿namespace RotationAnarchy.Internal
 {
     /// <summary>
-    /// Base class for abstracting mod changes that need to be reverted.
+    /// Base class for abstracting mod components.
     /// </summary>
-    public abstract class ModChange
+    public abstract class ModComponent
     {
         /// <summary>
         /// The mod base this change belongs to.
@@ -43,9 +43,9 @@
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected T GetChange<T>() where T : ModChange
+        protected T GetChange<T>() where T : ModComponent
         {
-            return ModBase.GetChange<T>();
+            return ModBase.GetComponent<T>();
         }
     }
 }
