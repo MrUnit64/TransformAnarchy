@@ -18,6 +18,7 @@
         public event Action<ParkitectState> OnGameStateChanged;
 
         public bool IsWindowOpened => RAWindow.Instance != null;
+
         public Builder ActiveBuilder { get; private set; }
         public GameObject ActiveGhost { get; private set; }
 
@@ -35,6 +36,8 @@
             }
         }
         private bool _active;
+
+        public bool IsLocalRotation { get; private set; }
 
         public ParkitectState GameState
         {
@@ -62,6 +65,7 @@
         public override void OnApplied()
         {
             RA.RAActiveHotkey.onKeyDown += ToggleRAActive;
+            RA.LocalRotationHotkey.onKeyDown += ToggleLocalRotationActive;
         }
 
         public override void OnStart()
@@ -110,6 +114,12 @@
         public void ToggleRAActive()
         {
             Active = !Active;
+        }
+
+        public void ToggleLocalRotationActive()
+        {
+            Debug.Log("Toggled Local Rotation");
+            IsLocalRotation = !IsLocalRotation;
         }
 
         private void HandleActiveStateChange()

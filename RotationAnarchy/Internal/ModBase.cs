@@ -870,7 +870,7 @@
 
         private KeyMapping NewKeyMapping(string id, string niceName, string description, KeyCode key)
         {
-            return new KeyMapping(HOTKEY + id, key, key)
+            return new KeyMapping(HOTKEY + id, key, KeyCode.None)
             {
                 canRebind = true,
                 keyDescription = description,
