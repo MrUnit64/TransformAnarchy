@@ -91,7 +91,8 @@
     <Compile Include="Internal\BaseHotkey.cs" />
     <Compile Include="Internal\ModComponent.cs" />
     <Compile Include="Internal\UnityCallbacksHandler.cs" />
-    <Compile Include="Internal\Utils\InputUtil.cs" />
+    <Compile Include="Internal\Utils\ComponentUtil.cs" />
+    <Compile Include="Internal\Utils\GameObjectUtil.cs" />
     <Compile Include="Internal\Utils\MathUtil.cs" />
     <Compile Include="Internal\PrefsValue.cs" />
     <Compile Include="Internal\Utils\UIUtil.cs" />

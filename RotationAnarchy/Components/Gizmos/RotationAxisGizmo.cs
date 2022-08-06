@@ -1,16 +1,56 @@
 ﻿namespace RotationAnarchy
 {
+    using RotationAnarchy.Internal;
     using System;
     using System.Collections.Generic;
     using UnityEngine;
 
     public class RotationAxisGizmo : GizmoBase
     {
-        public float Radius { get; set; } = 10f;
-        public float TubeRadius { get; set; } = 1f;
+        public float Radius
+        {
+            get => _radius;
+            set
+            {
+                _radius = value;
+                UpdateMesh();
+            }
+        }
 
-        public int radialSegments = 32;
-        public int tubeSegments = 8;
+        public float TubeRadius
+        {
+            get => _tubeRadius;
+            set
+            {
+                _tubeRadius = value;
+                UpdateMesh();
+            }
+        }
+
+        public int RadialSegments
+        {
+            get => _radialSegments;
+            set
+            {
+                _radialSegments = value;
+                UpdateMesh();
+            }
+        }
+
+        public int TubeSegments
+        {
+            get => _tubeSegments;
+            set
+            {
+                _tubeSegments = value;
+                UpdateMesh();
+            }
+        }
+
+        private float _radius = 10f;
+        private float _tubeRadius = 1f;
+        private int _radialSegments = 32;
+        private int _tubeSegments = 8;
 
         private List<Vector3> verts = new List<Vector3>();
         private List<int> tris = new List<int>();
@@ -20,6 +60,29 @@
             base.Construct();
         }
 
+        public override void SnapToTransform(Transform transform)
+        {
+            base.SnapToTransform(transform);
+
+            GameObject.transform.position = transform.position;
+            GameObject.transform.rotation = transform.rotation;
+        }
+
+        public override void SnapToBuilder(Builder builder)
+        {
+            base.SnapToBuilder(builder);
+
+            // first we need total bounds of the object
+            var buildable = builder.getBuiltObject();
+            var bounds = GameObjectUtil.ComputeTotalBounds(buildable.gameObject);
+
+            // now we need to update gizmo dimensions to the size of the object
+            float xWidth = bounds.max.x - bounds.min.x;
+            Radius = xWidth / 2f;
+            TubeRadius = ComputeGizmoWidth(buildable.transform.position);
+            SnapToTransform(buildable.transform);
+        }
+
         public override void UpdateMesh()
         {
             base.UpdateMesh();
@@ -27,22 +90,22 @@
             verts.Clear();
             tris.Clear();
 
-            int vertCount = tubeSegments * radialSegments * 4;
+            int vertCount = _tubeSegments * _radialSegments * 4;
             for (int i = 0; i < vertCount; i++)
             {
                 verts.Add(new Vector3());
             }
 
-            float uStep = (2f * Mathf.PI) / radialSegments;
+            float uStep = (2f * Mathf.PI) / _radialSegments;
             CreateFirstQuadRing(uStep);
-            int iDelta = tubeSegments * 4;
-            for (int u = 2, i = iDelta; u <= radialSegments; u++, i += iDelta)
+            int iDelta = _tubeSegments * 4;
+            for (int u = 2, i = iDelta; u <= _radialSegments; u++, i += iDelta)
             {
                 CreateQuadRing(u * uStep, i);
             }
             mesh.SetVertices(verts);
 
-            int trisCount = tubeSegments * radialSegments * 6;
+            int trisCount = _tubeSegments * _radialSegments * 6;
             for (int i = 0; i < trisCount; i++)
             {
                 tris.Add(0);
@@ -56,26 +119,28 @@
                 tris[t + 5] = i + 3;
             }
             mesh.SetTriangles(tris, 0);
-        }
 
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+        }
 
         private Vector3 GetPoint(float u, float v)
         {
             Vector3 point;
-            float r = (Radius + TubeRadius * Mathf.Cos(v));
+            float r = (_radius + _tubeRadius * Mathf.Cos(v));
             point.x = r * Mathf.Sin(u);
             point.y = r * Mathf.Cos(u);
-            point.z = TubeRadius * Mathf.Sin(v);
+            point.z = _tubeRadius * Mathf.Sin(v);
             return point;
         }
 
         private void CreateFirstQuadRing(float u)
         {
-            float step = (2f * Mathf.PI) / tubeSegments;
+            float step = (2f * Mathf.PI) / _tubeSegments;
 
             Vector3 vertexA = GetPoint(0f, 0f);
             Vector3 vertexB = GetPoint(u, 0f);
-            for (int v = 1, i = 0; v <= tubeSegments; v++, i += 4)
+            for (int v = 1, i = 0; v <= _tubeSegments; v++, i += 4)
             {
                 verts[i] = vertexA;
                 verts[i + 1] = vertexA = GetPoint(0f, v * step);
@@ -86,11 +151,11 @@
 
         private void CreateQuadRing(float u, int i)
         {
-            float step = (2f * Mathf.PI) / tubeSegments;
-            int ringOffset = tubeSegments * 4;
+            float step = (2f * Mathf.PI) / _tubeSegments;
+            int ringOffset = _tubeSegments * 4;
 
             Vector3 vertex = GetPoint(u, 0f);
-            for (int v = 1; v <= tubeSegments; v++, i += 4)
+            for (int v = 1; v <= _tubeSegments; v++, i += 4)
             {
                 verts[i] = verts[i - ringOffset + 2];
                 verts[i + 1] = verts[i - ringOffset + 3];
