@@ -72,6 +72,7 @@
             RegisterComponent(new ConstructWindowToggle());
             RegisterComponent(new RADebug());
             RegisterComponent(new GizmoController());
+            RegisterComponent(new RAWorldSpaceText());
         }
     }
 }
