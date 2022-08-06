@@ -51,7 +51,8 @@
         private List<Vector3> verts = new List<Vector3>();
         private List<int> tris = new List<int>();
 
-        public RotationAxisGizmo(Vector3 localPositionOffset, Quaternion localRotationOffset) : base(localPositionOffset, localRotationOffset)
+        public RotationAxisGizmo(string cmdBufferID, Vector3 localPositionOffset, Quaternion localRotationOffset, Color color) 
+            : base(cmdBufferID, localPositionOffset, localRotationOffset, color)
         {
         }
 
