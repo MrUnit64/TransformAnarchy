@@ -22,7 +22,7 @@ namespace RotationAnarchy.Patches
             if (RA.Controller.Active)
             {
                 bool directionKey = RA.DirectionHotkey.Pressed;
-                bool localSpaceKey = RA.LocalRotationHotkey.Pressed;
+                bool localSpaceKey = RA.Controller.IsLocalRotation;
 
                 float angle = (float)direction * RA.RotationAngle.Value;
 

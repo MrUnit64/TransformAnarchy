@@ -23,7 +23,6 @@
         {
             LocalSpaceText = GameObject.Instantiate(UIAssetManager.Instance.uiWorldSpaceTextGO, UIWorldSpaceController.Instance.transform);
             LocalSpaceText.text.color = Color.white;
-            LocalSpaceText.text.fontSize = 48f;
         }
 
         public override void OnReverted()
@@ -37,11 +36,24 @@
             {
                 var Ghost = RA.Controller.ActiveGhost;
 
-                LocalSpaceText.transform.position = Ghost.transform.position;
-                //LocalSpaceText.rectTransform.ForceUpdateRectTransforms();
-                LocalSpaceText.transform.up = Vector3.up;
+                // Copied code from BuilderHeightMarker
+                LandPatch terrain = GameController.Instance.park.getTerrain(Ghost.transform.position);
+                Vector3 vector = Ghost.transform.position;
+                if (terrain != null)
+                {
+                    vector = terrain.getPoint(Ghost.transform.position);
+                }
 
-                LocalSpaceText.text.text = (RA.LocalRotationHotkey.Pressed) ? "Local" : "Global";
+                LocalSpaceText.transform.up = Vector3.forward;
+
+                // this is shit but like what can we do
+                Vector3 forwardVec = Camera.main.transform.forward;
+                forwardVec.y = 0;
+                forwardVec.Normalize();
+
+                LocalSpaceText.transform.position = vector - forwardVec * 1.5f;
+
+                LocalSpaceText.text.text = RA.Controller.IsLocalRotation ? "Local" : "Global";
 
                 LocalSpaceText.gameObject.SetActive(true);
 
