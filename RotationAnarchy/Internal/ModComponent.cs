@@ -9,6 +9,7 @@
         /// The mod base this change belongs to.
         /// </summary>
         protected ModBase ModBase { get; private set; }
+        public bool Initialized { get; private set; }
 
         /// <summary>
         /// Called internally by ModBase
@@ -17,6 +18,11 @@
         public void InjectDependencies(ModBase _base)
         {
             this.ModBase = _base;
+        }
+
+        public void SetFullyActive()
+        {
+            Initialized = true;
         }
 
         /// <summary>
@@ -43,7 +49,7 @@
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected T GetChange<T>() where T : ModComponent
+        protected T GetComponent<T>() where T : ModComponent
         {
             return ModBase.GetComponent<T>();
         }

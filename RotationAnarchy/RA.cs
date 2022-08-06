@@ -46,6 +46,8 @@
             RegisterComponent(Controller = new RAController());
             RegisterComponent(new ChangeUIBackgroundGraphics());
             RegisterComponent(new ConstructWindowToggle());
+            RegisterComponent(new RADebug());
+            RegisterComponent(new GizmoController());
         }
     }
 }

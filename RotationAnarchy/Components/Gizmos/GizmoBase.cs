@@ -7,12 +7,16 @@
     public abstract class GizmoBase
     {
         public GameObject GameObject { get; private set; }
-        
+        public Material material
+        {
+            get => meshRenderer.material;
+            set => meshRenderer.material = value;
+        }
+
         protected Mesh mesh;
         protected MeshFilter meshFilter;
         protected MeshRenderer meshRenderer;
         protected MeshCollider meshCollider;
-        protected Material material;
 
         public GizmoBase()
         {
@@ -31,7 +35,26 @@
 
             meshFilter.mesh = mesh;
 
-            //material = new Material(Shader.Find())
+            material = AssetManager.Instance.diffuseMaterial;
+
+            UpdateMesh();
+        }
+
+        public virtual void Destroy()
+        {
+            GameObject.Destroy(mesh);
+            GameObject.Destroy(material);
+            GameObject.Destroy(GameObject);
+            mesh = null;
+            meshFilter = null;
+            meshRenderer = null;
+            meshCollider = null;
+            material = null;
+        }
+
+        public virtual void UpdateMesh()
+        {
+
         }
     }
 }

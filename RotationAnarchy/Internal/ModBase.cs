@@ -117,6 +117,8 @@
         /// </summary>
         public bool DisablingMod { get; private set; }
 
+        public bool SuccesfullyInitialized { get; private set; }
+
         public override string getName() => AUTHOR + "@" + MODKEY;
         public override string getIdentifier() => AUTHOR + "::" + MODKEY;
         public override sealed string getVersionNumber() => GetLatestVersion().number;
@@ -257,15 +259,6 @@
 
         protected void RegisterComponent(ModComponent component)
         {
-            try
-            {
-                component.InjectDependencies(this);
-            }
-            catch (Exception e)
-            {
-                LogInternalError("Failed to apply component: " + component.GetType());
-                throw e;
-            }
 
             components.Add(component.GetType(), component);
         }
@@ -489,6 +482,9 @@
                 LogInternalError("Harmony failed to apply patches");
                 throw ex;
             }
+
+            SuccesfullyInitialized = true;
+            LOG("Mod loaded successfully");
         }
 
         /// <summary>
@@ -500,20 +496,20 @@
         public sealed override void onDisabled()
         {
             base.onDisabled();
+            SuccesfullyInitialized = false;
             LOG("Trying to disable mod.");
             DisablingMod = true;
 
             // Instead of allowing the mod to throw exceptions on the spot, 
             // we first attempt to unload as much of mods resources as possible,
             // collecting the exceptions into a list which we will rethrow later.
-            List<Exception> exceptions = null;
+            List<Exception> exceptions = new List<Exception>();
             try // Call actual mods OnDisabled
             {
                 OnModDisabled();
             }
             catch (Exception ex)
             {
-                exceptions = new List<Exception>();
                 exceptions.Add(new Exception("Failed to cleanly disable mod, attempting cleanup", ex));
                 LogInternalError("<b>Your code</b> caused the mod to FAIL TO DISABLE!");
             }
@@ -597,7 +593,7 @@
             }
 
             // "Throw" exceptions into the unity console and throw one simple exception to notify Parkitect that we failed.
-            if (exceptions != null && exceptions.Count > 0)
+            if (exceptions.Count > 0)
             {
                 foreach (var ex in exceptions)
                 {
@@ -605,6 +601,10 @@
                 }
 
                 throw new Exception("MOD FAILED TO DISABLE CLEANLY");
+            }
+            else
+            {
+                LOG("Mod disabled successfully");
             }
         }
 
@@ -623,6 +623,7 @@
                 foreach (ModComponent component in components.Values)
                 {
                     _component = component;
+                    _component.InjectDependencies(this);
                     _component.OnApplied();
                 }
             }
@@ -643,6 +644,20 @@
             catch (Exception e)
             {
                 LogInternalError($"ModComponent {_component} failed to Start.");
+                throw e;
+            }
+
+            try
+            {
+                foreach (ModComponent component in components.Values)
+                {
+                    _component = component;
+                    _component.SetFullyActive();
+                }
+            }
+            catch (Exception e)
+            {
+                LogInternalError($"ModComponent {_component} failed to SetFullyActive.");
                 throw e;
             }
         }
@@ -672,6 +687,9 @@
 
         void IUnityCallbacksReceiver.UnityUpdate()
         {
+            if (!SuccesfullyInitialized)
+                return;
+
             if (!DisablingMod)
             {
                 OnModUpdate();
@@ -683,9 +701,10 @@
                     _component = component;
                     try
                     {
-                        _component.OnUpdate();
+                        if (_component.Initialized)
+                            _component.OnUpdate();
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         LogInternalError("Failed OnUpdate() in: " + _component.GetType().Name);
                         UnityEngine.Debug.LogException(e);
@@ -697,6 +716,9 @@
 
         void IUnityCallbacksReceiver.UnityLateUpdate()
         {
+            if (!SuccesfullyInitialized)
+                return;
+
             if (!DisablingMod)
             {
                 OnModLateUpdate();
@@ -708,7 +730,8 @@
                     _component = component;
                     try
                     {
-                        _component.OnLateUpdate();
+                        if (_component.Initialized)
+                            _component.OnLateUpdate();
                     }
                     catch (Exception e)
                     {
@@ -722,6 +745,9 @@
 
         void IUnityCallbacksReceiver.UnityFixedUpdate()
         {
+            if (!SuccesfullyInitialized)
+                return;
+
             if (!DisablingMod)
             {
                 OnModFixedUpdate();
@@ -733,7 +759,8 @@
                     _component = component;
                     try
                     {
-                        _component.OnFixedUpdate();
+                        if (_component.Initialized)
+                            _component.OnFixedUpdate();
                     }
                     catch (Exception e)
                     {
