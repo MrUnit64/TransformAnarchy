@@ -63,9 +63,18 @@
         {
             var data = GetOffsets();
 
-            Vector3 dir = (rotation * data.localPositionOffset) * data.localPositionOffset.magnitude;
-            GameObject.transform.position = position + dir;
-            GameObject.transform.rotation = rotation * data.localRotationOffset;
+            if(RA.Controller.IsLocalRotation)
+            {
+                Vector3 dir = (rotation * data.localPositionOffset) * data.localPositionOffset.magnitude;
+                GameObject.transform.position = position + dir;
+                GameObject.transform.rotation = rotation * data.localRotationOffset;
+            }
+            else
+            {
+                GameObject.transform.position = position;
+                GameObject.transform.rotation = data.localRotationOffset;
+            }
+            
         }
 
         public virtual void SnapToTransform(Transform transform)
