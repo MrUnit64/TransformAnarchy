@@ -32,12 +32,7 @@
                 }
             }
         }
-
-        public bool DeactivatedLastFrame => !Active && _previousFrameActive;
-        public bool ActivatedLastFrame => Active && !_previousFrameActive;
-
         private bool _active;
-        private bool _previousFrameActive;
 
         public ParkitectState GameState
         {
@@ -71,12 +66,6 @@
         {
             HandleActiveStateChange();
             HandleGameStateChange();
-        }
-
-        public override void OnUpdate()
-        {
-            base.OnUpdate();
-            _previousFrameActive = Active;
         }
 
         public override void OnReverted() { }
