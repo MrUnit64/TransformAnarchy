@@ -7,38 +7,27 @@
 
     public class GizmoController : ModComponent
     {
-        RotationAxisGizmo testGizmo;
+        RotationAxisGizmo placementRotationGizmo;
         private int currentDebugMaterial;
 
-        bool showDebugGizmo = true;
+        private List<GizmoBase> gizmos = new List<GizmoBase>();
 
         public override void OnApplied()
         {
-            testGizmo = new RotationAxisGizmo("RA.RotationGizmoY", new Vector3(0,0.1f, 0), Quaternion.LookRotation(Vector3.up), new Color32(181, 230, 29, 255));
+            placementRotationGizmo = new PlacementModeGizmo("RA.PlacementGizmo", GizmoAxis.Y); //new Color32(55, 213, 47, 255));
+            gizmos.Add(placementRotationGizmo);
         }
 
         public override void OnUpdate()
         {
             base.OnUpdate();
 
-            if(!Camera.main) // Gizmos are dependent on camera
+            if (!Camera.main) // Gizmos are dependent on camera
                 return;
 
-            testGizmo.SetActive(false);
-
-            if (RA.Controller.Active)
+            for (int i = 0; i < gizmos.Count; i++)
             {
-                if(RA.Controller.GameState == ParkitectState.Placement)
-                {
-                    if(RA.Controller.ActiveBuilder)
-                    {
-                        if(RA.Controller.ActiveGhost)
-                        {
-                            testGizmo.SetActive(true);
-                            testGizmo.SnapToActiveBuilder();
-                        }
-                    }
-                }
+                gizmos[i].OnUpdate();
             }
 
             //if (Input.GetKeyDown(KeyCode.Keypad5))
@@ -57,10 +46,10 @@
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 var debug = GetComponent<RADebug>();
-                var material = testGizmo.stencilMaterial = debug.allMaterials[currentDebugMaterial++];
-            
+                var material = placementRotationGizmo.stencilMaterial = debug.allMaterials[currentDebugMaterial++];
+
                 RA.Instance.LOG($"Material: {material.name}, shader: {material.shader.name}");
-            
+
                 //for (int i = 0; i < material.shader.GetPropertyCount(); i++)
                 //{
                 //    var id = material.shader.GetPropertyNameId(i);
@@ -91,7 +80,7 @@
                 //    }
                 //
                 //}
-            
+
                 if (currentDebugMaterial >= debug.allMaterials.Count)
                 {
                     currentDebugMaterial = 0;
@@ -101,8 +90,12 @@
 
         public override void OnReverted()
         {
-            testGizmo.Destroy();
-            testGizmo = null;
+            for (int i = gizmos.Count - 1; i >= 0; i--)
+            {
+                gizmos[i].Destroy();
+            }
+            gizmos.Clear();
+            placementRotationGizmo = null;
         }
     }
 

@@ -51,10 +51,7 @@
         private List<Vector3> verts = new List<Vector3>();
         private List<int> tris = new List<int>();
 
-        public RotationAxisGizmo(string cmdBufferID, Vector3 localPositionOffset, Quaternion localRotationOffset, Color color) 
-            : base(cmdBufferID, localPositionOffset, localRotationOffset, color)
-        {
-        }
+        public RotationAxisGizmo(string cmdBufferID, GizmoAxis axis) : base(cmdBufferID, axis) { }
 
         public override void SnapToActiveBuilder()
         {

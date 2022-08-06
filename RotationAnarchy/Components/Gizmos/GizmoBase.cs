@@ -6,19 +6,82 @@
     using UnityEngine;
     using UnityEngine.Rendering;
 
+    public enum GizmoAxis
+    {
+        X,
+        Y,
+        Z
+    }
+
+    public class GizmoColors
+    {
+        public GizmoAxisColorBlock X, Y, Z;
+
+        public GizmoAxisColorBlock GetForAxis(GizmoAxis axis)
+        {
+            switch (axis)
+            {
+                case GizmoAxis.X: return X;
+                case GizmoAxis.Y: return Y;
+                case GizmoAxis.Z: return Z;
+                default: return X;
+            }
+        }
+    }
+
+    public class GizmoOffsets
+    {
+        public GizmoOffsetsBlock X, Y, Z;
+
+        public GizmoOffsetsBlock GetForAxis(GizmoAxis axis)
+        {
+            switch (axis)
+            {
+                case GizmoAxis.X: return X;
+                case GizmoAxis.Y: return Y;
+                case GizmoAxis.Z: return Z;
+                default: return X;
+            }
+        }
+    }
+
+    public struct GizmoAxisColorBlock
+    {
+        public Color color;
+        public Color outlineColor;
+    }
+
+    public struct GizmoOffsetsBlock
+    {
+        public Vector3 localPositionOffset;
+        public Quaternion localRotationOffset;
+    }
+
     public abstract class GizmoBase
     {
         public GameObject GameObject { get; private set; }
-        public Vector3 LocalPositionOffset { get; private set; }
-        public Quaternion LocalRotationOffset { get; private set; }
+        public GizmoAxis Axis
+        {
+            get => _axis;
+            set
+            {
+                if (_axis != value)
+                {
+                    _axis = value;
+                    OnAxisChanged();
+                }
+            }
+        }
 
-        protected float localPosOffsetMagnitude;
+        private GizmoAxis _axis;
 
         public Material material
         {
             get => meshRenderer.material;
             set => meshRenderer.material = value;
         }
+
+        public bool Active => GameObject.activeInHierarchy;
 
         protected Mesh mesh;
         protected Material baseMaterial;
@@ -28,37 +91,45 @@
         protected MeshCollider meshCollider;
         protected CommandBuffer commandBuffer;
         protected CommandBuffer commandBufferStencil;
-        protected Color color;
         protected Texture2D colorTex;
+        protected List<Renderer> renderers = new List<Renderer>();
+        protected HighlightOverlayController.HighlightHandle overlayHandle;
 
         protected int sId_Color;
         protected int sId_MainTex;
 
-        public GizmoBase(string cmdBufferId, Vector3 localPositionOffset, Quaternion localRotationOffset, Color color)
+        private GizmoAxisColorBlock targetColorBlock;
+        private GizmoOffsetsBlock targetOffsetsBlock;
+
+        private bool initializedParams;
+
+        private Color _currentColor;
+        private Color _currentOutlineColor;
+        private Vector3 _currentLocalPositionOffset;
+        private Quaternion _currentLocalRotationOffset;
+
+        public GizmoBase(string cmdBufferId, GizmoAxis axis)
         {
             sId_Color = Shader.PropertyToID("_Color");
             sId_MainTex = Shader.PropertyToID("_MainTex");
 
-
-            this.color = color;
             this.colorTex = new Texture2D(1, 1);
 
-            this.stencilMaterial = new Material(Shader.Find("Custom/SimpleBlit"));
+            //this.stencilMaterial = new Material(Shader.Find("Custom/SimpleBlit"));
+            this.stencilMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlayStencil"));
             this.baseMaterial = new Material(AssetManager.Instance.highlightOverlayMaterial);
 
-            //this.stencilMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlayStencil"));
             //this.baseMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlay"));
 
-            this.stencilMaterial.SetTexture("_MainTex", colorTex);
+            this.stencilMaterial.SetTexture(sId_MainTex, colorTex);
             this.stencilMaterial.SetVector("_AreaParams", new Vector4(1, 1, 0, 0));
             //this.stencilMaterial.SetFloat("_Cutoff", 0.5f);
 
-            this.baseMaterial.SetColor("_Color", color);
             this.baseMaterial.SetFloat("_BaseBrightness", 1f);
             this.baseMaterial.SetFloat("_BaseBrightnessBlink", 1f);
             this.baseMaterial.SetFloat("_BlinkSpeed", 0f);
             this.baseMaterial.SetFloat("_GlowBrightness", 4f);
-            this.baseMaterial.SetFloat("_Cutoff", 0.5f);
+            this.baseMaterial.SetFloat("_Cutoff", 0.8f);
             this.baseMaterial.SetFloat("_RimPower", 0.5f);
             this.baseMaterial.SetFloat("_BlinkStencil", 0.5f);
             this.baseMaterial.SetFloat("_Checkerboard", 0f);
@@ -69,17 +140,14 @@
             this.commandBufferStencil = new CommandBuffer();
             this.commandBufferStencil.name = cmdBufferId + ".stencil";
 
-            this.LocalPositionOffset = localPositionOffset;
-            this.localPosOffsetMagnitude = localPositionOffset.magnitude;
-            this.LocalRotationOffset = localRotationOffset;
-
-            SetColor(color);
             Construct();
+
+            this.Axis = axis;
+            OnAxisChanged();
         }
 
         protected virtual void Construct()
         {
-
             GameObject = new GameObject("Gizmo");
             mesh = new Mesh();
             mesh.MarkDynamic();
@@ -87,6 +155,8 @@
             meshFilter = GameObject.AddComponent<MeshFilter>();
             meshRenderer = GameObject.AddComponent<MeshRenderer>();
             meshCollider = GameObject.AddComponent<MeshCollider>();
+
+            renderers.Add(meshRenderer);
 
             meshFilter.mesh = mesh;
 
@@ -119,11 +189,14 @@
                     Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
 
                     //this.commandBufferStencil.SetGlobalTexture(this.mainTexturePropertyID, tex);
-                    this.commandBufferStencil.SetGlobalTexture(sId_MainTex, colorTex);
-                    this.commandBufferStencil.SetGlobalColor(sId_Color, color);
+                    //this.commandBufferStencil.SetGlobalTexture(sId_MainTex, colorTex);
+                    this.commandBufferStencil.SetGlobalColor(sId_Color, _currentColor);
                     this.commandBufferStencil.DrawRenderer(meshRenderer, stencilMaterial);
                     //this.commandBuffer.SetGlobalColor(sId_Color, color);
                     this.commandBuffer.DrawRenderer(meshRenderer, material);
+
+                    if (HighlightOverlayController.Instance != null)
+                        overlayHandle = HighlightOverlayController.Instance.add(renderers, fixedCustomColor: _currentOutlineColor);
                 }
                 else
                 {
@@ -131,6 +204,9 @@
                     Camera.main.RemoveCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
                     commandBuffer.Clear();
                     commandBufferStencil.Clear();
+
+                    if (overlayHandle != null)
+                        overlayHandle.remove();
                 }
             }
         }
@@ -139,17 +215,47 @@
         {
         }
 
-        public virtual void SetColor(Color color)
+        public virtual void OnUpdate()
         {
-            this.color = color;
-            colorTex.SetPixel(0, 0, color);
+            if (!Active)
+                return;
+
+            if(initializedParams)
+            {
+                float delta = Time.unscaledDeltaTime;
+                _currentColor = Color.Lerp(_currentColor, targetColorBlock.color, RA.GizmoParamLerp * delta);
+                _currentOutlineColor = Color.Lerp(_currentOutlineColor, targetColorBlock.outlineColor, RA.GizmoParamLerp * delta);
+                _currentLocalPositionOffset = Vector3.Lerp(_currentLocalPositionOffset, targetOffsetsBlock.localPositionOffset, RA.GizmoParamLerp * delta);
+                _currentLocalRotationOffset = Quaternion.Lerp(_currentLocalRotationOffset, targetOffsetsBlock.localRotationOffset, RA.GizmoParamLerp * delta);
+            }
+            else
+            {
+                _currentColor = targetColorBlock.color;
+                _currentOutlineColor = targetColorBlock.outlineColor;
+                _currentLocalPositionOffset = targetOffsetsBlock.localPositionOffset;
+                _currentLocalRotationOffset = targetOffsetsBlock.localRotationOffset;
+                initializedParams = true;
+
+                RA.Instance.LOG("initializedParams");
+            }
+
+            this.baseMaterial.SetColor(sId_Color, _currentColor);
+            //this.colorTex.SetPixel(0, 0, _currentColor);
+        }
+
+        protected virtual void OnAxisChanged()
+        {
+            targetColorBlock = RA.GizmoColors.GetForAxis(Axis);
+            targetOffsetsBlock = RA.GizmoOffsets.GetForAxis(Axis);
         }
 
         public virtual void SnapTo(Vector3 position, Quaternion rotation)
         {
-            Vector3 dir = (rotation * LocalPositionOffset) * localPosOffsetMagnitude;
+            var data = RA.GizmoOffsets.GetForAxis(Axis);
+
+            Vector3 dir = (rotation * data.localPositionOffset) * data.localPositionOffset.magnitude;
             GameObject.transform.position = position + dir;
-            GameObject.transform.rotation = rotation * LocalRotationOffset;
+            GameObject.transform.rotation = rotation * data.localRotationOffset;
         }
 
         public virtual void SnapToTransform(Transform transform)
@@ -174,7 +280,7 @@
         /// <returns></returns>
         protected virtual float ComputeGizmoWidth(Vector3 point)
         {
-            float minRadius = 0.002f;
+            float minRadius = 0.004f;
             float maxRadius = 0.125f;
             float maxDistance = 500;
             float minDistance = 10;
@@ -188,7 +294,7 @@
             float l = Mathf.InverseLerp(minDistance, maxDistance, d);
             float width = Mathf.Lerp(minRadius, maxRadius, l);
 
-            if(RA.Controller.GameState == ParkitectState.Placement)
+            if (RA.Controller.GameState == ParkitectState.Placement)
             {
                 return width * RA.PlacementGizmoWidth.Value;
             }

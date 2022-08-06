@@ -901,7 +901,10 @@
         /// <param name="message"></param>
         private void LogInternalError(string message)
         {
-            UnityEngine.Debug.LogError("<color=red> MOD LOADING ERROR! -> " + AUTHOR + "." + MODKEY + " >  " + message + "</color>");
+            if (ColoredLogs.Value)
+                UnityEngine.Debug.LogError("<color=red>" + AUTHOR + "." + MODKEY + " >  " + message + "</color>");
+            else
+                UnityEngine.Debug.LogError(AUTHOR + "." + MODKEY + " >  " + message);
         }
 
 

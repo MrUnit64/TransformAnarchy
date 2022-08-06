@@ -30,6 +30,24 @@
         // Features    -------------------------------------------------------
         public static RAController Controller { get; private set; }
 
+        // Params      -------------------------------------------------------
+
+        public static GizmoColors GizmoColors { get; private set; } = new GizmoColors()
+        {
+            X = new GizmoAxisColorBlock() { color = new Color32(214, 72, 56, 255), outlineColor = new Color32(113, 32, 23, 255) },
+            Y = new GizmoAxisColorBlock() { color = new Color32(55, 213, 47, 255), outlineColor = new Color32(0, 89, 0, 255) },
+            Z = new GizmoAxisColorBlock() { color = new Color32(75, 156, 205, 255), outlineColor = new Color32(29, 75, 103, 255) }
+        };
+
+        public static GizmoOffsets GizmoOffsets { get; private set; } = new GizmoOffsets()
+        {
+            X = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0,0,0), localRotationOffset = new Quaternion() },
+            Y = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0.1f, 0), localRotationOffset = Quaternion.LookRotation(Vector3.up) },
+            Z = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0,0,0), localRotationOffset = Quaternion.LookRotation(Vector3.forward) },
+        };
+
+        public static float GizmoParamLerp => 10f;
+
         protected override void OnModEnabled()
         {
             base.OnModEnabled();
