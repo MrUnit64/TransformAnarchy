@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using UnityEngine;
 
-    public class RotationAxisGizmo : GizmoBase
+    public class RotationAxisGizmo : MeshGizmo
     {
         public float Radius
         {
@@ -53,12 +53,11 @@
 
         public RotationAxisGizmo(string cmdBufferID, GizmoAxis axis) : base(cmdBufferID, axis) { }
 
-        public override void SnapToActiveBuilder()
+        public override void SnapToActiveGhost()
         {
-            base.SnapToActiveBuilder();
+            base.SnapToActiveGhost();
 
             // first we need total bounds of the object
-            var buildable = RA.Controller.ActiveBuilder.getBuiltObject();
             if(RA.Controller.ActiveGhost)
             {
                 var ghost = RA.Controller.ActiveGhost;

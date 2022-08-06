@@ -84,10 +84,11 @@
   <ItemGroup>
     <Compile Include="Components\ChangeUIBackgroundGraphics.cs" />
     <Compile Include="Components\ConstructWindowToggle.cs" />
+    <Compile Include="Components\Gizmos\GizmoBase.cs" />
     <Compile Include="Components\Gizmos\PlacementModeGizmo.cs" />
     <Compile Include="Components\RADebug.cs" />
     <Compile Include="Components\GizmoController.cs" />
-    <Compile Include="Components\Gizmos\GizmoBase.cs" />
+    <Compile Include="Components\Gizmos\MeshGizmo.cs" />
     <Compile Include="Components\Gizmos\RotationAxisGizmo.cs" />
     <Compile Include="Internal\BaseHotkey.cs" />
     <Compile Include="Internal\ModComponent.cs" />

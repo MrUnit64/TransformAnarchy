@@ -13,10 +13,10 @@
         {
             base.OnUpdate();
 
-            SetActive(false);
-
             if (RA.Controller.Active)
             {
+                SetActive(false);
+
                 if (RA.Controller.GameState == ParkitectState.Placement)
                 {
                     if (RA.Controller.ActiveBuilder)
@@ -24,7 +24,7 @@
                         if (RA.Controller.ActiveGhost)
                         {
                             SetActive(true);
-                            SnapToActiveBuilder();
+                            SnapToActiveGhost();
                         }
                     }
                 }

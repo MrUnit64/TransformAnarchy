@@ -7,7 +7,7 @@
 
     public class GizmoController : ModComponent
     {
-        RotationAxisGizmo placementRotationGizmo;
+        PlacementModeGizmo placementRotationGizmo;
         private int currentDebugMaterial;
 
         private List<GizmoBase> gizmos = new List<GizmoBase>();
