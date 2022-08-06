@@ -17,8 +17,22 @@
         public event Action<bool> OnActiveChanged;
         public event Action<ParkitectState> OnGameStateChanged;
 
-        public bool Active { get; private set; }
         public bool IsWindowOpened => RAWindow.Instance != null;
+
+        public bool Active
+        {
+            get => _active;
+            set
+            {
+                if (_active != value)
+                {
+                    _active = value;
+                    HandleActiveStateChange();
+                    OnActiveChanged?.Invoke(Active);
+                }
+            }
+        }
+        private bool _active;
 
         public ParkitectState GameState
         {
@@ -34,8 +48,7 @@
                 }
             }
         }
-        private ParkitectState _gameState;
-
+        private ParkitectState _gameState = ParkitectState.None;
         public ParkitectState PreviousGameState { get; private set; }
 
         private HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
@@ -78,22 +91,13 @@
 
         public void ToggleRAActive()
         {
-            SetRAActive(!Active);
-        }
-
-        public void SetRAActive(bool state)
-        {
-            if (state != Active)
-            {
-                Active = state;
-                HandleActiveStateChange();
-                OnActiveChanged?.Invoke(Active);
-            }
+            Active = !Active;
         }
 
         private void HandleActiveStateChange()
         {
-            if(Active)
+            ModBase.LOG("HandleActiveStateChange = " + Active);
+            if (Active)
             {
                 RAWindowButton.Instance.SetButtonEnabled(true);
                 HandleGameStateChange();
@@ -101,22 +105,27 @@
             else
             {
                 RAWindowButton.Instance.SetButtonEnabled(false);
-                RAWindowButton.Instance.SetWindowOpened(false);
+                if(IsWindowOpened)
+                    RAWindowButton.Instance.SetWindowOpened(false);
             }
         }
 
         private void HandleGameStateChange()
         {
-            if (Active)
+            ModBase.LOG("HandleGameStateChange = " + GameState);
+
+            if (ShouldWindowBeOpened())
             {
-                if (GameState == ParkitectState.Placement)
+                if (!IsWindowOpened)
                 {
-                    if (!IsWindowOpened)
-                    {
-                        RAWindowButton.Instance.SetWindowOpened(true);
-                    }
+                    RAWindowButton.Instance.SetWindowOpened(true);
                 }
             }
+        }
+
+        private bool ShouldWindowBeOpened()
+        {
+            return Active && GameState == ParkitectState.Placement;
         }
     }
 }

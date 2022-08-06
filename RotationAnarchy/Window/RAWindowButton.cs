@@ -38,21 +38,24 @@
 
         public void SetButtonEnabled(bool state)
         {
+            RA.Instance.LOG("SetButtonEnabled = " + state);
             if (state)
             {
                 toggle.enabled = true;
+                toggle.isOn = false;
                 icon.sprite = RA.Instance.LoadSpritePNG("img/ui_icon_rotationGizmo");
             }
             else
             {
-                toggle.isOn = state;
                 toggle.enabled = false;
+                toggle.isOn = false;
                 icon.sprite = RA.Instance.LoadSpritePNG("img/ui_icon_rotationGizmoDisabled");
             }
         }
 
         public void SetWindowOpened(bool state)
         {
+            RA.Instance.LOG("SetWindowOpened = " + state);
             toggle.isOn = state;
         }
 
@@ -83,6 +86,7 @@
 
         public RAWindow ConstructWindowPrefab()
         {
+            RA.Instance.LOG("ConstructWindowPrefab");
             var WindowPrefab = new GameObject(RA.Instance.getName());
             WindowPrefab.SetActive(false);
 

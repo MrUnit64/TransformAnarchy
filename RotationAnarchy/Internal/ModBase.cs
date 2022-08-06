@@ -452,7 +452,7 @@
 
             try // Apply the changes in two phases
             {
-                ApplyChanges();
+                ProcessChanges();
             }
             catch (Exception ex)
             {
@@ -599,9 +599,9 @@
         /// This processes changes after the ModEnable in two phases.
         /// Similar to how Unity handles its MonoBehaviour,
         /// we first do OnChangesApplied on all changes (think of this as Awake/Constructor)
-        /// then we call OnChangeStart on all changes (think of it as Start())
+        /// then we call OnModStart on all changes (think of it as Start())
         /// </summary>
-        private void ApplyChanges()
+        private void ProcessChanges()
         {
             ModChange _change = null;
 
