@@ -567,7 +567,7 @@
 
             try // harmony unpatch
             {
-                harmony.UnpatchAll();
+                harmony.UnpatchAll(harmony.Id);
             }
             catch (Exception ex)
             {
@@ -906,8 +906,5 @@
             else
                 UnityEngine.Debug.LogError(AUTHOR + "." + MODKEY + " >  " + message);
         }
-
-
     }
-
 }

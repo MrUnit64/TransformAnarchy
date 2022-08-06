@@ -61,8 +61,8 @@
     {
         public Material material
         {
-            get => meshRenderer.material;
-            set => meshRenderer.material = value;
+            get => meshRenderer.sharedMaterial;
+            set => meshRenderer.sharedMaterial = value;
         }
 
         protected Mesh mesh;
@@ -103,9 +103,9 @@
 
             //this.baseMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlay"));
 
-            this.stencilMaterial.SetTexture(sId_MainTex, colorTex);
-            this.stencilMaterial.SetVector("_AreaParams", new Vector4(1, 1, 0, 0));
-            //this.stencilMaterial.SetFloat("_Cutoff", 0.5f);
+            //this.stencilMaterial.SetTexture(sId_MainTex, colorTex);
+            //this.stencilMaterial.SetVector("_AreaParams", new Vector4(1, 1, 0, 0));
+            this.stencilMaterial.SetFloat("_Cutoff", 0.5f);
 
             this.baseMaterial.SetFloat("_BaseBrightness", 1f);
             this.baseMaterial.SetFloat("_BaseBrightnessBlink", 1f);
@@ -145,15 +145,18 @@
 
         public override void Destroy()
         {
+            if (overlayHandle != null)
+                overlayHandle.remove();
+
             base.Destroy();
 
             GameObject.Destroy(mesh);
-            GameObject.Destroy(material);
             mesh = null;
             meshFilter = null;
             meshRenderer = null;
             meshCollider = null;
-            material = null;
+
+
         }
 
         protected override void OnActiveChanged()
@@ -165,25 +168,14 @@
                 Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBufferStencil);
                 Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
 
-                //this.commandBufferStencil.SetGlobalTexture(this.mainTexturePropertyID, tex);
-                //this.commandBufferStencil.SetGlobalTexture(sId_MainTex, colorTex);
-                this.commandBufferStencil.SetGlobalColor(sId_Color, _currentColor);
-                this.commandBufferStencil.DrawRenderer(meshRenderer, stencilMaterial);
-                //this.commandBuffer.SetGlobalColor(sId_Color, color);
-                this.commandBuffer.DrawRenderer(meshRenderer, material);
-
-                if (HighlightOverlayController.Instance != null)
+                if (overlayHandle == null && HighlightOverlayController.Instance != null)
                     overlayHandle = HighlightOverlayController.Instance.add(renderers, fixedCustomColor: _currentOutlineColor);
             }
             else
             {
                 Camera.main.RemoveCommandBuffer(CameraEvent.AfterForwardAlpha, commandBufferStencil);
                 Camera.main.RemoveCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
-                commandBuffer.Clear();
-                commandBufferStencil.Clear();
-
-                if (overlayHandle != null)
-                    overlayHandle.remove();
+                
             }
         }
 
@@ -213,16 +205,26 @@
                 _currentLocalPositionOffset = targetOffsetsBlock.localPositionOffset;
                 _currentLocalRotationOffset = targetOffsetsBlock.localRotationOffset;
                 initializedParams = true;
-
-                RA.Instance.LOG("initializedParams");
             }
 
+            _currentColor.a = 1;
+            _currentOutlineColor.a = 1;
+
+            commandBuffer.Clear();
+            commandBufferStencil.Clear();
+
             this.baseMaterial.SetColor(sId_Color, _currentColor);
+            this.commandBufferStencil.SetGlobalColor(sId_Color, _currentColor);
+            this.commandBufferStencil.DrawRenderer(meshRenderer, stencilMaterial);
+            this.commandBuffer.SetGlobalColor(sId_Color, _currentColor);
+            this.commandBuffer.DrawRenderer(meshRenderer, baseMaterial);
+            HighlightOverlayControllerUtil.ChangeHighlightColor(meshRenderer, _currentOutlineColor);
         }
 
         protected override void OnAxisChanged()
         {
             base.OnAxisChanged();
+            RA.Instance.LOG("OnAxisChanged");
 
             targetColorBlock = RA.GizmoColors.GetForAxis(Axis);
             targetOffsetsBlock = RA.GizmoOffsets.GetForAxis(Axis);
@@ -230,7 +232,7 @@
 
         protected override GizmoOffsetsBlock GetOffsets()
         {
-            return RA.GizmoOffsets.GetForAxis(Axis);
+            return new GizmoOffsetsBlock() { localPositionOffset = _currentLocalPositionOffset, localRotationOffset = _currentLocalRotationOffset };
         }
 
         /// <summary>

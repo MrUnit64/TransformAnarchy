@@ -41,12 +41,12 @@
 
         public static GizmoOffsets GizmoOffsets { get; private set; } = new GizmoOffsets()
         {
-            X = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0,0,0), localRotationOffset = new Quaternion() },
+            X = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0, 0), localRotationOffset = new Quaternion() },
             Y = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0.1f, 0), localRotationOffset = Quaternion.LookRotation(Vector3.up) },
-            Z = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0,0,0), localRotationOffset = Quaternion.LookRotation(Vector3.forward) },
+            Z = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0, 0), localRotationOffset = Quaternion.LookRotation(Vector3.forward) },
         };
 
-        public static float GizmoParamLerp => 10f;
+        public static float GizmoParamLerp => 15f;
 
         protected override void OnModEnabled()
         {

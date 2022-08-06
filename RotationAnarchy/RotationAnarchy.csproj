@@ -97,6 +97,7 @@
     <Compile Include="Internal\Utils\GameObjectUtil.cs" />
     <Compile Include="Internal\Utils\MathUtil.cs" />
     <Compile Include="Internal\PrefsValue.cs" />
+    <Compile Include="Internal\Utils\Parkitect\HighlightOverlayControllerUtil.cs" />
     <Compile Include="Internal\Utils\UIUtil.cs" />
     <Compile Include="Patches\Patch_Builder_onMouseToolDisable.cs" />
     <Compile Include="Patches\Patch_Builder_onMouseToolEnable.cs" />

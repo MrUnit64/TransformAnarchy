@@ -13,21 +13,19 @@
         {
             base.OnUpdate();
 
-            if (RA.Controller.Active)
+            if (RA.Controller.Active && RA.Controller.GameState == ParkitectState.Placement && RA.Controller.ActiveGhost)
+            {
+                SetActive(true);
+                SnapToActiveGhost();
+
+                if (RA.DirectionHotkey.Pressed)
+                    Axis = GizmoAxis.Z;
+                else
+                    Axis = GizmoAxis.Y;
+            }
+            else
             {
                 SetActive(false);
-
-                if (RA.Controller.GameState == ParkitectState.Placement)
-                {
-                    if (RA.Controller.ActiveBuilder)
-                    {
-                        if (RA.Controller.ActiveGhost)
-                        {
-                            SetActive(true);
-                            SnapToActiveGhost();
-                        }
-                    }
-                }
             }
         }
     }
