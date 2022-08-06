@@ -12,7 +12,7 @@
         // Cached values
         private Vector2 cached_Clockbar_BG_sizeDelta;
 
-        public override void OnChangeApplied()
+        public override void OnApplied()
         {
             // root object for game HUD
             menuCanvasRoot = GameObject.Find("MenuCanvas");
@@ -24,7 +24,7 @@
             clockbarBgRect.sizeDelta = new Vector2(562, sizeDelta.y);
         }
 
-        public override void OnChangeReverted()
+        public override void OnReverted()
         {
             // the background graphic for bottom buttons
             var radialBgRect = menuCanvasRoot.transform.Find("Radial_BG/Clockbar_BG").GetComponent<RectTransform>();

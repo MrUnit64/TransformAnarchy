@@ -22,15 +22,21 @@
         /// <summary>
         /// Similar to unity's Awake method, here we only create/construct internals
         /// </summary>
-        public abstract void OnChangeApplied();
+        public abstract void OnApplied();
         /// <summary>
         /// Similar to unity's Start, here we can reference other changes
         /// </summary>
-        public virtual void OnModStart() { }
+        public virtual void OnStart() { }
+
+        public virtual void OnUpdate() { }
+
+        public virtual void OnLateUpdate() { }
+
+        public virtual void OnFixedUpdate() { }
         /// <summary>
         /// Here we revert anything this change did, destroy objects, revert ui changes etc.
         /// </summary>
-        public abstract void OnChangeReverted();
+        public abstract void OnReverted();
 
         /// <summary>
         /// Get other mod change in the same ModBase

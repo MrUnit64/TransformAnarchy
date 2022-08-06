@@ -82,12 +82,14 @@
     <Compile Include="Changes\ConstructWindowToggle.cs" />
     <Compile Include="Internal\BaseHotkey.cs" />
     <Compile Include="Internal\ModChange.cs" />
+    <Compile Include="Internal\UnityCallbacksHandler.cs" />
     <Compile Include="Internal\Utils\InputUtil.cs" />
     <Compile Include="Internal\Utils\MathUtil.cs" />
     <Compile Include="Internal\PrefsValue.cs" />
     <Compile Include="Internal\Utils\UIUtil.cs" />
     <Compile Include="Patches\Patch_Builder_onMouseToolDisable.cs" />
     <Compile Include="Patches\Patch_Builder_onMouseToolEnable.cs" />
+    <Compile Include="Patches\Patch_Builder_Update.cs" />
     <Compile Include="RA.cs" />
     <Compile Include="Internal\ModBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -96,7 +98,11 @@
     <Compile Include="Window\RAWindowButton.cs" />
     <Compile Include="RAController.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>COPY "$(TargetDir)$(TargetFileName)" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\$(TargetFileName)"

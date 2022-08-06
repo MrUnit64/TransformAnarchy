@@ -10,7 +10,7 @@
         private GameObject menuCanvasRoot;
         private GameObject raButtonGo;
 
-        public override void OnChangeApplied()
+        public override void OnApplied()
         {
             menuCanvasRoot = GameObject.Find("MenuCanvas");
             var painterButton = menuCanvasRoot.transform.Find("BottomMenu/Painter").gameObject;
@@ -33,7 +33,7 @@
             raButtonGo.SetActive(true);
         }
 
-        public override void OnChangeReverted()
+        public override void OnReverted()
         {
             GameObject.Destroy(raButtonGo);
         }

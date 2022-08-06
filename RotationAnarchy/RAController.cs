@@ -32,7 +32,12 @@
                 }
             }
         }
+
+        public bool DeactivatedLastFrame => !Active && _previousFrameActive;
+        public bool ActivatedLastFrame => Active && !_previousFrameActive;
+
         private bool _active;
+        private bool _previousFrameActive;
 
         public ParkitectState GameState
         {
@@ -57,18 +62,24 @@
             typeof(FlatRideBuilder)
         };
 
-        public override void OnChangeApplied()
+        public override void OnApplied()
         {
             RA.RAActiveHotkey.onKeyDown += ToggleRAActive;
         }
 
-        public override void OnModStart()
+        public override void OnStart()
         {
             HandleActiveStateChange();
             HandleGameStateChange();
         }
 
-        public override void OnChangeReverted() { }
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+            _previousFrameActive = Active;
+        }
+
+        public override void OnReverted() { }
 
         public void NotifyBuildState(bool building, Builder builder)
         {

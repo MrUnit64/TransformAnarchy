@@ -35,7 +35,7 @@
     /// - 
     /// 
     /// </summary>
-    public abstract class ModBase : AbstractMod, IModSettings
+    public abstract class ModBase : AbstractMod, IModSettings, IUnityCallbacksReceiver
     {
         /// <summary>
         /// Represents one game version.
@@ -153,6 +153,10 @@
         /// Mod harmony instance
         /// </summary>
         protected Harmony harmony;
+        /// <summary>
+        /// Notifies the mod of unity Update/LateUpdate/FixedUpdate
+        /// </summary>
+        private UnityCallbacksHandler unityCallbackHandler;
 
         /// <summary>
         /// Are we drawing version list in the settings menu?
@@ -166,23 +170,23 @@
         /// <summary>
         /// This method is a replacement for onEnabled()
         /// </summary>
-        protected virtual void OnModEnabled()
-        {
-        }
+        protected virtual void OnModEnabled() { }
+
+        protected virtual void OnModUpdate() { }
+
+        protected virtual void OnModLateUpdate() { }
+
+        protected virtual void OnModFixedUpdate() { }
 
         /// <summary>
         /// This method is a replacement for onDisabled()
         /// </summary>
-        protected virtual void OnModDisabled()
-        {
-        }
+        protected virtual void OnModDisabled() { }
 
         /// <summary>
         /// Called when the mod is unloading textures/sprites and other "heavy" resources.
         /// </summary>
-        protected virtual void OnUnloadResources()
-        {
-        }
+        protected virtual void OnUnloadResources() { }
 
         /// <summary>
         /// Substitute for Debug.Log
@@ -209,7 +213,6 @@
                     else
                         UnityEngine.Debug.Log(DEBUGKEY + msg);
                 }
-
             }
         }
 
@@ -258,7 +261,7 @@
             {
                 change.InjectDependencies(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogInternalError("Failed to apply change: " + change.GetType());
                 throw e;
@@ -360,7 +363,7 @@
             return null;
         }
 
-        public ModChange GetChange(Type type) 
+        public ModChange GetChange(Type type)
         {
             if (changes.TryGetValue(type, out var change))
                 return change;
@@ -428,7 +431,17 @@
 
             // Construct root game object
             GameObject = new GameObject(AUTHOR + "@" + MODKEY);
-            LOG(GameObject.name);
+
+            try
+            {
+                unityCallbackHandler = GameObject.AddComponent<UnityCallbacksHandler>();
+                unityCallbackHandler.SetReceiver(this);
+            }
+            catch (Exception ex)
+            {
+                LogInternalError("Failed constructing UnityCallbacksHandler");
+                throw ex;
+            }
 
             try
             {
@@ -512,12 +525,12 @@
                 for (int i = values.Length - 1; i >= 0; i--)
                 {
                     change = values[i];
-                    change.OnChangeReverted();
+                    change.OnReverted();
                 }
 
                 changes.Clear();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 exceptions.Add(new Exception("Failed to revert change:" + change?.GetType().Name, ex));
             }
@@ -610,10 +623,10 @@
                 foreach (ModChange change in changes.Values)
                 {
                     _change = change;
-                    _change.OnChangeApplied();
+                    _change.OnApplied();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogInternalError($"ModChange {_change} failed to Apply.");
                 throw e;
@@ -624,7 +637,7 @@
                 foreach (ModChange change in changes.Values)
                 {
                     _change = change;
-                    _change.OnModStart();
+                    _change.OnStart();
                 }
             }
             catch (Exception e)
@@ -655,6 +668,81 @@
             createdTextures.Clear();
 
             OnUnloadResources();
+        }
+
+        void IUnityCallbacksReceiver.UnityUpdate()
+        {
+            if (!DisablingMod)
+            {
+                OnModUpdate();
+
+                ModChange _change = null;
+
+                foreach (var change in changes.Values)
+                {
+                    _change = change;
+                    try
+                    {
+                        _change.OnUpdate();
+                    }
+                    catch(Exception e)
+                    {
+                        LogInternalError("Failed OnUpdate() in: " + _change.GetType().Name);
+                        UnityEngine.Debug.LogException(e);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        void IUnityCallbacksReceiver.UnityLateUpdate()
+        {
+            if (!DisablingMod)
+            {
+                OnModLateUpdate();
+
+                ModChange _change = null;
+
+                foreach (var change in changes.Values)
+                {
+                    _change = change;
+                    try
+                    {
+                        _change.OnLateUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        LogInternalError("Failed OnLateUpdate() in: " + _change.GetType().Name);
+                        UnityEngine.Debug.LogException(e);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        void IUnityCallbacksReceiver.UnityFixedUpdate()
+        {
+            if (!DisablingMod)
+            {
+                OnModFixedUpdate();
+
+                ModChange _change = null;
+
+                foreach (var change in changes.Values)
+                {
+                    _change = change;
+                    try
+                    {
+                        _change.OnFixedUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        LogInternalError("Failed OnFixedUpdate() in: " + _change.GetType().Name);
+                        UnityEngine.Debug.LogException(e);
+                        continue;
+                    }
+                }
+            }
         }
 
         public virtual void onDrawSettingsUI()
@@ -780,10 +868,16 @@
             HOTKEY = $"{AUTHOR}.{modkey}.";
         }
 
+        /// <summary>
+        /// Bypasses LogsEnabled
+        /// </summary>
+        /// <param name="message"></param>
         private void LogInternalError(string message)
         {
             UnityEngine.Debug.LogError("<color=red> MOD LOADING ERROR! -> " + AUTHOR + "." + MODKEY + " >  " + message + "</color>");
         }
+
+
     }
 
 }

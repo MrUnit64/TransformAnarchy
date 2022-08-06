@@ -9,16 +9,14 @@ namespace RotationAnarchy.Patches
     [HarmonyPatch(typeof(Builder), "changeRotation")]
     internal static class Patch_Builder_changeRotation
     {
+        private static bool _previousFrameActive;
+
         static bool Prefix(Quaternion ___rotation, ref Quaternion __state)
         {
-            if (RA.Controller.Active)
-            {
-                __state = ___rotation;
-                return false;
-            }
-            else
-                return true;
+            __state = ___rotation;
+            return !RA.Controller.Active;
         }
+
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
             if (RA.Controller.Active)
@@ -57,9 +55,6 @@ namespace RotationAnarchy.Patches
 
                 ___dontAutoRotate = true;
                 ___forward = ___rotation * Vector3.forward;
-            }
-            else
-            {
             }
         }
     }
