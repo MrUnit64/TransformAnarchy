@@ -41,7 +41,7 @@
                 textureWhite = CreateSolidColorTexture(1, 1, new Color(1,1,1,1));
 
                 defaultMargin = new RectOffset(5, 5, 0, 0);
-                defaultPadding = new RectOffset(5, 5, 0, 0);
+                defaultPadding = new RectOffset(5, 5, 2, 2);
 
                 STYLE_BUTTON = new GUIStyle(GUI.skin.button);
 

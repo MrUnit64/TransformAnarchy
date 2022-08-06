@@ -50,7 +50,7 @@
             //this.baseMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlay"));
 
             this.stencilMaterial.SetTexture("_MainTex", colorTex);
-            this.stencilMaterial.SetVector("_AreaParams", new Vector4(1,1,0,0));
+            this.stencilMaterial.SetVector("_AreaParams", new Vector4(1, 1, 0, 0));
             //this.stencilMaterial.SetFloat("_Cutoff", 0.5f);
 
             this.baseMaterial.SetColor("_Color", color);
@@ -59,7 +59,7 @@
             this.baseMaterial.SetFloat("_BlinkSpeed", 0f);
             this.baseMaterial.SetFloat("_GlowBrightness", 4f);
             this.baseMaterial.SetFloat("_Cutoff", 0.5f);
-            this.baseMaterial.SetFloat("_RimPower", 1f);
+            this.baseMaterial.SetFloat("_RimPower", 0.5f);
             this.baseMaterial.SetFloat("_BlinkStencil", 0.5f);
             this.baseMaterial.SetFloat("_Checkerboard", 0f);
 
@@ -113,7 +113,7 @@
             {
                 GameObject.SetActive(state);
 
-                if(state)
+                if (state)
                 {
                     Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBufferStencil);
                     Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
@@ -174,8 +174,8 @@
         /// <returns></returns>
         protected virtual float ComputeGizmoWidth(Vector3 point)
         {
-            float minRadius = 0.025f;
-            float maxRadius = 0.25f;
+            float minRadius = 0.002f;
+            float maxRadius = 0.125f;
             float maxDistance = 500;
             float minDistance = 10;
 
@@ -186,7 +186,16 @@
 
             float d = Vector3.Distance(point, cam.transform.position);
             float l = Mathf.InverseLerp(minDistance, maxDistance, d);
-            return Mathf.Lerp(minRadius, maxRadius, l);
+            float width = Mathf.Lerp(minRadius, maxRadius, l);
+
+            if(RA.Controller.GameState == ParkitectState.Placement)
+            {
+                return width * RA.PlacementGizmoWidth.Value;
+            }
+            else
+            {
+                return width * RA.GizmoWidth.Value;
+            }
         }
     }
 }

@@ -248,5 +248,11 @@
                 GUILayout.EndHorizontal();
             }
         }
+
+        public override void Reset()
+        {
+            base.Reset();
+            Snapping = DefaultSnapping;
+        }
     }
 }

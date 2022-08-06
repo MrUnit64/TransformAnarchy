@@ -12,8 +12,10 @@
         protected override string SettingsInfoString => "Howdy, pardner.";
 
         // Prefs values -------------------------------------------------------
-        public static PrefsFloat RotationAngle { get; private set; }
         public static PrefsBool ActiveOnLoad { get; private set; }
+        public static PrefsFloatSnapped RotationAngle { get; private set; }
+        public static PrefsFloat PlacementGizmoWidth { get; private set; }
+        public static PrefsFloat GizmoWidth { get; private set; }
 
         // Hotkeys      -------------------------------------------------------
 
@@ -36,8 +38,10 @@
             NewVersion("0.1", "Baseline");
 
             // Prefs values registration -------------------------------------------------------
-            RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 90, 0, 360, 90, "Rotation Angle"));
             RegisterAndLoadPrefsValue(ActiveOnLoad = new PrefsBool("activeOnLoad", true, "Active On Load"));
+            RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 45f, 0f, 90f, 22.5f, "Rotation Angle"));
+            RegisterAndLoadPrefsValue(PlacementGizmoWidth = new PrefsFloat("placementGizmoWidth", 1f, 0.1f, 2f, "Builder Gizmo Width"));
+            RegisterAndLoadPrefsValue(GizmoWidth = new PrefsFloat("gizmoWidth", 1f, 0.1f, 2f, "Gizmo Width"));
 
             // Hotkeys registration      -------------------------------------------------------
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
