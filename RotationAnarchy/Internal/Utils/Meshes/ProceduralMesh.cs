@@ -29,9 +29,6 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             // Performs better on runtime
             mesh.MarkDynamic();
 
-            // Update the mesh
-            UpdateMesh();
-
         }
 
         // Call to update mesh
