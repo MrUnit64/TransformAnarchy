@@ -29,9 +29,12 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             // Performs better on runtime
             mesh.MarkDynamic();
 
+            // Update the mesh
+            UpdateMesh();
+
         }
 
-        // Call to create mesh
+        // Call to update mesh
         public void UpdateMesh()
         {
 
@@ -57,7 +60,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             }
         }
 
-        // Override this to create your mesh
+        // Override this with the mesh generation code
         protected abstract void OnUpdateMesh();
 
     }
