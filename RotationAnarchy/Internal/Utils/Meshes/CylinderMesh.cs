@@ -38,7 +38,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             Stacks = stacks;
         }
 
-        protected override void CreateMesh()
+        protected override void OnUpdateMesh()
         {
 
             // if both the top and bottom have a radius of zero, just return null, because invalid

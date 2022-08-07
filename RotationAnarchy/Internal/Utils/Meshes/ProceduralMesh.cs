@@ -32,7 +32,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
         }
 
         // Call to create mesh
-        public void Update()
+        public void UpdateMesh()
         {
 
             // Clear lists
@@ -42,7 +42,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             normals.Clear();
 
             // Call create mesh
-            CreateMesh();
+            OnUpdateMesh();
 
             // Recalc norms
             if (recalculateNormals)
@@ -58,7 +58,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
         }
 
         // Override this to create your mesh
-        protected abstract void CreateMesh();
+        protected abstract void OnUpdateMesh();
 
     }
 }
