@@ -38,7 +38,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             Stacks = stacks;
         }
 
-        internal override void CreateMesh()
+        protected override void CreateMesh()
         {
 
             // if both the top and bottom have a radius of zero, just return null, because invalid
@@ -94,6 +94,58 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             mesh.uv = uvs.ToArray();
             mesh.triangles = CreateIndexBuffer(vertexCount, indexCount, Slices);
 
+        }
+
+        // Index buffer for triangles
+        internal static int[] CreateIndexBuffer(int vertexCount, int indexCount, int slices)
+        {
+            int[] indices = new int[indexCount];
+            int currentIndex = 0;
+
+            // Bottom circle/cone of shape
+            for (int i = 1; i <= slices; i++)
+            {
+                indices[currentIndex++] = i;
+                indices[currentIndex++] = 0;
+                if (i - 1 == 0)
+                    indices[currentIndex++] = i + slices - 1;
+                else
+                    indices[currentIndex++] = i - 1;
+            }
+
+            // Middle sides of shape
+            for (int i = 1; i < vertexCount - slices - 1; i++)
+            {
+                indices[currentIndex++] = i + slices;
+                indices[currentIndex++] = i;
+                if ((i - 1) % slices == 0)
+                    indices[currentIndex++] = i + slices + slices - 1;
+                else
+                    indices[currentIndex++] = i + slices - 1;
+
+                indices[currentIndex++] = i;
+                if ((i - 1) % slices == 0)
+                    indices[currentIndex++] = i + slices - 1;
+                else
+                    indices[currentIndex++] = i - 1;
+                if ((i - 1) % slices == 0)
+                    indices[currentIndex++] = i + slices + slices - 1;
+                else
+                    indices[currentIndex++] = i + slices - 1;
+            }
+
+            // Top circle/cone of shape
+            for (int i = vertexCount - slices - 1; i < vertexCount - 1; i++)
+            {
+                indices[currentIndex++] = i;
+                if ((i - 1) % slices == 0)
+                    indices[currentIndex++] = i + slices - 1;
+                else
+                    indices[currentIndex++] = i - 1;
+                indices[currentIndex++] = vertexCount - 1;
+            }
+
+            return indices;
         }
     }
 }

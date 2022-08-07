@@ -32,7 +32,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
         }
 
         // Call to create mesh
-        public void Generate()
+        public void Update()
         {
 
             // Clear lists
@@ -58,59 +58,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
         }
 
         // Override this to create your mesh
-        internal abstract void CreateMesh();
-
-        // Index buffer for triangles
-        internal static int[] CreateIndexBuffer(int vertexCount, int indexCount, int slices)
-        {
-            int[] indices = new int[indexCount];
-            int currentIndex = 0;
-
-            // Bottom circle/cone of shape
-            for (int i = 1; i <= slices; i++)
-            {
-                indices[currentIndex++] = i;
-                indices[currentIndex++] = 0;
-                if (i - 1 == 0)
-                    indices[currentIndex++] = i + slices - 1;
-                else
-                    indices[currentIndex++] = i - 1;
-            }
-
-            // Middle sides of shape
-            for (int i = 1; i < vertexCount - slices - 1; i++)
-            {
-                indices[currentIndex++] = i + slices;
-                indices[currentIndex++] = i;
-                if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices + slices - 1;
-                else
-                    indices[currentIndex++] = i + slices - 1;
-
-                indices[currentIndex++] = i;
-                if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices - 1;
-                else
-                    indices[currentIndex++] = i - 1;
-                if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices + slices - 1;
-                else
-                    indices[currentIndex++] = i + slices - 1;
-            }
-
-            // Top circle/cone of shape
-            for (int i = vertexCount - slices - 1; i < vertexCount - 1; i++)
-            {
-                indices[currentIndex++] = i;
-                if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices - 1;
-                else
-                    indices[currentIndex++] = i - 1;
-                indices[currentIndex++] = vertexCount - 1;
-            }
-
-            return indices;
-        }
+        protected abstract void CreateMesh();
 
     }
 }
