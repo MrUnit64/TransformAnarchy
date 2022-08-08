@@ -18,7 +18,7 @@
                 SetActive(true);
                 SnapToActiveGhost();
 
-                if (RA.DirectionHotkey.Pressed)
+                if (RA.Controller.IsDirectionHorizontal)
                     Axis = GizmoAxis.Z;
                 else
                     Axis = GizmoAxis.Y;

@@ -614,7 +614,7 @@
         /// This processes components after the ModEnable in two phases.
         /// Similar to how Unity handles its MonoBehaviour,
         /// we first do OnApplied on all components (think of this as Awake/Constructor)
-        /// then we call Ontart on all components  (think of it as Start())
+        /// then we call OnStart on all components  (think of it as Start())
         /// </summary>
         private void ProcessComponent()
         {

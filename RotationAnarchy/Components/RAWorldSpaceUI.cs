@@ -23,6 +23,8 @@
         {
             LocalSpaceText = GameObject.Instantiate(UIAssetManager.Instance.uiWorldSpaceTextGO, UIWorldSpaceController.Instance.transform);
             LocalSpaceText.text.color = Color.white;
+            LocalSpaceText.text.fontSize = 18;
+            LocalSpaceText.text.parseCtrlCharacters = true;
         }
 
         public override void OnReverted()
@@ -53,7 +55,11 @@
 
                 LocalSpaceText.transform.position = vector - forwardVec * 1.5f;
 
-                LocalSpaceText.text.text = RA.Controller.IsLocalRotation ? "Local" : "Global";
+                string rotationSpaceText = RA.Controller.IsLocalRotation ? "Local" : "Global";
+                string axesText = RA.Controller.IsDirectionHorizontal ? "Horizontal" : "Vertical";
+
+                LocalSpaceText.text.text = rotationSpaceText + "\n" + axesText;
+                LocalSpaceText.text.alignment = TextAlignmentOptions.TopLeft;
 
                 LocalSpaceText.gameObject.SetActive(true);
 

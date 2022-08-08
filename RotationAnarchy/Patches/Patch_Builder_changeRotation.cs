@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using HarmonyLib;
 using UnityEngine;
-using HarmonyLib;
-using Parkitect;
 
 namespace RotationAnarchy.Patches
 {
@@ -21,7 +18,7 @@ namespace RotationAnarchy.Patches
         {
             if (RA.Controller.Active)
             {
-                bool directionKey = RA.DirectionHotkey.Pressed;
+                bool directionKey = RA.Controller.IsDirectionHorizontal;
                 bool localSpaceKey = RA.Controller.IsLocalRotation;
 
                 float angle = (float)direction * RA.RotationAngle.Value;
