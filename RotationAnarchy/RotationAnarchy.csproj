@@ -125,7 +125,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY "$(TargetDir)$(TargetFileName)" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\$(TargetFileName)"
+    <PostBuildEvent>mkdir "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)"
+COPY "$(TargetDir)$(TargetFileName)" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\$(TargetFileName)"
 COPY "$(SolutionDir)preview.png" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\preview.png"
 xcopy "$(SolutionDir)img" "$(USERPROFILE)\Documents\Parkitect\Mods\$(ProjectName)\img" /e /y /i /r</PostBuildEvent>
   </PropertyGroup>
