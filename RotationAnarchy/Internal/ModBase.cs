@@ -37,6 +37,8 @@
     /// </summary>
     public abstract class ModBase : AbstractMod, IModSettings, IUnityCallbacksReceiver
     {
+        protected abstract Assembly AssemblyGetter { get; }
+
         /// <summary>
         /// Represents one game version.
         /// List of these is displayed in settings.
@@ -468,7 +470,7 @@
 
             try // Apply harmony patches
             {
-                var assembly = Assembly.GetExecutingAssembly();
+                var assembly = AssemblyGetter;
                 LOG(" Beginning Harmony patching for: " + assembly.FullName);
                 harmony = new Harmony(HARMONYKEY);
                 harmony.PatchAll(assembly);

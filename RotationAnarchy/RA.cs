@@ -2,6 +2,7 @@
 {
     using UnityEngine;
     using RotationAnarchy.Internal;
+    using System.Reflection;
 
     public class RA : ModBase<RA>, IModSettings
     {
@@ -10,6 +11,7 @@
         public override string getName() => "Rotation Anarchy";
         public override string getDescription() => "You know what it is.";
         protected override string SettingsInfoString => "Howdy, pardner.";
+        protected override Assembly AssemblyGetter => Assembly.GetExecutingAssembly();
 
         // Prefs values -------------------------------------------------------
         public static PrefsBool ActiveOnLoad { get; private set; }
@@ -47,6 +49,7 @@
         };
 
         public static float GizmoParamLerp => 15f;
+
 
         protected override void OnModEnabled()
         {
