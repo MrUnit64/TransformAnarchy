@@ -88,12 +88,17 @@
   <ItemGroup>
     <Compile Include="Components\ChangeUIBackgroundGraphics.cs" />
     <Compile Include="Components\ConstructWindowToggle.cs" />
-    <Compile Include="Components\Gizmos\GizmoBase.cs" />
+    <Compile Include="Components\Gizmos\AbstractGizmo.cs" />
+    <Compile Include="Components\Gizmos\ColorInterpolator.cs" />
+    <Compile Include="Components\Gizmos\GizmoComponents\AbstractGizmoComponent.cs" />
+    <Compile Include="Components\Gizmos\GizmoComponents\AbstractRenderedMeshGizmoComponent.cs" />
+    <Compile Include="Components\Gizmos\GizmoComponents\TorusGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\PlacementModeGizmo.cs" />
+    <Compile Include="Internal\Utils\GameObjectWrapper.cs" />
+    <Compile Include="Internal\Utils\TransformInterpolator.cs" />
     <Compile Include="Components\RADebug.cs" />
     <Compile Include="Components\GizmoController.cs" />
-    <Compile Include="Components\Gizmos\MeshGizmo.cs" />
-    <Compile Include="Components\Gizmos\RotationAxisGizmo.cs" />
+    <Compile Include="Components\Gizmos\AbstractRenderedMeshGizmo.cs" />
     <Compile Include="Components\RAWorldSpaceUI.cs" />
     <Compile Include="Internal\BaseHotkey.cs" />
     <Compile Include="Internal\ModComponent.cs" />
@@ -104,6 +109,7 @@
     <Compile Include="Internal\PrefsValue.cs" />
     <Compile Include="Internal\Utils\Meshes\CylinderMesh.cs" />
     <Compile Include="Internal\Utils\Meshes\ProceduralMesh.cs" />
+    <Compile Include="Internal\Utils\Meshes\TorusMesh.cs" />
     <Compile Include="Internal\Utils\Parkitect\HighlightOverlayControllerUtil.cs" />
     <Compile Include="Internal\Utils\UIUtil.cs" />
     <Compile Include="Patches\Patch_Builder_onMouseToolDisable.cs" />

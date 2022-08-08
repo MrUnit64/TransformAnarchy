@@ -43,12 +43,12 @@
 
         public static GizmoOffsets GizmoOffsets { get; private set; } = new GizmoOffsets()
         {
-            X = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0, 0), localRotationOffset = new Quaternion() },
-            Y = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0.1f, 0), localRotationOffset = Quaternion.LookRotation(Vector3.up) },
-            Z = new GizmoOffsetsBlock() { localPositionOffset = new Vector3(0, 0, 0), localRotationOffset = Quaternion.LookRotation(Vector3.forward) },
+            X = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = new Quaternion() },
+            Y = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0.1f, 0), rotationOffset = Quaternion.LookRotation(Vector3.up) },
+            Z = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.forward) },
         };
 
-        public static float GizmoParamLerp => 15f;
+        public static float GizmoParamLerp => 20f;
 
 
         protected override void OnModEnabled()
@@ -66,7 +66,7 @@
 
             // Hotkeys registration      -------------------------------------------------------
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
-            DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftShift);
+            DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftControl);
             LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
 
             // Mod changes registration --------------------------------------------------------

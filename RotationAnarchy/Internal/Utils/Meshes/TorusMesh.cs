@@ -1,11 +1,13 @@
-﻿namespace RotationAnarchy
-{
-    using RotationAnarchy.Internal;
-    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
 
-    public class RotationAxisGizmo : MeshGizmo
+namespace RotationAnarchy.Internal.Utils.Meshes
+{
+    public class TorusMesh : ProceduralMesh
     {
         public float Radius
         {
@@ -48,43 +50,8 @@
         private int _radialSegments = 32;
         private int _tubeSegments = 8;
 
-        private List<Vector3> verts = new List<Vector3>();
-        private List<int> tris = new List<int>();
-
-        public RotationAxisGizmo(string cmdBufferID, GizmoAxis axis) : base(cmdBufferID, axis) { }
-
-        public override void SnapToActiveGhost()
+        protected override void OnUpdateMesh()
         {
-            base.SnapToActiveGhost();
-
-            // first we need total bounds of the object
-            if(RA.Controller.ActiveGhost)
-            {
-                var ghost = RA.Controller.ActiveGhost;
-
-                // we are going to do a funny hack here
-                var originalRotation = ghost.transform.rotation;
-                ghost.transform.rotation = Quaternion.identity;
-                var bounds = GameObjectUtil.ComputeTotalBounds(ghost);
-                ghost.transform.rotation = originalRotation;
-
-                TubeRadius = ComputeGizmoWidth(ghost.transform.position);
-                // now we need to update gizmo dimensions to the size of the object
-                float xWidth = bounds.max.x - bounds.min.x;
-                float zWidth = bounds.max.z - bounds.min.z;
-                float width = Mathf.Max(xWidth, zWidth) + (TubeRadius * 2 + 0.5f);
-                Radius = width / 2f;
-                UpdateMesh();
-            }
-        }
-
-        public override void UpdateMesh()
-        {
-            base.UpdateMesh();
-
-            verts.Clear();
-            tris.Clear();
-
             int vertCount = _tubeSegments * _radialSegments * 4;
             for (int i = 0; i < vertCount; i++)
             {
@@ -98,25 +65,26 @@
             {
                 CreateQuadRing(u * uStep, i);
             }
-            mesh.SetVertices(verts);
 
             int trisCount = _tubeSegments * _radialSegments * 6;
             for (int i = 0; i < trisCount; i++)
             {
-                tris.Add(0);
+                triangles.Add(0);
             }
 
             for (int t = 0, i = 0; t < trisCount; t += 6, i += 4)
             {
-                tris[t] = i;
-                tris[t + 1] = tris[t + 4] = i + 1;
-                tris[t + 2] = tris[t + 3] = i + 2;
-                tris[t + 5] = i + 3;
+                triangles[t] = i;
+                triangles[t + 1] = triangles[t + 4] = i + 1;
+                triangles[t + 2] = triangles[t + 3] = i + 2;
+                triangles[t + 5] = i + 3;
             }
-            mesh.SetTriangles(tris, 0);
 
+            mesh.SetVertices(verts);
+            mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
+
         }
 
         private Vector3 GetPoint(float u, float v)

@@ -9,15 +9,15 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 {
     public abstract class ProceduralMesh
     {
+        public Mesh mesh { get; private set; }
 
         // Mesh data lists
-        internal List<Vector3> verts = new List<Vector3>();
-        internal List<Vector3> normals = new List<Vector3>();
-        internal List<int> triangles = new List<int>();
-        internal List<Vector2> uvs = new List<Vector2>();
+        protected List<Vector3> verts = new List<Vector3>();
+        protected List<Vector3> normals = new List<Vector3>();
+        protected List<Vector2> uvs = new List<Vector2>();
+        protected List<int> triangles = new List<int>();
 
         // Mesh
-        public Mesh mesh;
 
         public bool recalculateNormals = true;
         public bool recalculateBounds = true;
@@ -25,16 +25,14 @@ namespace RotationAnarchy.Internal.Utils.Meshes
         // Constructor
         public ProceduralMesh()
         {
-
+            mesh = new Mesh();
             // Performs better on runtime
             mesh.MarkDynamic();
-
         }
 
         // Call to update mesh
         public void UpdateMesh()
         {
-
             // Clear lists
             verts.Clear();
             triangles.Clear();

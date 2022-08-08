@@ -465,6 +465,7 @@
             catch (Exception ex)
             {
                 LogInternalError("<b>Your code</b> Failed to process components!");
+                Debug.LogException(ex);
                 throw ex;
             }
 

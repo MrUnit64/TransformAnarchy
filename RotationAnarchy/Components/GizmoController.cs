@@ -8,13 +8,13 @@
     public class GizmoController : ModComponent
     {
         PlacementModeGizmo placementRotationGizmo;
-        private int currentDebugMaterial;
 
-        private List<GizmoBase> gizmos = new List<GizmoBase>();
+        private List<AbstractGizmo> gizmos = new List<AbstractGizmo>();
 
         public override void OnApplied()
         {
-            placementRotationGizmo = new PlacementModeGizmo("RA.PlacementGizmo", GizmoAxis.Y); //new Color32(55, 213, 47, 255));
+            placementRotationGizmo = new PlacementModeGizmo();
+            placementRotationGizmo.Axis = GizmoAxis.Y;
             gizmos.Add(placementRotationGizmo);
         }
 
@@ -27,7 +27,7 @@
 
             for (int i = 0; i < gizmos.Count; i++)
             {
-                gizmos[i].OnUpdate();
+                gizmos[i].Update();
             }
 
             //if (Input.GetKeyDown(KeyCode.Keypad5))
@@ -43,49 +43,49 @@
 
             return;
 
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                var debug = GetComponent<RADebug>();
-                var material = placementRotationGizmo.stencilMaterial = debug.allMaterials[currentDebugMaterial++];
-
-                RA.Instance.LOG($"Material: {material.name}, shader: {material.shader.name}");
-
-                //for (int i = 0; i < material.shader.GetPropertyCount(); i++)
-                //{
-                //    var id = material.shader.GetPropertyNameId(i);
-                //    var type = material.shader.GetPropertyType(i);
-                //    var name = material.shader.GetPropertyName(i);
-                //
-                //    string start = $"prop {i}: {name}, type: {type}, value:";
-                //
-                //    switch (type)
-                //    {
-                //        case UnityEngine.Rendering.ShaderPropertyType.Color:
-                //            RA.Instance.LOG(start + material.GetColor(id));
-                //            break;
-                //        case UnityEngine.Rendering.ShaderPropertyType.Vector:
-                //            RA.Instance.LOG(start + material.GetVector(id));
-                //            break;
-                //        case UnityEngine.Rendering.ShaderPropertyType.Float:
-                //            RA.Instance.LOG(start + material.GetFloat(id));
-                //            break;
-                //        case UnityEngine.Rendering.ShaderPropertyType.Range:
-                //            RA.Instance.LOG(start + material.GetFloat(id));
-                //            break;
-                //        case UnityEngine.Rendering.ShaderPropertyType.Texture:
-                //            RA.Instance.LOG(start + material.GetTexture(id)?.na);
-                //            break;
-                //        default:
-                //            break;
-                //    }
-                //
-                //}
-
-                if (currentDebugMaterial >= debug.allMaterials.Count)
-                {
-                    currentDebugMaterial = 0;
-                }
-            }
+            //if (Input.GetKeyDown(KeyCode.Space))
+            //{
+            //    var debug = GetComponent<RADebug>();
+            //    var material = placementRotationGizmo.stencilMaterial = debug.allMaterials[currentDebugMaterial++];
+            //
+            //    RA.Instance.LOG($"Material: {material.name}, shader: {material.shader.name}");
+            //
+            //    //for (int i = 0; i < material.shader.GetPropertyCount(); i++)
+            //    //{
+            //    //    var id = material.shader.GetPropertyNameId(i);
+            //    //    var type = material.shader.GetPropertyType(i);
+            //    //    var name = material.shader.GetPropertyName(i);
+            //    //
+            //    //    string start = $"prop {i}: {name}, type: {type}, value:";
+            //    //
+            //    //    switch (type)
+            //    //    {
+            //    //        case UnityEngine.Rendering.ShaderPropertyType.Color:
+            //    //            RA.Instance.LOG(start + material.GetColor(id));
+            //    //            break;
+            //    //        case UnityEngine.Rendering.ShaderPropertyType.Vector:
+            //    //            RA.Instance.LOG(start + material.GetVector(id));
+            //    //            break;
+            //    //        case UnityEngine.Rendering.ShaderPropertyType.Float:
+            //    //            RA.Instance.LOG(start + material.GetFloat(id));
+            //    //            break;
+            //    //        case UnityEngine.Rendering.ShaderPropertyType.Range:
+            //    //            RA.Instance.LOG(start + material.GetFloat(id));
+            //    //            break;
+            //    //        case UnityEngine.Rendering.ShaderPropertyType.Texture:
+            //    //            RA.Instance.LOG(start + material.GetTexture(id)?.na);
+            //    //            break;
+            //    //        default:
+            //    //            break;
+            //    //    }
+            //    //
+            //    //}
+            //
+            //    if (currentDebugMaterial >= debug.allMaterials.Count)
+            //    {
+            //        currentDebugMaterial = 0;
+            //    }
+            //}
         }
 
         public override void OnReverted()

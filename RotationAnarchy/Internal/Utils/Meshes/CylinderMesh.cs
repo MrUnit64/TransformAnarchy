@@ -9,7 +9,6 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 {
     public class CylinderMesh : ProceduralMesh
     {
-
         public float BottomRadius;
         public float TopRadius;
         public float Length;
@@ -40,14 +39,12 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 
         protected override void OnUpdateMesh()
         {
-
             // if both the top and bottom have a radius of zero, just return null, because invalid
             if (BottomRadius <= 0 && TopRadius <= 0)
             {
                 return;
             }
 
-            Mesh mesh = new Mesh();
             mesh.name = "CylinderMesh";
             float sliceStep = (float)Math.PI * 2.0f / Slices;
             float heightStep = Length / Stacks;
@@ -89,63 +86,67 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             normals.Add(Vector3.up);
             currentVertex++;
 
-            mesh.vertices = verts.ToArray();
-            mesh.normals = normals.ToArray();
-            mesh.uv = uvs.ToArray();
-            mesh.triangles = CreateIndexBuffer(vertexCount, indexCount, Slices);
+            UpdateIndexBuffer(vertexCount, indexCount, Slices);
+
+            mesh.SetVertices(verts);
+            mesh.SetNormals(normals);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triangles, 0);
 
         }
 
         // Index buffer for triangles
-        internal static int[] CreateIndexBuffer(int vertexCount, int indexCount, int slices)
+        internal void UpdateIndexBuffer(int vertexCount, int indexCount, int slices)
         {
-            int[] indices = new int[indexCount];
+            for (int i = 0; i < indexCount; i++)
+            {
+                triangles.Add(0);
+            }
+            
             int currentIndex = 0;
 
             // Bottom circle/cone of shape
             for (int i = 1; i <= slices; i++)
             {
-                indices[currentIndex++] = i;
-                indices[currentIndex++] = 0;
+                triangles[currentIndex++] = i;
+                triangles[currentIndex++] = 0;
                 if (i - 1 == 0)
-                    indices[currentIndex++] = i + slices - 1;
+                    triangles[currentIndex++] = i + slices - 1;
                 else
-                    indices[currentIndex++] = i - 1;
+                    triangles[currentIndex++] = i - 1;
             }
 
             // Middle sides of shape
             for (int i = 1; i < vertexCount - slices - 1; i++)
             {
-                indices[currentIndex++] = i + slices;
-                indices[currentIndex++] = i;
+                triangles[currentIndex++] = i + slices;
+                triangles[currentIndex++] = i;
                 if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices + slices - 1;
+                    triangles[currentIndex++] = i + slices + slices - 1;
                 else
-                    indices[currentIndex++] = i + slices - 1;
+                    triangles[currentIndex++] = i + slices - 1;
 
-                indices[currentIndex++] = i;
+                triangles[currentIndex++] = i;
                 if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices - 1;
+                    triangles[currentIndex++] = i + slices - 1;
                 else
-                    indices[currentIndex++] = i - 1;
+                    triangles[currentIndex++] = i - 1;
                 if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices + slices - 1;
+                    triangles[currentIndex++] = i + slices + slices - 1;
                 else
-                    indices[currentIndex++] = i + slices - 1;
+                    triangles[currentIndex++] = i + slices - 1;
             }
 
             // Top circle/cone of shape
             for (int i = vertexCount - slices - 1; i < vertexCount - 1; i++)
             {
-                indices[currentIndex++] = i;
+                triangles[currentIndex++] = i;
                 if ((i - 1) % slices == 0)
-                    indices[currentIndex++] = i + slices - 1;
+                    triangles[currentIndex++] = i + slices - 1;
                 else
-                    indices[currentIndex++] = i - 1;
-                indices[currentIndex++] = vertexCount - 1;
+                    triangles[currentIndex++] = i - 1;
+                triangles[currentIndex++] = vertexCount - 1;
             }
-
-            return indices;
         }
     }
 }
