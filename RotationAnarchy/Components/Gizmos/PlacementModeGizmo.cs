@@ -8,13 +8,15 @@
     public class PlacementModeGizmo : AbstractRenderedMeshGizmo
     {
         TorusGizmoComponent torusComponent;
-        TorusGizmoComponent torusComponent1;
-        TorusGizmoComponent torusComponent2;
+        ArrowGizmoComponent ArrowComponent1;
+        ArrowGizmoComponent ArrowComponent2;
+
+        float width = 0;
 
         GizmoOffsets gizmoOffsets = new GizmoOffsets()
         {
             X = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = new Quaternion() },
-            Y = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0.1f, 0), rotationOffset = Quaternion.LookRotation(Vector3.up) },
+            Y = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.up) },
             Z = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.forward) },
         };
 
@@ -24,11 +26,11 @@
         {
             base.OnConstruct();
             torusComponent = new TorusGizmoComponent("Rotation Circle");
-            torusComponent1 = new TorusGizmoComponent("Rotation Circle1");
-            torusComponent2 = new TorusGizmoComponent("Rotation Circle2");
+            ArrowComponent1 = new ArrowGizmoComponent("Rotation Arrow1");
+            ArrowComponent2 = new ArrowGizmoComponent("Rotation Arrow2");
             AddGizmoComponent(torusComponent);
-            AddGizmoComponent(torusComponent1);
-            AddGizmoComponent(torusComponent2);
+            AddGizmoComponent(ArrowComponent1);
+            AddGizmoComponent(ArrowComponent2);
         }
 
         protected override void OnAxisChanged()
@@ -42,26 +44,30 @@
             torusComponent.colorInterpolator.TargetColor = colors.color;
             torusComponent.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
-            torusComponent1.colorInterpolator.TargetColor = colors.color;
-            torusComponent1.colorInterpolator.TargetOutlineColor = colors.outlineColor;
+            ArrowComponent1.colorInterpolator.TargetColor = colors.color;
+            ArrowComponent1.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
-            torusComponent2.colorInterpolator.TargetColor = colors.color;
-            torusComponent2.colorInterpolator.TargetOutlineColor = colors.outlineColor;
+            ArrowComponent2.colorInterpolator.TargetColor = colors.color;
+            ArrowComponent2.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
             torusComponent.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
             torusComponent.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
 
-            if (Axis == GizmoAxis.Y)
-                offsets.positionOffset += new Vector3(0, 0.25f, 0);
+            // Set up arrow offsets
+            Vector3 forwardDir = offsets.rotationOffset * (Vector3.left * (width / 2.0f));
 
-            torusComponent1.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
-            torusComponent1.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
+            // Arrow rotation
+            var arrowRotationOffset1 = offsets.rotationOffset * Quaternion.Euler(new Vector3(180, 0, 0));
+            var arrowRotationOffset2 = offsets.rotationOffset * Quaternion.Euler(new Vector3(0, 0, 0));
 
-            if (Axis == GizmoAxis.Y)
-                offsets.positionOffset -= new Vector3(0, -0.5f, 0);
+            // This one faces towards rotation only if shift held down
+            ArrowComponent1.transformInterpolator.TargetPositionOffset = offsets.positionOffset + forwardDir;
+            ArrowComponent1.transformInterpolator.TargetRotationOffset = arrowRotationOffset1;
 
-            torusComponent2.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
-            torusComponent2.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
+            // This one faces towards rotation normally
+            ArrowComponent2.transformInterpolator.TargetPositionOffset = offsets.positionOffset - forwardDir;
+            ArrowComponent2.transformInterpolator.TargetRotationOffset = arrowRotationOffset2;
+
         }
 
         protected override void OnUpdate()
@@ -88,20 +94,24 @@
                     // now we need to update gizmo dimensions to the size of the object
                     float xWidth = GhostBounds.max.x - GhostBounds.min.x;
                     float zWidth = GhostBounds.max.z - GhostBounds.min.z;
-                    float width = Mathf.Max(xWidth, zWidth) + (tubeRadius * 2 + 0.5f);
+
+                    // Needs to be a class variable to properly offset the arrows in OnAxisChanged
+                    width = Mathf.Max(xWidth, zWidth) + (tubeRadius * 2 + 0.5f);
 
                     torusComponent.Torus.TubeRadius = tubeRadius;
                     torusComponent.Torus.Radius = width / 2f;
-                    torusComponent1.Torus.TubeRadius = tubeRadius;
-                    torusComponent1.Torus.Radius = width / 2f ;
-                    torusComponent2.Torus.TubeRadius = tubeRadius;
-                    torusComponent2.Torus.Radius = width / 2f;
 
-                    if (Axis == GizmoAxis.Z)
-                    {
-                        torusComponent1.Torus.Radius += 0.25f;
-                        torusComponent2.Torus.Radius += 0.5f;
-                    }
+                    float arrowRadius = width * 0.1f;
+
+                    // Set arrow radius/length depending on tube size and radius
+                    ArrowComponent1.Arrow.BottomRadius = arrowRadius;
+                    ArrowComponent1.Arrow.Length = arrowRadius * 2;
+
+                    // Set arrow radius/length depending on tube size and radius
+                    ArrowComponent2.Arrow.BottomRadius = arrowRadius;
+                    ArrowComponent2.Arrow.Length = arrowRadius * 2;
+
+
                 }
             }
             else

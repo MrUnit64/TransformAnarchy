@@ -72,8 +72,8 @@ namespace RotationAnarchy.Internal.Utils.Meshes
                     Vector3 position = new Vector3(x, y, z);
                     verts.Add(position);
                     normals.Add(Vector3.Normalize(position));
-                    uvs.Add(new Vector2((float)(Math.Sin(normals[currentVertex].x) / Math.PI + 0.5f),
-                            (float)(Math.Sin(normals[currentVertex].y) / Math.PI + 0.5f)));
+                    //uvs.Add(new Vector2((float)(Math.Sin(normals[currentVertex].x) / Math.PI + 0.5f),
+                    //        (float)(Math.Sin(normals[currentVertex].y) / Math.PI + 0.5f)));
 
                     currentVertex++;
 
@@ -90,7 +90,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 
             mesh.SetVertices(verts);
             mesh.SetNormals(normals);
-            mesh.SetUVs(0, uvs);
+            //mesh.SetUVs(0, uvs);
             mesh.SetTriangles(triangles, 0);
 
         }
