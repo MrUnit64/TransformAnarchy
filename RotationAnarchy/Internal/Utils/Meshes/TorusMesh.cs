@@ -45,6 +45,8 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             }
         }
 
+        public bool forwardZ = true;
+
         private float _radius = 10f;
         private float _tubeRadius = 1f;
         private int _radialSegments = 32;
@@ -82,18 +84,26 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 
             mesh.SetVertices(verts);
             mesh.SetTriangles(triangles, 0);
-            mesh.RecalculateBounds();
-            mesh.RecalculateNormals();
-
         }
 
         private Vector3 GetPoint(float u, float v)
         {
             Vector3 point;
             float r = (_radius + _tubeRadius * Mathf.Cos(v));
-            point.x = r * Mathf.Sin(u);
-            point.y = r * Mathf.Cos(u);
-            point.z = _tubeRadius * Mathf.Sin(v);
+
+            if(forwardZ)
+            {
+                point.x = r * Mathf.Sin(u);
+                point.y = r * Mathf.Cos(u);
+                point.z = _tubeRadius * Mathf.Sin(v);
+            }
+            else
+            {
+                point.x = r * Mathf.Cos(u);
+                point.y = _tubeRadius * Mathf.Sin(v); 
+                point.z = r * Mathf.Sin(u);
+            }
+            
             return point;
         }
 

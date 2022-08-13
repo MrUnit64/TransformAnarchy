@@ -6,7 +6,7 @@
 
     public class TransformInterpolator
     {
-        public Transform Transform { get; private set; }
+        public Transform transform { get; private set; }
 
         public Vector3 CurrentPositionOffset { get; private set; }
         public Quaternion CurrentRotationOffset { get; private set; }
@@ -19,7 +19,7 @@
 
         public TransformInterpolator(Transform transform)
         {
-            this.Transform = transform;
+            this.transform = transform;
         }
 
         public void Update()
@@ -28,7 +28,7 @@
             {
                 float delta = Time.unscaledDeltaTime;
                 CurrentPositionOffset = Vector3.Lerp(CurrentPositionOffset, TargetPositionOffset, InterpolationSpeed * delta);
-                CurrentRotationOffset = Quaternion.Lerp(CurrentRotationOffset, TargetRotationOffset, InterpolationSpeed * delta);
+                CurrentRotationOffset = Quaternion.SlerpUnclamped(CurrentRotationOffset, TargetRotationOffset, InterpolationSpeed * delta);
             }
             else
             {
@@ -36,8 +36,8 @@
                 CurrentRotationOffset = TargetRotationOffset;
             }
 
-            Transform.localPosition = CurrentPositionOffset;
-            Transform.localRotation = CurrentRotationOffset;
+            transform.localPosition = CurrentPositionOffset;
+            transform.localRotation = CurrentRotationOffset;
         }
     }
 

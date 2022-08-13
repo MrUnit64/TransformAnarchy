@@ -14,7 +14,7 @@
         public override void OnApplied()
         {
             placementRotationGizmo = new PlacementModeGizmo();
-            placementRotationGizmo.Axis = GizmoAxis.Y;
+            placementRotationGizmo.Axis = Axis.Y;
             gizmos.Add(placementRotationGizmo);
         }
 

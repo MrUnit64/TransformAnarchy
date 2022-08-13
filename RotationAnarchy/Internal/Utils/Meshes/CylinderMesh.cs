@@ -9,6 +9,11 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 {
     public class CylinderMesh : ProceduralMesh
     {
+        /// <summary>
+        /// Will be constructed pointing on Z+
+        /// If false it will be Y+
+        /// </summary>
+        public bool forwardZ = true;
         public float BottomRadius;
         public float TopRadius;
         public float Length;
@@ -57,17 +62,40 @@ namespace RotationAnarchy.Internal.Utils.Meshes
 
             // Start at the bottom of the cylinder            
             int currentVertex = 0;
-            verts.Add(new Vector3(0, currentHeight, 0));
-            normals.Add(Vector3.down);
+
+            if (forwardZ)
+            {
+                verts.Add(new Vector3(0, 0, currentHeight));
+                normals.Add(Vector3.forward);
+            }
+            else
+            {
+                verts.Add(new Vector3(0, currentHeight, 0));
+                normals.Add(Vector3.down);
+            }
+            
             currentVertex++;
             for (int i = 0; i <= Stacks; i++)
             {
                 float sliceAngle = 0;
                 for (int j = 0; j < Slices; j++)
                 {
-                    float x = currentRadius * (float)Math.Cos(sliceAngle);
-                    float y = currentHeight;
-                    float z = currentRadius * (float)Math.Sin(sliceAngle);
+                    float x = 0;
+                    float y = 0;
+                    float z = 0;
+
+                    if (forwardZ)
+                    {
+                        x = currentRadius * (float)Math.Sin(sliceAngle);
+                        y = currentRadius * (float)Math.Cos(sliceAngle);
+                        z = currentHeight;
+                    }
+                    else
+                    {
+                        x = currentRadius * (float)Math.Cos(sliceAngle);
+                        y = currentHeight;
+                        z = currentRadius * (float)Math.Sin(sliceAngle);
+                    }
 
                     Vector3 position = new Vector3(x, y, z);
                     verts.Add(position);
@@ -82,17 +110,27 @@ namespace RotationAnarchy.Internal.Utils.Meshes
                 currentHeight += heightStep;
                 currentRadius += radiusStep;
             }
-            verts.Add(new Vector3(0, Length / 2, 0));
-            normals.Add(Vector3.up);
+
+            if(forwardZ)
+            {
+                verts.Add(new Vector3(0, 0, Length / 2));
+                normals.Add(Vector3.back);
+            }
+            else
+            {
+                verts.Add(new Vector3(0, Length / 2, 0));
+                normals.Add(Vector3.up);
+            }
+
+            
             currentVertex++;
 
             UpdateIndexBuffer(vertexCount, indexCount, Slices);
 
             mesh.SetVertices(verts);
-            mesh.SetNormals(normals);
             //mesh.SetUVs(0, uvs);
             mesh.SetTriangles(triangles, 0);
-
+            mesh.SetNormals(normals);
         }
 
         // Index buffer for triangles
@@ -102,7 +140,7 @@ namespace RotationAnarchy.Internal.Utils.Meshes
             {
                 triangles.Add(0);
             }
-            
+
             int currentIndex = 0;
 
             // Bottom circle/cone of shape

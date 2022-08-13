@@ -12,7 +12,7 @@
     {
         public Bounds GhostBounds { get; private set; }
 
-        public GizmoAxis Axis
+        public Axis Axis
         {
             get => _axis;
             set
@@ -25,7 +25,7 @@
             }
         }
 
-        private GizmoAxis _axis;
+        private Axis _axis;
         protected List<AbstractGizmoComponent> gizmoComponents = new List<AbstractGizmoComponent>();
 
         /// <summary>

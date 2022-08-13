@@ -6,7 +6,7 @@
     using UnityEngine;
     using UnityEngine.Rendering;
 
-    public enum GizmoAxis
+    public enum Axis
     {
         X,
         Y,
@@ -17,13 +17,13 @@
     {
         public GizmoAxisColorBlock X, Y, Z;
 
-        public GizmoAxisColorBlock GetForAxis(GizmoAxis axis)
+        public GizmoAxisColorBlock GetForAxis(Axis axis)
         {
             switch (axis)
             {
-                case GizmoAxis.X: return X;
-                case GizmoAxis.Y: return Y;
-                case GizmoAxis.Z: return Z;
+                case Axis.X: return X;
+                case Axis.Y: return Y;
+                case Axis.Z: return Z;
                 default: return X;
             }
         }
@@ -33,13 +33,13 @@
     {
         public GizmoOffsetsBlock X, Y, Z;
 
-        public GizmoOffsetsBlock GetForAxis(GizmoAxis axis)
+        public GizmoOffsetsBlock GetForAxis(Axis axis)
         {
             switch (axis)
             {
-                case GizmoAxis.X: return X;
-                case GizmoAxis.Y: return Y;
-                case GizmoAxis.Z: return Z;
+                case Axis.X: return X;
+                case Axis.Y: return Y;
+                case Axis.Z: return Z;
                 default: return X;
             }
         }

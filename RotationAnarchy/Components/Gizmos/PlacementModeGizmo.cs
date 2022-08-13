@@ -11,13 +11,11 @@
         ArrowGizmoComponent ArrowComponent1;
         ArrowGizmoComponent ArrowComponent2;
 
-        float width = 0;
-
         GizmoOffsets gizmoOffsets = new GizmoOffsets()
         {
-            X = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = new Quaternion() },
-            Y = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.up) },
-            Z = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.forward) },
+            X = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.right) },
+            Y = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.forward) },
+            Z = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.down) },
         };
 
         public PlacementModeGizmo() : base("Placement Mode Gizmo") { }
@@ -25,12 +23,14 @@
         protected override void OnConstruct()
         {
             base.OnConstruct();
-            torusComponent = new TorusGizmoComponent("Rotation Circle");
-            ArrowComponent1 = new ArrowGizmoComponent("Rotation Arrow1");
-            ArrowComponent2 = new ArrowGizmoComponent("Rotation Arrow2");
-            AddGizmoComponent(torusComponent);
-            AddGizmoComponent(ArrowComponent1);
-            AddGizmoComponent(ArrowComponent2);
+            AddGizmoComponent(torusComponent = new TorusGizmoComponent("Rotation Circle"));
+            torusComponent.Torus.forwardZ = false;
+
+            AddGizmoComponent(ArrowComponent1 = new ArrowGizmoComponent("Rotation Arrow1"));
+            ArrowComponent1.transform.SetParent(torusComponent.transform, false);
+
+            AddGizmoComponent(ArrowComponent2 = new ArrowGizmoComponent("Rotation Arrow2"));
+            ArrowComponent2.transform.SetParent(torusComponent.transform, false);
         }
 
         protected override void OnAxisChanged()
@@ -53,22 +53,9 @@
             torusComponent.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
             torusComponent.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
 
-            // Set up arrow offsets
-            Vector3 forwardDir = offsets.rotationOffset * (Vector3.left * (width / 2.0f));
-
-            // Arrow rotation
-            var arrowRotationOffset1 = offsets.rotationOffset * Quaternion.Euler(new Vector3(180, 0, 0));
-            var arrowRotationOffset2 = offsets.rotationOffset * Quaternion.Euler(new Vector3(0, 0, 0));
-
-            // This one faces towards rotation only if shift held down
-            ArrowComponent1.transformInterpolator.TargetPositionOffset = offsets.positionOffset + forwardDir;
-            ArrowComponent1.transformInterpolator.TargetRotationOffset = arrowRotationOffset1;
-
-            // This one faces towards rotation normally
-            ArrowComponent2.transformInterpolator.TargetPositionOffset = offsets.positionOffset - forwardDir;
-            ArrowComponent2.transformInterpolator.TargetRotationOffset = arrowRotationOffset2;
-
         }
+
+        Vector3 rotationVec;
 
         protected override void OnUpdate()
         {
@@ -80,9 +67,9 @@
                 SnapToActiveGhost();
 
                 if (RA.Controller.IsDirectionHorizontal)
-                    Axis = GizmoAxis.Z;
+                    Axis = Axis.Z;
                 else
-                    Axis = GizmoAxis.Y;
+                    Axis = Axis.Y;
 
                 // first we need total bounds of the object
                 if (RA.Controller.ActiveGhost)
@@ -95,13 +82,13 @@
                     float xWidth = GhostBounds.max.x - GhostBounds.min.x;
                     float zWidth = GhostBounds.max.z - GhostBounds.min.z;
 
-                    // Needs to be a class variable to properly offset the arrows in OnAxisChanged
-                    width = Mathf.Max(xWidth, zWidth) + (tubeRadius * 2 + 0.5f);
+                    float torusDiameterFromBounds = Mathf.Max(xWidth, zWidth) + (tubeRadius * 2 + 0.5f);
 
                     torusComponent.Torus.TubeRadius = tubeRadius;
-                    torusComponent.Torus.Radius = width / 2f;
+                    torusComponent.Torus.Radius = torusDiameterFromBounds / 2f;
 
-                    float arrowRadius = width * 0.1f;
+                    // needs to be flat number otherwise accumulates multiplication
+                    float arrowRadius = tubeRadius + .1f; 
 
                     // Set arrow radius/length depending on tube size and radius
                     ArrowComponent1.Arrow.BottomRadius = arrowRadius;
@@ -111,7 +98,16 @@
                     ArrowComponent2.Arrow.BottomRadius = arrowRadius;
                     ArrowComponent2.Arrow.Length = arrowRadius * 2;
 
+                    // Set up arrow offsets
+                    Vector3 positionOffset = Vector3.left * (torusDiameterFromBounds / 2.0f);
 
+                    // This one faces towards rotation only if shift held down
+                    ArrowComponent1.transformInterpolator.TargetPositionOffset = positionOffset;
+                    ArrowComponent1.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(Vector3.forward);
+
+                    // This one faces towards rotation normally
+                    ArrowComponent2.transformInterpolator.TargetPositionOffset = -positionOffset;
+                    ArrowComponent2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(-Vector3.forward);
                 }
             }
             else
