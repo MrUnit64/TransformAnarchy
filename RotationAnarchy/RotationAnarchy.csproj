@@ -93,6 +93,7 @@
     <Compile Include="Components\Gizmos\GizmoComponents\AbstractGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\AbstractRenderedMeshGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\ArrowGizmoComponent.cs" />
+    <Compile Include="Components\Gizmos\GizmoComponents\GizmoComponentGroup.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\TorusGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\PlacementModeGizmo.cs" />
     <Compile Include="Internal\Utils\GameObjectWrapper.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Patches\Patch_Builder_onMouseToolDisable.cs" />
     <Compile Include="Patches\Patch_Builder_onMouseToolEnable.cs" />
     <Compile Include="Patches\Patch_Builder_Update.cs" />
+    <Compile Include="Patches\Patch_CameraController_updateZoom.cs" />
     <Compile Include="RA.cs" />
     <Compile Include="Internal\ModBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

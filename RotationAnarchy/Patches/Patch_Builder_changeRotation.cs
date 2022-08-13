@@ -6,8 +6,6 @@ namespace RotationAnarchy.Patches
     [HarmonyPatch(typeof(Builder), "changeRotation")]
     internal static class Patch_Builder_changeRotation
     {
-        private static bool _previousFrameActive;
-
         static bool Prefix(Quaternion ___rotation, ref Quaternion __state)
         {
             __state = ___rotation;

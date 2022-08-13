@@ -7,9 +7,13 @@
 
     public class PlacementModeGizmo : AbstractRenderedMeshGizmo
     {
-        TorusGizmoComponent torusComponent;
-        ArrowGizmoComponent ArrowComponent1;
-        ArrowGizmoComponent ArrowComponent2;
+        GizmoComponentGroup groupTorus;
+        TorusGizmoComponent visualTorus1;
+        TorusGizmoComponent visualTorus2;
+
+        GizmoComponentGroup groupArrows;
+        ArrowGizmoComponent visualArrow1;
+        ArrowGizmoComponent visualArrow2;
 
         GizmoOffsets gizmoOffsets = new GizmoOffsets()
         {
@@ -23,14 +27,33 @@
         protected override void OnConstruct()
         {
             base.OnConstruct();
-            AddGizmoComponent(torusComponent = new TorusGizmoComponent("Rotation Circle"));
-            torusComponent.Torus.forwardZ = false;
 
-            AddGizmoComponent(ArrowComponent1 = new ArrowGizmoComponent("Rotation Arrow1"));
-            ArrowComponent1.transform.SetParent(torusComponent.transform, false);
+            // Toruses
+            AddGizmoComponent(groupTorus = new GizmoComponentGroup("VisualGroupTorus"));
 
-            AddGizmoComponent(ArrowComponent2 = new ArrowGizmoComponent("Rotation Arrow2"));
-            ArrowComponent2.transform.SetParent(torusComponent.transform, false);
+            AddGizmoComponent(visualTorus1 = new TorusGizmoComponent("Torus 1"));
+            visualTorus1.Torus.ForwardZ = false;
+            visualTorus1.Torus.Arc = 175;
+            visualTorus1.Torus.Taper = true;
+            groupTorus.AttachComponent(visualTorus1);
+
+            AddGizmoComponent(visualTorus2 = new TorusGizmoComponent("Torus 2"));
+            visualTorus2.Torus.ForwardZ = false;
+            visualTorus2.Torus.Arc = 175;
+            visualTorus2.Torus.Taper = true;
+            visualTorus2.transformInterpolator.Interpolate = false;
+            visualTorus2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(Vector3.back);
+            groupTorus.AttachComponent(visualTorus2);
+
+            // Arrows
+            AddGizmoComponent(groupArrows = new GizmoComponentGroup("VisualGroupArrows"));
+            groupTorus.AttachComponent(groupArrows);
+
+            AddGizmoComponent(visualArrow1 = new ArrowGizmoComponent("Rotation Arrow1"));
+            groupArrows.AttachComponent(visualArrow1);
+            
+            AddGizmoComponent(visualArrow2 = new ArrowGizmoComponent("Rotation Arrow2"));
+            groupArrows.AttachComponent(visualArrow2);
         }
 
         protected override void OnAxisChanged()
@@ -38,24 +61,23 @@
             base.OnAxisChanged();
 
             var offsets = gizmoOffsets.GetForAxis(Axis);
-
             var colors = RA.GizmoColors.GetForAxis(Axis);
 
-            torusComponent.colorInterpolator.TargetColor = colors.color;
-            torusComponent.colorInterpolator.TargetOutlineColor = colors.outlineColor;
+            visualTorus1.colorInterpolator.TargetColor = colors.color;
+            visualTorus1.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
-            ArrowComponent1.colorInterpolator.TargetColor = colors.color;
-            ArrowComponent1.colorInterpolator.TargetOutlineColor = colors.outlineColor;
+            visualTorus2.colorInterpolator.TargetColor = colors.color;
+            visualTorus2.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
-            ArrowComponent2.colorInterpolator.TargetColor = colors.color;
-            ArrowComponent2.colorInterpolator.TargetOutlineColor = colors.outlineColor;
+            visualArrow1.colorInterpolator.TargetColor = colors.color;
+            visualArrow1.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
-            torusComponent.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
-            torusComponent.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
+            visualArrow2.colorInterpolator.TargetColor = colors.color;
+            visualArrow2.colorInterpolator.TargetOutlineColor = colors.outlineColor;
 
+            groupTorus.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
+            groupTorus.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
         }
-
-        Vector3 rotationVec;
 
         protected override void OnUpdate()
         {
@@ -84,30 +106,51 @@
 
                     float torusDiameterFromBounds = Mathf.Max(xWidth, zWidth) + (tubeRadius * 2 + 0.5f);
 
-                    torusComponent.Torus.TubeRadius = tubeRadius;
-                    torusComponent.Torus.Radius = torusDiameterFromBounds / 2f;
+                    visualTorus1.Torus.TubeRadius = tubeRadius;
+                    visualTorus1.Torus.Radius = torusDiameterFromBounds / 2f;
+                    visualTorus2.Torus.TubeRadius = tubeRadius;
+                    visualTorus2.Torus.Radius = torusDiameterFromBounds / 2f;
+
+                    if (RA.Controller.HoldingChangeHeightKey)
+                    {
+                        visualTorus1.Torus.TaperEndRadius = tubeRadius;
+                        visualTorus2.Torus.TaperEndRadius = tubeRadius;
+                        visualTorus1.Torus.TaperStartRadius = tubeRadius * 0.1f;
+                        visualTorus2.Torus.TaperStartRadius = tubeRadius * 0.1f;
+                    }
+                    else
+                    {
+                        visualTorus1.Torus.TaperEndRadius = tubeRadius * 0.1f;
+                        visualTorus2.Torus.TaperEndRadius = tubeRadius * 0.1f;
+                        visualTorus1.Torus.TaperStartRadius = tubeRadius;
+                        visualTorus2.Torus.TaperStartRadius = tubeRadius;
+                    }
+                    
 
                     // needs to be flat number otherwise accumulates multiplication
                     float arrowRadius = tubeRadius + .1f; 
 
                     // Set arrow radius/length depending on tube size and radius
-                    ArrowComponent1.Arrow.BottomRadius = arrowRadius;
-                    ArrowComponent1.Arrow.Length = arrowRadius * 2;
+                    visualArrow1.Arrow.BottomRadius = arrowRadius;
+                    visualArrow1.Arrow.Length = arrowRadius * 2;
 
                     // Set arrow radius/length depending on tube size and radius
-                    ArrowComponent2.Arrow.BottomRadius = arrowRadius;
-                    ArrowComponent2.Arrow.Length = arrowRadius * 2;
+                    visualArrow2.Arrow.BottomRadius = arrowRadius;
+                    visualArrow2.Arrow.Length = arrowRadius * 2;
 
                     // Set up arrow offsets
                     Vector3 positionOffset = Vector3.left * (torusDiameterFromBounds / 2.0f);
+                    Vector3 arrowDirection = RA.Controller.HoldingChangeHeightKey ? -Vector3.forward : Vector3.forward;
 
                     // This one faces towards rotation only if shift held down
-                    ArrowComponent1.transformInterpolator.TargetPositionOffset = positionOffset;
-                    ArrowComponent1.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(Vector3.forward);
+                    visualArrow1.transformInterpolator.TargetPositionOffset = positionOffset;
+                    visualArrow1.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(arrowDirection);
 
                     // This one faces towards rotation normally
-                    ArrowComponent2.transformInterpolator.TargetPositionOffset = -positionOffset;
-                    ArrowComponent2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(-Vector3.forward);
+                    visualArrow2.transformInterpolator.TargetPositionOffset = -positionOffset;
+                    visualArrow2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(-arrowDirection);
+
+                    Debug.Log(RA.Controller.CurrentZoom);
                 }
             }
             else

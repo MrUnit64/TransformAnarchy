@@ -186,28 +186,26 @@
         /// <returns></returns>
         protected virtual float ComputeGizmoWidth(Vector3 point)
         {
-            float minRadius = 0.004f;
-            float maxRadius = 0.125f;
-            float maxDistance = 500;
-            float minDistance = 10;
+            //float minRadius = 0.012f;
+            //float maxRadius = 0.90f;
+            if (!Camera.main)
+                return RA.GizmoWidthMin.Value;
 
-            var cam = Camera.main;
+            float minZoom = 75f;
+            float maxZoom = 500f;
+            float zoom = Mathf.Clamp(RA.Controller.CurrentZoom, minZoom, maxZoom);
+            float frac = Mathf.InverseLerp(minZoom, maxZoom, zoom);
 
-            if (!cam)
-                return minRadius;
+            return Mathf.Lerp(RA.GizmoWidthMin.Value, RA.GizmoWidthMax.Value, frac);
 
-            float d = Vector3.Distance(point, cam.transform.position);
-            float l = Mathf.InverseLerp(minDistance, maxDistance, d);
-            float width = Mathf.Lerp(minRadius, maxRadius, l);
-
-            if (RA.Controller.GameState == ParkitectState.Placement)
+            /*if (RA.Controller.GameState == ParkitectState.Placement)
             {
                 return width * RA.PlacementGizmoWidth.Value;
             }
             else
             {
                 return width * RA.GizmoWidth.Value;
-            }
+            }*/
         }
     }
 }

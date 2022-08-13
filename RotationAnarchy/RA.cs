@@ -16,8 +16,8 @@
         // Prefs values -------------------------------------------------------
         public static PrefsBool ActiveOnLoad { get; private set; }
         public static PrefsFloatSnapped RotationAngle { get; private set; }
-        public static PrefsFloat PlacementGizmoWidth { get; private set; }
-        public static PrefsFloat GizmoWidth { get; private set; }
+        public static PrefsFloat GizmoWidthMin { get; private set; }
+        public static PrefsFloat GizmoWidthMax { get; private set; }
 
         // Hotkeys      -------------------------------------------------------
 
@@ -61,8 +61,8 @@
             // Prefs values registration -------------------------------------------------------
             RegisterAndLoadPrefsValue(ActiveOnLoad = new PrefsBool("activeOnLoad", true, "Active On Load"));
             RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 45f, 0f, 90f, 22.5f, "Rotation Angle"));
-            RegisterAndLoadPrefsValue(PlacementGizmoWidth = new PrefsFloat("placementGizmoWidth", 1f, 0.1f, 2f, "Builder Gizmo Width"));
-            RegisterAndLoadPrefsValue(GizmoWidth = new PrefsFloat("gizmoWidth", 1f, 0.1f, 2f, "Gizmo Width"));
+            RegisterAndLoadPrefsValue(GizmoWidthMin = new PrefsFloat("gizmoWidthMin", 0.05f, 0.025f, 0.1f, "Gizmo Width Min",formatting: "0.000"));
+            RegisterAndLoadPrefsValue(GizmoWidthMax = new PrefsFloat("gizmoWidthMax", 0.25f, 0.5f, 0.15f, "Gizmo Width Max", formatting: "0.000"));
 
             // Hotkeys registration      -------------------------------------------------------
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);

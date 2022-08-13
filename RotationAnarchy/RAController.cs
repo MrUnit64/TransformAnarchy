@@ -21,6 +21,12 @@
 
         public Builder ActiveBuilder { get; private set; }
         public GameObject ActiveGhost { get; private set; }
+        public float CurrentZoom { get; private set; }
+
+        /// <summary>
+        /// Also acts as "invert" rotation direction.
+        /// </summary>
+        public bool HoldingChangeHeightKey => InputManager.getKey("BuildingChangeHeight");
 
         public bool Active
         {
@@ -112,6 +118,11 @@
             {
                 ActiveGhost = null;
             }
+        }
+
+        public void NotifyCameraControllerCurrentZoom(float currentZoom)
+        {
+            CurrentZoom = currentZoom;
         }
 
         public void ToggleRAActive()
