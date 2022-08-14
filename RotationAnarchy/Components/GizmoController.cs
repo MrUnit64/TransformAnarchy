@@ -8,6 +8,7 @@
     public class GizmoController : ModComponent
     {
         PlacementModeGizmo placementRotationGizmo;
+        TranslationGizmo translationGizmo;
 
         private List<AbstractGizmo> gizmos = new List<AbstractGizmo>();
 
@@ -16,6 +17,9 @@
             placementRotationGizmo = new PlacementModeGizmo();
             placementRotationGizmo.Axis = Axis.Y;
             gizmos.Add(placementRotationGizmo);
+
+            translationGizmo = new TranslationGizmo();
+            gizmos.Add(translationGizmo);
         }
 
         public override void OnUpdate()
@@ -29,19 +33,6 @@
             {
                 gizmos[i].Update();
             }
-
-            //if (Input.GetKeyDown(KeyCode.Keypad5))
-            //    showDebugGizmo = !showDebugGizmo;
-            //
-            //if (showDebugGizmo && testGizmo != null && Camera.main != null)
-            //{
-            //    if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, float.MaxValue))
-            //    {
-            //        testGizmo.GameObject.transform.position = hit.point + new Vector3(0, 10, 0);
-            //    }
-            //}
-
-            return;
 
             //if (Input.GetKeyDown(KeyCode.Space))
             //{

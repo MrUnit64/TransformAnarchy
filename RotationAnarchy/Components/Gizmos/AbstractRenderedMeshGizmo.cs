@@ -138,7 +138,7 @@
             Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBufferStencil);
             Camera.main.AddCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
 
-            if (overlayHandle == null && HighlightOverlayController.Instance != null)
+            if (overlayHandle == null && HighlightOverlayController.Instance != null && renderers != null && renderers.Count > 0)
                 overlayHandle = HighlightOverlayController.Instance.add(renderers, fixedCustomColor: Color.white);
         }
 
@@ -149,8 +149,11 @@
             Camera.main.RemoveCommandBuffer(CameraEvent.AfterForwardAlpha, commandBufferStencil);
             Camera.main.RemoveCommandBuffer(CameraEvent.AfterForwardAlpha, commandBuffer);
 
-            overlayHandle.remove();
-            overlayHandle = null;
+            if(overlayHandle != null)
+            {
+                overlayHandle.remove();
+                overlayHandle = null;
+            }
         }
 
         public override void Update()

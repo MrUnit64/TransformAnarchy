@@ -101,5 +101,14 @@
                 SnapTo(tr.position, tr.rotation);
             }
         }
+
+        public virtual void SnapToSelectedBuildable()
+        {
+            if (RA.Controller.SelectedBuildable)
+            {
+                var tr = RA.Controller.SelectedBuildable.transform;
+                SnapTo(tr.position, tr.rotation);
+            }
+        }
     }
 }

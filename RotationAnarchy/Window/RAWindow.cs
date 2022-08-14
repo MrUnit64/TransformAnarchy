@@ -12,12 +12,14 @@
         {
             base.OnEnable();
             Instance = this;
+            RA.Controller.NotifyWindowState(true);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             Instance = null;
+            RA.Controller.NotifyWindowState(false);
         }
     }
 

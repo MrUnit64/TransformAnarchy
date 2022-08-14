@@ -34,6 +34,7 @@
         public static RAController Controller { get; private set; }
 
         // Params      -------------------------------------------------------
+        public static Color SelectedBuildableHighlightColor { get; private set; } = new Color32(0, 162, 232, 255);
 
         public static GizmoColors GizmoColors { get; private set; } = new GizmoColors()
         {

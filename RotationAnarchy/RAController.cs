@@ -1,5 +1,6 @@
 ﻿namespace RotationAnarchy
 {
+    using HarmonyLib;
     using Parkitect.UI;
     using RotationAnarchy.Internal;
     using System;
@@ -15,11 +16,14 @@
     public class RAController : ModComponent
     {
         public event Action<bool> OnActiveChanged;
+
+
+
         public event Action<ParkitectState> OnGameStateChanged;
 
         public bool IsWindowOpened => RAWindow.Instance != null;
 
-        public BuildableObject BuildableUnderMouse { get; private set; }
+        public BuildableObject SelectedBuildable { get; private set; }
         public Builder ActiveBuilder { get; private set; }
         public GameObject ActiveGhost { get; private set; }
         public float CurrentZoom { get; private set; }
@@ -68,6 +72,9 @@
         public ParkitectState PreviousGameState { get; private set; }
 
         private RAPipetteTool pipette;
+        private HighlightOverlayController.HighlightHandle selectedBuildableHighlightHandle;
+        private ChunkedMesh[] selectedBuildableChunkedMeshes;
+
 
         private HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
@@ -78,7 +85,7 @@
         public override void OnApplied()
         {
             pipette = new RAPipetteTool();
-            pipette.OnDisabled += OnStoppedPickingObject;
+            pipette.OnDisabled += OnPipetteDisabled;
             pipette.OnObjectSelected += OnObjectPicked;
             RA.RAActiveHotkey.onKeyDown += ToggleRAActive;
             RA.LocalRotationHotkey.onKeyDown += ToggleLocalRotationActive;
@@ -100,11 +107,10 @@
             if (Active)
             {
                 DebugGUI.DrawValue("builder.getBuiltObject", ActiveBuilder?.getBuiltObject());
-                if (BuildableUnderMouse)
-                    DebugGUI.DrawValue("BuildableUnderMouse", BuildableUnderMouse);
-
                 if (IsPickingObject)
                     pipette.tick();
+
+                UpdateBuildableTransformation();
             }
         }
 
@@ -157,6 +163,14 @@
             IsDirectionHorizontal = !IsDirectionHorizontal;
         }
 
+        public void NotifyWindowState(bool opened)
+        {
+            if(!opened)
+            {
+                SetGizmoActive(false);
+            }
+        }
+
         private void HandleActiveStateChange()
         {
             ModBase.LOG("HandleActiveStateChange = " + Active);
@@ -172,6 +186,7 @@
                     CloseWindow();
                 if (IsPickingObject)
                     StopPickingObject();
+                SetGizmoActive(false);
             }
         }
 
@@ -188,8 +203,12 @@
             }
 
             if (GameState == ParkitectState.Placement && IsPickingObject)
+            {
                 StopPickingObject();
+                SetGizmoActive(false);
+            }
         }
+
 
         private bool ShouldWindowBeOpened()
         {
@@ -209,8 +228,10 @@
 
         private void StartPickingObject()
         {
-            if (!IsPickingObject && GameState == ParkitectState.None && IsWindowOpened)
+            if (!IsPickingObject && GameState == ParkitectState.None)
             {
+                if (!IsWindowOpened)
+                    OpenWindow();
 
                 GameController.Instance.enableMouseTool(this.pipette);
                 IsPickingObject = true;
@@ -222,11 +243,10 @@
             if (IsPickingObject)
             {
                 GameController.Instance.removeMouseTool(this.pipette);
-                IsPickingObject = false;
             }
         }
 
-        private void OnStoppedPickingObject()
+        private void OnPipetteDisabled()
         {
             IsPickingObject = false;
             GameController.Instance.removeMouseTool(this.pipette);
@@ -234,8 +254,64 @@
 
         private void OnObjectPicked(BuildableObject buildableObject)
         {
+            if(SelectedBuildable)
+            {
+                FinalizeTransformingBuildable();
+                if (selectedBuildableHighlightHandle != null)
+                {
+                    SelectedBuildable = null;
+                    selectedBuildableHighlightHandle.remove();
+                    selectedBuildableHighlightHandle = null;
+                }
+            }
 
+            SelectedBuildable = buildableObject;
+            if (SelectedBuildable)
+            {
+                selectedBuildableChunkedMeshes = SelectedBuildable.GetComponentsInChildren<ChunkedMesh>();
+                selectedBuildableHighlightHandle = HighlightOverlayController.Instance.add(SelectedBuildable.getRenderersToHighlight(),
+                        fixedCustomColor: RA.SelectedBuildableHighlightColor);
+                SetGizmoActive(true);
+                StopPickingObject();
+            }
         }
 
+        private void SetGizmoActive(bool state)
+        {
+            GizmoActive = state;
+            if (state)
+            {
+            }
+            else
+            {
+                if(SelectedBuildable)
+                {
+                    OnObjectPicked(null);
+                }
+            }
+        }
+
+        private void FinalizeTransformingBuildable()
+        {
+            if(SelectedBuildable)
+            {
+                var deco = SelectedBuildable as Deco;
+                if(deco)
+                {
+                    Traverse.Create(deco).Method("onMovedByTerraforming", SelectedBuildable.transform.position).GetValue();
+                }
+            }
+        }
+
+        private void UpdateBuildableTransformation()
+        {
+            if (SelectedBuildable && selectedBuildableChunkedMeshes != null)
+            {
+                foreach (var chunkedMesh in selectedBuildableChunkedMeshes)
+                {
+                    chunkedMesh.updateTransform();
+                }
+            }
+        }
     }
 }
