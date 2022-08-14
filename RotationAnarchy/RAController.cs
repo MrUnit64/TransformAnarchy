@@ -84,6 +84,12 @@
 
         public override void OnReverted() { }
 
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+            DebugGUI.DrawValue("builder.getBuiltObject", ActiveBuilder?.getBuiltObject());
+        }
+
         public void NotifyBuildState(bool building, Builder builder)
         {
             if (builder == null)

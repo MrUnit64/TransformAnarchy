@@ -76,6 +76,16 @@
             RegisterComponent(new RADebug());
             RegisterComponent(new GizmoController());
             RegisterComponent(new RAWorldSpaceText());
+
+            DebugGUI.SetActive(true);
+        }
+
+        protected override void OnModUpdate()
+        {
+            base.OnModUpdate();
+
+            if (Input.GetKeyDown(KeyCode.KeypadPeriod))
+                DebugGUI.SetActive(!DebugGUI.IsActive);
         }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using RotationAnarchy.Internal;
     using RotationAnarchy.Internal.Utils.Meshes;
     using UnityEngine;
 
@@ -51,7 +52,7 @@
 
             AddGizmoComponent(visualArrow1 = new ArrowGizmoComponent("Rotation Arrow1"));
             groupArrows.AttachComponent(visualArrow1);
-            
+
             AddGizmoComponent(visualArrow2 = new ArrowGizmoComponent("Rotation Arrow2"));
             groupArrows.AttachComponent(visualArrow2);
         }
@@ -82,6 +83,25 @@
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+            if (RA.Controller.ActiveBuilder)
+            {
+                Deco deco = RA.Controller.ActiveBuilder.getBuiltObject() as Deco;
+                if (deco)
+                {
+                    DebugGUI.DrawValue("orientToSurfaceNormal", deco.orientToSurfaceNormal);
+                    DebugGUI.DrawValue("axisToOrientAlongSurfaceNormal", deco.axisToOrientAlongSurfaceNormal);
+                    DebugGUI.DrawValue("stickToAnySurface", deco.stickToAnySurface);
+                    DebugGUI.DrawValue("stickToHorizontalSurfaces", deco.stickToHorizontalSurfaces);
+                    DebugGUI.DrawValue("stickToSurfaceForwardOffset", deco.stickToSurfaceForwardOffset);
+                    DebugGUI.DrawValue("stickToVerticalSurfaces", deco.stickToVerticalSurfaces);
+                    DebugGUI.DrawValue("stickToTerrain", deco.stickToTerrain);
+                    DebugGUI.DrawValue("snapToDefaultHeightWhenStickingToSurface", deco.snapToDefaultHeightWhenStickingToSurface);
+
+                    if (deco.orientToSurfaceNormal)
+                        return;
+                }
+            }
 
             if (RA.Controller.Active && RA.Controller.GameState == ParkitectState.Placement && RA.Controller.ActiveGhost)
             {
@@ -125,10 +145,10 @@
                         visualTorus1.Torus.TaperStartRadius = tubeRadius;
                         visualTorus2.Torus.TaperStartRadius = tubeRadius;
                     }
-                    
+
 
                     // needs to be flat number otherwise accumulates multiplication
-                    float arrowRadius = tubeRadius + .1f; 
+                    float arrowRadius = tubeRadius + tubeRadius/2;
 
                     // Set arrow radius/length depending on tube size and radius
                     visualArrow1.Arrow.BottomRadius = arrowRadius;
@@ -149,8 +169,6 @@
                     // This one faces towards rotation normally
                     visualArrow2.transformInterpolator.TargetPositionOffset = -positionOffset;
                     visualArrow2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(-arrowDirection);
-
-                    Debug.Log(RA.Controller.CurrentZoom);
                 }
             }
             else
