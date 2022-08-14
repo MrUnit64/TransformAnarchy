@@ -19,12 +19,6 @@
             base.OnDisable();
             Instance = null;
         }
-
-        private void Update()
-        {
-            if (!RA.Controller.Active)
-                this.windowFrame.close();
-        }
     }
 
 

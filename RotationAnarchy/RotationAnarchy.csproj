@@ -127,6 +127,7 @@
     <Compile Include="Internal\ModBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Patches\Patch_Builder_changeRotation.cs" />
+    <Compile Include="RAPipetteTool.cs" />
     <Compile Include="Window\RAWindow.cs" />
     <Compile Include="Window\RAWindowButton.cs" />
     <Compile Include="RAController.cs" />

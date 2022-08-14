@@ -9,7 +9,7 @@
     public enum ParkitectState
     {
         None,
-        Placement
+        Placement,
     }
 
     public class RAController : ModComponent
@@ -19,9 +19,12 @@
 
         public bool IsWindowOpened => RAWindow.Instance != null;
 
+        public BuildableObject BuildableUnderMouse { get; private set; }
         public Builder ActiveBuilder { get; private set; }
         public GameObject ActiveGhost { get; private set; }
         public float CurrentZoom { get; private set; }
+        public bool IsPickingObject { get; private set; }
+        public bool GizmoActive { get; private set; }
 
         /// <summary>
         /// Also acts as "invert" rotation direction.
@@ -64,6 +67,8 @@
         private ParkitectState _gameState = ParkitectState.None;
         public ParkitectState PreviousGameState { get; private set; }
 
+        private RAPipetteTool pipette;
+
         private HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
             typeof(DecoBuilder),
@@ -72,9 +77,13 @@
 
         public override void OnApplied()
         {
+            pipette = new RAPipetteTool();
+            pipette.OnDisabled += OnStoppedPickingObject;
+            pipette.OnObjectSelected += OnObjectPicked;
             RA.RAActiveHotkey.onKeyDown += ToggleRAActive;
             RA.LocalRotationHotkey.onKeyDown += ToggleLocalRotationActive;
             RA.DirectionHotkey.onKeyDown += ToggleDirection;
+            RA.SelectObjectHotkey.onKeyDown += StartPickingObject;
         }
 
         public override void OnStart()
@@ -87,7 +96,16 @@
         public override void OnUpdate()
         {
             base.OnUpdate();
-            DebugGUI.DrawValue("builder.getBuiltObject", ActiveBuilder?.getBuiltObject());
+
+            if (Active)
+            {
+                DebugGUI.DrawValue("builder.getBuiltObject", ActiveBuilder?.getBuiltObject());
+                if (BuildableUnderMouse)
+                    DebugGUI.DrawValue("BuildableUnderMouse", BuildableUnderMouse);
+
+                if (IsPickingObject)
+                    pipette.tick();
+            }
         }
 
         public void NotifyBuildState(bool building, Builder builder)
@@ -116,14 +134,7 @@
 
         public void NotifyGhost(GameObject ghost)
         {
-            if(ActiveBuilder)
-            {
-                ActiveGhost = ghost;
-            }
-            else
-            {
-                ActiveGhost = null;
-            }
+            ActiveGhost = ActiveBuilder ? ghost : null;
         }
 
         public void NotifyCameraControllerCurrentZoom(float currentZoom)
@@ -140,6 +151,7 @@
         {
             IsLocalRotation = !IsLocalRotation;
         }
+
         public void ToggleDirection()
         {
             IsDirectionHorizontal = !IsDirectionHorizontal;
@@ -157,7 +169,9 @@
             {
                 RAWindowButton.Instance.SetButtonEnabled(false);
                 if (IsWindowOpened)
-                    RAWindowButton.Instance.SetWindowOpened(false);
+                    CloseWindow();
+                if (IsPickingObject)
+                    StopPickingObject();
             }
         }
 
@@ -169,14 +183,59 @@
             {
                 if (!IsWindowOpened)
                 {
-                    RAWindowButton.Instance.SetWindowOpened(true);
+                    OpenWindow();
                 }
             }
+
+            if (GameState == ParkitectState.Placement && IsPickingObject)
+                StopPickingObject();
         }
 
         private bool ShouldWindowBeOpened()
         {
-            return Active && GameState == ParkitectState.Placement;
+            return Active || GameState == ParkitectState.Placement;
         }
+
+        private void OpenWindow()
+        {
+            RAWindowButton.Instance.SetWindowOpened(true);
+        }
+
+        private void CloseWindow()
+        {
+            RAWindowButton.Instance.SetWindowOpened(false);
+            //RAWindow.Instance.windowFrame.close();
+        }
+
+        private void StartPickingObject()
+        {
+            if (!IsPickingObject && GameState == ParkitectState.None && IsWindowOpened)
+            {
+
+                GameController.Instance.enableMouseTool(this.pipette);
+                IsPickingObject = true;
+            }
+        }
+
+        private void StopPickingObject()
+        {
+            if (IsPickingObject)
+            {
+                GameController.Instance.removeMouseTool(this.pipette);
+                IsPickingObject = false;
+            }
+        }
+
+        private void OnStoppedPickingObject()
+        {
+            IsPickingObject = false;
+            GameController.Instance.removeMouseTool(this.pipette);
+        }
+
+        private void OnObjectPicked(BuildableObject buildableObject)
+        {
+
+        }
+
     }
 }

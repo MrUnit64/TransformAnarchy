@@ -25,6 +25,7 @@
         /// When set to false mod should not interfere in any way with rotation,
         /// if deactivated mid rotation, should also reset the rotated deco to default, if in placement mode.
         /// </summary>
+        public static BaseHotkey SelectObjectHotkey { get; private set; }
         public static BaseHotkey RAActiveHotkey { get; private set; }
         public static BaseHotkey DirectionHotkey { get; private set; }
         public static BaseHotkey LocalRotationHotkey { get; private set; }
@@ -65,6 +66,7 @@
             RegisterAndLoadPrefsValue(GizmoWidthMax = new PrefsFloat("gizmoWidthMax", 0.25f, 0.5f, 0.15f, "Gizmo Width Max", formatting: "0.000"));
 
             // Hotkeys registration      -------------------------------------------------------
+            SelectObjectHotkey = NewHotkey("selectObject", "Select Object", "Selects an object to edit", KeyCode.R);
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
             DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftControl);
             LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
