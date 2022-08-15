@@ -15,8 +15,16 @@
 
         public static string[] worldAxesNames = new string[]
         {
-                "Global",
-                "Local"
+            "Global",
+            "Local"
+        };
+
+        // Named in order of X, Y, Z
+        public static string[] directionAxesNames = new string[]
+{
+            "Pitch",    // X
+            "Yaw",      // Y
+            "Roll"      // Z
         };
 
         public override void OnApplied()
@@ -56,7 +64,7 @@
                 LocalSpaceText.transform.position = vector - forwardVec * 1.5f;
 
                 string rotationSpaceText = RA.Controller.IsLocalRotation ? "Local" : "Global";
-                string axesText = RA.Controller.IsDirectionHorizontal ? "Horizontal" : "Vertical";
+                string axesText = directionAxesNames[(int)RA.Controller.CurrentRotationAxis];
 
                 LocalSpaceText.text.text = rotationSpaceText + "\n" + axesText;
                 LocalSpaceText.text.alignment = TextAlignmentOptions.TopLeft;
