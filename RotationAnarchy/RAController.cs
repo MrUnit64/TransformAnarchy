@@ -51,6 +51,8 @@
         public bool IsLocalRotation { get; private set; }
 
         public Axis CurrentRotationAxis { get; private set; }
+        
+        public bool IsDragRotation { get; private set; }
 
         public ParkitectState GameState
         {
@@ -89,6 +91,7 @@
             RA.LocalRotationHotkey.onKeyDown += ToggleLocalRotationActive;
             RA.DirectionHotkey.onKeyDown += ToggleDirection;
             RA.SelectObjectHotkey.onKeyDown += StartPickingObject;
+            RA.DragRotationHotkey.onKeyDown += ToggleDragRotation;
         }
 
         public override void OnStart()
@@ -183,6 +186,11 @@
 
                     break;
             }
+        }
+
+        public void ToggleDragRotation()
+        {
+            IsDragRotation = !IsDragRotation;
         }
 
         public void NotifyWindowState(bool opened)
