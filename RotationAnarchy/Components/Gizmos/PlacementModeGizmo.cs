@@ -121,10 +121,7 @@
                     float tubeRadius = ComputeGizmoWidth(ghost.transform.position);
 
                     // now we need to update gizmo dimensions to the size of the object
-                    float xWidth = GhostBounds.max.x - GhostBounds.min.x;
-                    float zWidth = GhostBounds.max.z - GhostBounds.min.z;
-
-                    float torusDiameterFromBounds = Mathf.Max(xWidth, zWidth) + (tubeRadius * 2 + 0.5f);
+                    float torusDiameterFromBounds = BoundsMax + (tubeRadius * 2 + 0.5f);
 
                     visualTorus1.Torus.TubeRadius = tubeRadius;
                     visualTorus1.Torus.Radius = torusDiameterFromBounds / 2f;

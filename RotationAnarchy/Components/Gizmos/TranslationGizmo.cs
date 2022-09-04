@@ -17,10 +17,16 @@
 
         public TranslationGizmo() : base("Translation Gizmo") { }
 
+        private CylinderGizmoComponent cylinderZ;
+        private ArrowGizmoComponent arrowZ;
+
         protected override void OnConstruct()
         {
             base.OnConstruct();
+            AddGizmoComponent(cylinderZ = new CylinderGizmoComponent("Z Cylinder"));
+            AddGizmoComponent(arrowZ = new ArrowGizmoComponent("Z Arrow"));
 
+            cylinderZ.AttachComponent(arrowZ);
         }
 
         protected override void OnAxisChanged()
@@ -39,6 +45,18 @@
             {
                 Active = true;
                 SnapToSelectedBuildable();
+
+                float width = ComputeGizmoWidth(transform.position);
+
+                cylinderZ.Cylinder.Length = BoundsMax;
+                cylinderZ.Cylinder.BottomRadius = cylinderZ.Cylinder.TopRadius = width;
+                cylinderZ.colorInterpolator.TargetColor = RA.GizmoColors.Z.color;
+                cylinderZ.colorInterpolator.TargetOutlineColor = RA.GizmoColors.Z.outlineColor;
+
+                arrowZ.Arrow.BottomRadius = width * 2;
+                arrowZ.transformInterpolator.TargetPositionOffset = new Vector3(0, 0, BoundsMax);
+                arrowZ.colorInterpolator.TargetColor = RA.GizmoColors.Z.color;
+                arrowZ.colorInterpolator.TargetOutlineColor = RA.GizmoColors.Z.outlineColor;
 
                 var buildable = RA.Controller.SelectedBuildable;
 

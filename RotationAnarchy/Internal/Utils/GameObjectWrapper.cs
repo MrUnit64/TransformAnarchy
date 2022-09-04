@@ -17,7 +17,7 @@
         }
 
         public GameObject gameObject { get; private set; }
-        public Transform transform { get; private set; }
+        public Transform transform => gameObject.transform;
         
         private bool _lastActiveState;
 

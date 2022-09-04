@@ -16,9 +16,6 @@
     public class RAController : ModComponent
     {
         public event Action<bool> OnActiveChanged;
-
-
-
         public event Action<ParkitectState> OnGameStateChanged;
 
         public bool IsWindowOpened => RAWindow.Instance != null;

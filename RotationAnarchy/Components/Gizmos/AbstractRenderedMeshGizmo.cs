@@ -178,7 +178,8 @@
                     this.commandBuffer.SetGlobalColor(sId_Color, rendered.colorInterpolator.CurrentOutlineColor);
                     this.commandBufferStencil.DrawRenderer(rendered.meshRenderer, stencilMaterial);
                     this.commandBuffer.DrawRenderer(rendered.meshRenderer, rendered.meshRenderer.material);
-                    HighlightOverlayControllerUtil.ChangeHighlightColor(rendered.meshRenderer, rendered.colorInterpolator.CurrentOutlineColor);
+                    if (overlayHandle != null)
+                        HighlightOverlayControllerUtil.ChangeHighlightColor(rendered.meshRenderer, rendered.colorInterpolator.CurrentOutlineColor);
                 }
             }
         }

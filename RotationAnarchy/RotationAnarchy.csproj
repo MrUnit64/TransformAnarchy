@@ -97,6 +97,7 @@
     <Compile Include="Components\Gizmos\GizmoComponents\AbstractGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\AbstractRenderedMeshGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\ArrowGizmoComponent.cs" />
+    <Compile Include="Components\Gizmos\GizmoComponents\CylinderGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\GizmoComponentGroup.cs" />
     <Compile Include="Components\Gizmos\GizmoComponents\TorusGizmoComponent.cs" />
     <Compile Include="Components\Gizmos\PlacementModeGizmo.cs" />
