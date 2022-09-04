@@ -91,10 +91,7 @@
         public virtual void SnapTo(Vector3 position, Quaternion rotation)
         {
             gameObject.transform.position = position;
-            if (RA.Controller.IsLocalRotation)
-            {
-                gameObject.transform.rotation = rotation;
-            }
+            gameObject.transform.rotation = RA.Controller.IsLocalRotation ? rotation : Quaternion.identity;
         }
 
         public virtual void SnapToTransform(Transform transform)
