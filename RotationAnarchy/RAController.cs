@@ -15,11 +15,12 @@
 
     public class RAController : ModComponent
     {
+        // Events
         public event Action<bool> OnActiveChanged;
         public event Action<ParkitectState> OnGameStateChanged;
 
+        // General game variables
         public bool IsWindowOpened => RAWindow.Instance != null;
-
         public BuildableObject SelectedBuildable { get; private set; }
         public Builder ActiveBuilder { get; private set; }
         public GameObject ActiveGhost { get; private set; }
@@ -49,7 +50,7 @@
 
         public bool IsLocalRotation { get; private set; }
 
-        public bool IsDirectionHorizontal { get; private set; }
+        public Axis CurrentRotationAxis { get; private set; }
 
         public ParkitectState GameState
         {
@@ -157,7 +158,31 @@
 
         public void ToggleDirection()
         {
-            IsDirectionHorizontal = !IsDirectionHorizontal;
+
+            switch (CurrentRotationAxis)
+            {
+                // Pitch Axis
+                case Axis.X:
+
+                    CurrentRotationAxis = Axis.Z;
+
+                    break; 
+
+
+                // Yaw Axis
+                case Axis.Y:
+
+                    CurrentRotationAxis = Axis.X;
+
+                    break;
+
+                // Roll Axis
+                case Axis.Z:
+
+                    CurrentRotationAxis = Axis.Y;
+
+                    break;
+            }
         }
 
         public void NotifyWindowState(bool opened)

@@ -108,10 +108,7 @@
                 Active = true;
                 SnapToActiveGhost();
 
-                if (RA.Controller.IsDirectionHorizontal)
-                    Axis = Axis.Z;
-                else
-                    Axis = Axis.Y;
+                Axis = RA.Controller.CurrentRotationAxis;
 
                 // first we need total bounds of the object
                 if (RA.Controller.ActiveGhost)

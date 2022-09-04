@@ -14,40 +14,48 @@ namespace RotationAnarchy.Patches
 
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
+
+            // If the mod is currently active
             if (RA.Controller.Active)
             {
-                bool directionKey = RA.Controller.IsDirectionHorizontal;
+
+                // True if in local space, otherwise in world space
                 bool localSpaceKey = RA.Controller.IsLocalRotation;
 
+                // Angle to rotate
                 float angle = (float)direction * RA.RotationAngle.Value;
 
-                if (directionKey)
+                // Init new quat to nothing
+                Quaternion performingRotation = Quaternion.identity;
+
+                // Now do a switch statement in order to make the three axes work
+                switch (RA.Controller.CurrentRotationAxis)
                 {
-                    // Local Space
-                    if (localSpaceKey)
-                    {
-                        ___rotation = __state * Quaternion.Euler(0f, 0f, angle);
-                    }
-                    // World Space
-                    else
-                    {
-                        ___rotation = Quaternion.Euler(0f, 0f, angle) * __state;
-                    }
+                    case Axis.X:
+                        performingRotation = Quaternion.Euler(angle, 0f, 0f);
+                        break;
+
+                    case Axis.Y:
+                        performingRotation = Quaternion.Euler(0f, angle, 0f);
+                        break;
+
+                    case Axis.Z:
+                        performingRotation = Quaternion.Euler(0f, 0f, angle);
+                        break;
+                }
+
+                // Now perform rotation depending on if in local space or not
+                if (localSpaceKey)
+                {
+                    // Multiplying the rotation by the performing rotation essentially does a local space rotation
+                    ___rotation = __state * performingRotation;
                 }
                 else
                 {
-                    // Local Space
-                    if (localSpaceKey)
-                    {
-                        ___rotation = __state * Quaternion.Euler(0f, angle, 0f);
-                    }
-                    // World Space
-                    else
-                    {
-                        ___rotation = Quaternion.Euler(0f, angle, 0f) * __state;
-                    }
+                    // Multiplying the performing rotation by the rotation essentially does a world space rotation
+                    ___rotation = performingRotation * __state;
                 }
-
+          
                 ___dontAutoRotate = true;
                 ___forward = ___rotation * Vector3.forward;
             }

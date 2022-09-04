@@ -61,16 +61,16 @@
                 var buildable = RA.Controller.SelectedBuildable;
 
                 if (Input.GetKeyDown(KeyCode.Keypad8))
-                    buildable.transform.position += Vector3.forward;
+                    buildable.transform.position += Vector3.forward * Time.deltaTime;
 
                 if (Input.GetKeyDown(KeyCode.Keypad4))
-                    buildable.transform.position += Vector3.left;
+                    buildable.transform.position += Vector3.left * Time.deltaTime;
 
                 if (Input.GetKeyDown(KeyCode.Keypad6))
-                    buildable.transform.position += Vector3.right;
+                    buildable.transform.position += Vector3.right * Time.deltaTime;
 
                 if (Input.GetKeyDown(KeyCode.Keypad2))
-                    buildable.transform.position += Vector3.back;
+                    buildable.transform.position += Vector3.back * Time.deltaTime;
             }
             else
             {
