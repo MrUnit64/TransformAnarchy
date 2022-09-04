@@ -18,7 +18,7 @@
 
         GizmoOffsets gizmoOffsets = new GizmoOffsets()
         {
-            X = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.right) },
+            X = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.right) * Quaternion.LookRotation(Vector3.down) },
             Y = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.forward) },
             Z = new GizmoOffsetsBlock() { positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.down) },
         };
@@ -78,6 +78,8 @@
 
             groupTorus.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
             groupTorus.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
+
+            
         }
 
         protected override void OnUpdate()
@@ -105,10 +107,18 @@
 
             if (RA.Controller.Active && RA.Controller.GameState == ParkitectState.Placement && RA.Controller.ActiveGhost)
             {
+                
+
                 Active = true;
                 SnapToActiveGhost();
 
                 Axis = RA.Controller.CurrentRotationAxis;
+
+                var offsets = gizmoOffsets.GetForAxis(Axis);
+                DebugGUI.DrawValue("Current Placement Gizmo Axis", Axis);
+                DebugGUI.DrawValue("Current Placement Gizmo offsetPos", offsets.positionOffset);
+                DebugGUI.DrawValue("Current Placement Gizmo offsetRot", offsets.rotationOffset);
+
 
                 // first we need total bounds of the object
                 if (RA.Controller.ActiveGhost)
