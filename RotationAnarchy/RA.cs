@@ -9,7 +9,7 @@
         public override string AUTHOR => "parkitectCommunity";
         public override string MODKEY => "rotationAnarchy";
         public override string getName() => "Rotation Anarchy";
-        public override string getDescription() => "You know what it is.";
+        public override string getDescription() => "Adds a more advanced rotation gizmo for Deco and Flatrides.";
         protected override string SettingsInfoString => "Howdy, pardner.";
         protected override Assembly AssemblyGetter => Assembly.GetExecutingAssembly();
 
@@ -62,7 +62,7 @@
 
             // Prefs values registration -------------------------------------------------------
             RegisterAndLoadPrefsValue(ActiveOnLoad = new PrefsBool("activeOnLoad", true, "Active On Load"));
-            RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 45f, 0f, 90f, 22.5f, "Rotation Angle"));
+            RegisterAndLoadPrefsValue(RotationAngle = new PrefsFloatSnapped("rotationAngle", 45f, 0f, 90f, 22.5f, "Rotation Snap Angle"));
             RegisterAndLoadPrefsValue(GizmoWidthMin = new PrefsFloat("gizmoWidthMin", 0.05f, 0.025f, 0.1f, "Gizmo Width Min",formatting: "0.000"));
             RegisterAndLoadPrefsValue(GizmoWidthMax = new PrefsFloat("gizmoWidthMax", 0.25f, 0.5f, 0.15f, "Gizmo Width Max", formatting: "0.000"));
 

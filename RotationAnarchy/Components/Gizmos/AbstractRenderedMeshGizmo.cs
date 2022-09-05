@@ -92,7 +92,9 @@
             this.baseMaterial.SetFloat("_BaseBrightnessBlink", 1f);
             this.baseMaterial.SetFloat("_BlinkSpeed", 0f);
             this.baseMaterial.SetFloat("_GlowBrightness", 4f);
-            this.baseMaterial.SetFloat("_Cutoff", 0.8f);
+            // This needs to be 0.0 in order for custom colour textured transparent objects to render the gizmo correctly.
+            // Do not ask why. We don't talk about it.
+            this.baseMaterial.SetFloat("_Cutoff", 0.0f);
             this.baseMaterial.SetFloat("_RimPower", 0.5f);
             this.baseMaterial.SetFloat("_BlinkStencil", 0.5f);
             this.baseMaterial.SetFloat("_Checkerboard", 0f);

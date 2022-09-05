@@ -79,7 +79,6 @@
             groupTorus.transformInterpolator.TargetPositionOffset = offsets.positionOffset;
             groupTorus.transformInterpolator.TargetRotationOffset = offsets.rotationOffset;
 
-            
         }
 
         protected override void OnUpdate()
@@ -123,6 +122,7 @@
                 // first we need total bounds of the object
                 if (RA.Controller.ActiveGhost)
                 {
+
                     var ghost = RA.Controller.ActiveGhost;
 
                     float tubeRadius = ComputeGizmoWidth(ghost.transform.position);
@@ -135,44 +135,42 @@
                     visualTorus2.Torus.TubeRadius = tubeRadius;
                     visualTorus2.Torus.Radius = torusDiameterFromBounds / 2f;
 
-                    if (RA.Controller.HoldingChangeHeightKey)
-                    {
-                        visualTorus1.Torus.TaperEndRadius = tubeRadius;
-                        visualTorus2.Torus.TaperEndRadius = tubeRadius;
-                        visualTorus1.Torus.TaperStartRadius = tubeRadius * 0.1f;
-                        visualTorus2.Torus.TaperStartRadius = tubeRadius * 0.1f;
-                    }
-                    else
-                    {
-                        visualTorus1.Torus.TaperEndRadius = tubeRadius * 0.1f;
-                        visualTorus2.Torus.TaperEndRadius = tubeRadius * 0.1f;
-                        visualTorus1.Torus.TaperStartRadius = tubeRadius;
-                        visualTorus2.Torus.TaperStartRadius = tubeRadius;
-                    }
+                    visualTorus1.Torus.TaperEndRadius = tubeRadius;
+                    visualTorus2.Torus.TaperEndRadius = tubeRadius;
+                    visualTorus1.Torus.TaperStartRadius = tubeRadius * 0.1f;
+                    visualTorus2.Torus.TaperStartRadius = tubeRadius * 0.1f;
 
 
                     // needs to be flat number otherwise accumulates multiplication
-                    float arrowRadius = tubeRadius + tubeRadius/2;
+                    float arrowRadiusRadius = tubeRadius * 3f;
+                    float arrowRadiusGap = Mathf.Tan(Mathf.Deg2Rad * 5f) * torusDiameterFromBounds;
+
+                    // Pick the higher one to make it look better
+                    float arrowRadius = Mathf.Max(arrowRadiusRadius, arrowRadiusGap);
 
                     // Set arrow radius/length depending on tube size and radius
-                    visualArrow1.Arrow.BottomRadius = arrowRadius;
-                    visualArrow1.Arrow.Length = arrowRadius * 2;
+                    visualArrow1.Arrow.BottomRadius = arrowRadius / 2f;
+                    visualArrow1.Arrow.Length = arrowRadius;
 
                     // Set arrow radius/length depending on tube size and radius
-                    visualArrow2.Arrow.BottomRadius = arrowRadius;
-                    visualArrow2.Arrow.Length = arrowRadius * 2;
+                    visualArrow2.Arrow.BottomRadius = arrowRadius / 2f;
+                    visualArrow2.Arrow.Length = arrowRadius;
 
                     // Set up arrow offsets
                     Vector3 positionOffset = Vector3.left * (torusDiameterFromBounds / 2.0f);
-                    Vector3 arrowDirection = RA.Controller.HoldingChangeHeightKey ? -Vector3.forward : Vector3.forward;
 
                     // This one faces towards rotation only if shift held down
                     visualArrow1.transformInterpolator.TargetPositionOffset = positionOffset;
-                    visualArrow1.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(arrowDirection);
+                    visualArrow1.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(-Vector3.forward);
 
                     // This one faces towards rotation normally
                     visualArrow2.transformInterpolator.TargetPositionOffset = -positionOffset;
-                    visualArrow2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(-arrowDirection);
+                    visualArrow2.transformInterpolator.TargetRotationOffset = Quaternion.LookRotation(Vector3.forward);
+
+                    float scale = RA.Controller.HoldingChangeHeightKey ? 1.0f : -1.0f;
+                    var t = groupTorus.transformInterpolator.transform;
+                    t.localScale = new Vector3(t.localScale.x, t.localScale.y, scale);
+
                 }
             }
             else
