@@ -96,6 +96,7 @@
         public override void OnStart()
         {
             Active = RA.ActiveOnLoad.Value;
+            CurrentRotationAxis = Axis.Y;
         }
 
         public override void OnReverted() { }
@@ -135,6 +136,11 @@
                     GameState = ParkitectState.None;
                     ModBase.LOG($"Not building  {builder.GetType()} : {builder.name}");
                 }
+            }
+            else
+            {/// TODO: Backport to future versions
+                ActiveBuilder = null;
+                GameState = ParkitectState.None;
             }
         }
 
@@ -256,6 +262,7 @@
 
         private bool ShouldWindowBeOpened()
         {
+            return false;
             return Active || GameState == ParkitectState.Placement;
         }
 
