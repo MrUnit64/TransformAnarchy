@@ -71,7 +71,6 @@ namespace RotationAnarchy.Internal
             Quaternion trackballRotation;
             if (SelectedAxis != null)
             {
-                Debug.Log($"Doing stuff for axis{SelectedAxis}");
                 var axisPlane = new Plane(Rotation * GetAxisVector(SelectedAxis.Value), ghostPos);
                 axisPlane.Raycast(_mouseRay, out var distance);
                 var planeIntersect = _mouseRay.GetPoint(distance);

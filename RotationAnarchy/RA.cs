@@ -73,7 +73,7 @@
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
             DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftControl);
             LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
-            DragRotationHotkey = NewHotkey("dragRotation", "Drag Rotation", "TODO", KeyCode.Keypad3);
+            DragRotationHotkey = NewHotkey("dragRotation", "Drag Rotation", "Toggle to a Trackball-Style dragging mode, use Height-Change Key to lock Axis", KeyCode.Keypad3);
 
             // Mod changes registration --------------------------------------------------------
             RegisterComponent(Controller = new RAController());
