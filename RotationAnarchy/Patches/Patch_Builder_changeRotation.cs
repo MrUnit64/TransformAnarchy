@@ -9,14 +9,15 @@ namespace RotationAnarchy.Patches
         static bool Prefix(Quaternion ___rotation, ref Quaternion __state)
         {
             __state = ___rotation;
-            return !RA.Controller.Active;
+            /// TODO: Backport to future versions
+            return !(RA.Controller.Active && RA.Controller.GameState == ParkitectState.Placement);
         }
 
         static void Postfix(int direction, ref Quaternion ___rotation, Quaternion __state, ref Vector3 ___forward, ref bool ___dontAutoRotate)
         {
 
-            // If the mod is currently active
-            if (RA.Controller.Active)
+            // If the mod is currently active /// TODO: Backport to future versions
+            if (RA.Controller.Active && RA.Controller.GameState == ParkitectState.Placement)
             {
 
                 // True if in local space, otherwise in world space

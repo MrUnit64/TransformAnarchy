@@ -10,7 +10,7 @@
         public override string MODKEY => "rotationAnarchy";
         public override string getName() => "Rotation Anarchy";
         public override string getDescription() => "Adds a more advanced rotation gizmo for Deco and Flatrides.";
-        protected override string SettingsInfoString => "Howdy, pardner.";
+        protected override string SettingsInfoString => "Settings";
         protected override Assembly AssemblyGetter => Assembly.GetExecutingAssembly();
 
         // Prefs values -------------------------------------------------------
@@ -58,7 +58,7 @@
             base.OnModEnabled();
 
             // Version registration      -------------------------------------------------------
-            NewVersion("0.1", "Baseline");
+            NewVersion("1.0", "Phase 1 of Rotation Anarchy");
 
             // Prefs values registration -------------------------------------------------------
             RegisterAndLoadPrefsValue(ActiveOnLoad = new PrefsBool("activeOnLoad", true, "Active On Load"));
@@ -79,8 +79,6 @@
             RegisterComponent(new RADebug());
             RegisterComponent(new GizmoController());
             RegisterComponent(new RAWorldSpaceText());
-
-            DebugGUI.SetActive(true);
         }
 
         protected override void OnModUpdate()
