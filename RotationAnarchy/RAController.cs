@@ -11,6 +11,7 @@
     {
         None,
         Placement,
+        Trackball
     }
 
     public class RAController : ModComponent
@@ -51,8 +52,6 @@
         public bool IsLocalRotation { get; private set; }
 
         public Axis CurrentRotationAxis { get; private set; }
-        
-        public bool IsDragRotation { get; private set; }
 
         public ParkitectState GameState
         {
@@ -188,9 +187,24 @@
             }
         }
 
-        public void ToggleDragRotation()
+        private void ToggleDragRotation()
         {
-            IsDragRotation = !IsDragRotation;
+            switch (GameState)
+            {
+                case ParkitectState.Placement:
+                    IsLocalRotation = true;
+                    GameState = ParkitectState.Trackball;
+                    break;
+                case ParkitectState.Trackball:
+                    IsLocalRotation = false;
+                    GameState = ParkitectState.Placement;
+                    break;
+                case ParkitectState.None:
+                    // NoOp
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(GameState));
+            }
         }
 
         public void NotifyWindowState(bool opened)

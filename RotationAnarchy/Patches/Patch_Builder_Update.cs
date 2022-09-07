@@ -10,10 +10,11 @@ namespace RotationAnarchy.Patches
     {
         private static bool previousFrameActive;
 
-        static bool Prefix(ref Quaternion ___rotation, ref Vector3 ___forward, ref GameObject ___ghost, ref bool ___dontAutoRotate)
+        static bool Prefix(ref Quaternion ___rotation, ref Vector3 ___forward, ref GameObject ___ghost,
+            ref bool ___dontAutoRotate)
         {
             if (!RA.Controller.Active) return true;
-            if (!RA.Controller.IsDragRotation) return true;
+            if (RA.Controller.GameState != ParkitectState.Trackball) return true;
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -24,21 +25,22 @@ namespace RotationAnarchy.Patches
 
             var camera = Camera.main;
             if (camera == null) throw new InvalidOperationException("Camera was null");
-            var ghostPos = ___ghost.transform.position;
+            
+            
 
             if (Input.GetMouseButtonDown(0))
             {
-                RA.TrackballController.Initialize(
+                RA.TrackballController.BeginDrag(
                     ___rotation,
                     GameObjectUtil.ComputeTotalBounds(___ghost).extents.magnitude,
-                    ghostPos, Input.mousePosition);
+                    Input.mousePosition);
 
                 return false;
             }
 
             if (Input.GetMouseButton(0))
             {
-                RA.TrackballController.UpdateState(ghostPos, Input.mousePosition);
+                RA.TrackballController.UpdateDragPos(Input.mousePosition);
 
                 ___dontAutoRotate = true;
                 ___rotation = RA.TrackballController.Rotation;
@@ -50,14 +52,13 @@ namespace RotationAnarchy.Patches
             return false;
         }
 
-        
 
         static void Postfix(ref Quaternion ___rotation, ref Vector3 ___forward, ref GameObject ___ghost)
         {
             // We reset the rotation of the Builder if RA has just deactivated.
             if (!RA.Controller.Active)
             {
-                if(previousFrameActive)
+                if (previousFrameActive)
                 {
                     ___forward = Vector3.forward;
                     ___rotation = Quaternion.LookRotation(___forward);

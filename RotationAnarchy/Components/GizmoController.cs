@@ -9,6 +9,7 @@
     {
         PlacementModeGizmo placementRotationGizmo;
         TranslationGizmo translationGizmo;
+        private TrackballModeGizmo _trackballModeGizmo;
 
         private List<AbstractGizmo> gizmos = new List<AbstractGizmo>();
 
@@ -20,6 +21,9 @@
 
             translationGizmo = new TranslationGizmo();
             gizmos.Add(translationGizmo);
+
+            _trackballModeGizmo = new TrackballModeGizmo();
+            gizmos.Add(_trackballModeGizmo);
         }
 
         public override void OnUpdate()
@@ -29,9 +33,9 @@
             if (!Camera.main) // Gizmos are dependent on camera
                 return;
 
-            for (int i = 0; i < gizmos.Count; i++)
+            foreach (var gizmo in gizmos)
             {
-                gizmos[i].Update();
+                gizmo.Update();
             }
 
             //if (Input.GetKeyDown(KeyCode.Space))
@@ -81,12 +85,14 @@
 
         public override void OnReverted()
         {
-            for (int i = gizmos.Count - 1; i >= 0; i--)
+            foreach (var gizmo in gizmos)
             {
-                gizmos[i].Destroy();
+                gizmo.Destroy();
             }
             gizmos.Clear();
             placementRotationGizmo = null;
+            translationGizmo = null;
+            _trackballModeGizmo = null;
         }
     }
 
