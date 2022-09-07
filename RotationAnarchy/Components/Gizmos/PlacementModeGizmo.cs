@@ -130,6 +130,7 @@
                     // now we need to update gizmo dimensions to the size of the object
                     float torusDiameterFromBounds = BoundsMax + (tubeRadius * 2 + 0.5f);
 
+                    // Do the torus stuff
                     visualTorus1.Torus.TubeRadius = tubeRadius;
                     visualTorus1.Torus.Radius = torusDiameterFromBounds / 2f;
                     visualTorus2.Torus.TubeRadius = tubeRadius;
