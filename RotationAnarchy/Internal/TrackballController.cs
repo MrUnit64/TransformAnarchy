@@ -13,8 +13,7 @@ namespace RotationAnarchy.Internal
         private Camera _camera;
 
         public Quaternion Rotation { get; private set; }
-
-        public float? AngleAmount { get; private set; } = null;
+        public float? AngleAmount { get; private set; }
 
         public Axis? SelectedAxis { get; private set; }
 
@@ -27,6 +26,7 @@ namespace RotationAnarchy.Internal
             _hemisphereRadius = null;
             _camera = null;
             SelectedAxis = null;
+            AngleAmount = null;
         }
 
         public void BeginDrag(Quaternion rotation, float radius, Vector3 dragStartPos)
@@ -37,6 +37,7 @@ namespace RotationAnarchy.Internal
             _viewPlane = new Plane(_camera.transform.forward * -1, ghostPos);
             _initialRotation = rotation;
             _hemisphereRadius = radius;
+            AngleAmount = null;
 
             _mouseRay = _camera.ScreenPointToRay(dragStartPos);
 
