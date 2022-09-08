@@ -48,9 +48,13 @@ namespace RotationAnarchy.Internal
             }
             else if (SelectedAxis != null && _axisRayPos != null)
             {
+                var normal = RA.Controller.IsLocalRotation
+                    ? Rotation * GetAxisVector(SelectedAxis.Value)
+                    : GetAxisVector(SelectedAxis.Value);
+                    
                 _dragStart = ClosestPointForAxis(
                     ghostPos,
-                    Rotation * GetAxisVector(SelectedAxis.Value),
+                    normal,
                     _hemisphereRadius.Value,
                     _axisRayPos.Value
                     );
@@ -70,7 +74,10 @@ namespace RotationAnarchy.Internal
             Quaternion trackballRotation;
             if (SelectedAxis != null)
             {
-                var axisPlane = new Plane(Rotation * GetAxisVector(SelectedAxis.Value), ghostPos);
+                var axisNormal = RA.Controller.IsLocalRotation
+                    ? Rotation * GetAxisVector(SelectedAxis.Value)
+                    : GetAxisVector(SelectedAxis.Value);   
+                var axisPlane = new Plane(axisNormal, ghostPos);
                 axisPlane.Raycast(_mouseRay, out var distance);
                 var planeIntersect = _mouseRay.GetPoint(distance);
                 var closestOnAxis = ClosestPointWithinDistance(ghostPos, _hemisphereRadius.Value, planeIntersect);
@@ -79,9 +86,8 @@ namespace RotationAnarchy.Internal
                 var startVec = _dragStart.Value - ghostPos;
                 var currentVec = closestOnAxis - ghostPos;
                 
-                var rotationAxis = Rotation * GetAxisVector(SelectedAxis.Value);
-                var rotationAngle = Vector3.SignedAngle(startVec, currentVec, rotationAxis);
-                trackballRotation = Quaternion.AngleAxis(rotationAngle, rotationAxis);
+                var rotationAngle = Vector3.SignedAngle(startVec, currentVec, axisNormal);
+                trackballRotation = Quaternion.AngleAxis(rotationAngle, axisNormal);
             }
             else
             {

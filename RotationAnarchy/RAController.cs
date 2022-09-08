@@ -198,11 +198,9 @@
             switch (GameState)
             {
                 case ParkitectState.Placement:
-                    IsLocalRotation = true;
                     GameState = ParkitectState.Trackball;
                     break;
                 case ParkitectState.Trackball:
-                    IsLocalRotation = false;
                     GameState = ParkitectState.Placement;
                     break;
                 case ParkitectState.None:
