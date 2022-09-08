@@ -67,8 +67,9 @@ namespace RotationAnarchy
 
                 var rotationSpaceText = RA.Controller.IsLocalRotation ? "Local" : "Global";
                 var axesText = GetAxisText();
+                var angleText = GetAngleText();
 
-                LocalSpaceText.text.text = rotationSpaceText + "\n" + axesText;
+                LocalSpaceText.text.text = $"{rotationSpaceText}\n{axesText}\n{angleText}";
                 LocalSpaceText.text.alignment = TextAlignmentOptions.TopLeft;
 
                 LocalSpaceText.gameObject.SetActive(true);
@@ -77,6 +78,21 @@ namespace RotationAnarchy
             else
             {
                 LocalSpaceText.gameObject.SetActive(false);
+            }
+        }
+
+        private static string GetAngleText()
+        {
+            switch (RA.Controller.GameState)
+            {
+                case ParkitectState.Trackball when RA.TrackballController.AngleAmount != null:
+                    return $"{RA.TrackballController.AngleAmount:0.00}°";
+                case ParkitectState.Trackball:
+                case ParkitectState.None:
+                case ParkitectState.Placement:
+                    return "";
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

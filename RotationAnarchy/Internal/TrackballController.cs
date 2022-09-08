@@ -13,6 +13,9 @@ namespace RotationAnarchy.Internal
         private Camera _camera;
 
         public Quaternion Rotation { get; private set; }
+
+        public float? AngleAmount { get; private set; } = null;
+
         public Axis? SelectedAxis { get; private set; }
 
         private Vector3? _axisRayPos;
@@ -86,8 +89,8 @@ namespace RotationAnarchy.Internal
                 var startVec = _dragStart.Value - ghostPos;
                 var currentVec = closestOnAxis - ghostPos;
                 
-                var rotationAngle = Vector3.SignedAngle(startVec, currentVec, axisNormal);
-                trackballRotation = Quaternion.AngleAxis(rotationAngle, axisNormal);
+                AngleAmount = Vector3.SignedAngle(startVec, currentVec, axisNormal);
+                trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, axisNormal);
             }
             else
             {
@@ -104,8 +107,8 @@ namespace RotationAnarchy.Internal
                 var currentVec = currentPos - ghostPos;
 
                 var rotationAxis = Vector3.Cross(startVec, currentVec).normalized;
-                var rotationAngle = Vector3.Angle(startVec, currentVec);
-                trackballRotation = Quaternion.AngleAxis(rotationAngle, rotationAxis);
+                AngleAmount = Vector3.Angle(startVec, currentVec);
+                trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, rotationAxis);
             }
 
             Rotation = trackballRotation * _initialRotation.Value;
