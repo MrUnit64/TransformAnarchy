@@ -30,7 +30,7 @@ namespace RotationAnarchy
                 {positionOffset = new Vector3(0, 0, 0), rotationOffset = Quaternion.LookRotation(Vector3.down)},
         };
 
-        public TrackballModeGizmo() : base("Placement Mode Gizmo")
+        public TrackballModeGizmo() : base(nameof(TrackballModeGizmo))
         {
         }
 
@@ -114,9 +114,9 @@ namespace RotationAnarchy
                 Axis = RA.Controller.CurrentRotationAxis;
 
                 var offsets = _gizmoOffsets.GetForAxis(Axis);
-                DebugGUI.DrawValue("Current Placement Gizmo Axis", Axis);
-                DebugGUI.DrawValue("Current Placement Gizmo offsetPos", offsets.positionOffset);
-                DebugGUI.DrawValue("Current Placement Gizmo offsetRot", offsets.rotationOffset);
+                DebugGUI.DrawValue("Current Trackball Gizmo Axis", Axis);
+                DebugGUI.DrawValue("Current Trackball Gizmo offsetPos", offsets.positionOffset);
+                DebugGUI.DrawValue("Current Trackball Gizmo offsetRot", offsets.rotationOffset);
 
 
                 // first we need total bounds of the object
@@ -143,7 +143,7 @@ namespace RotationAnarchy
                 _visualTorusZ.colorInterpolator.TargetColor = GetColorsForAxis(Axis.Z).color;
                 _visualTorusZ.colorInterpolator.TargetOutlineColor = GetColorsForAxis(Axis.Z).outlineColor;
 
-                var scale = RA.Controller.HoldingChangeHeightKey ? 1.0f : -1.0f;
+                const float scale = 1.0f;
                 var t = _groupTorus.transformInterpolator.transform;
                 t.localScale = new Vector3(t.localScale.x, t.localScale.y, scale);
             }

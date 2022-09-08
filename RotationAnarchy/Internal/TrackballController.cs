@@ -28,7 +28,6 @@ namespace RotationAnarchy.Internal
 
         public void BeginDrag(Quaternion rotation, float radius, Vector3 dragStartPos)
         {
-            _camera = Camera.main;
             if (_camera == null) throw new InvalidOperationException("Camera was null");
 
             var ghostPos = RA.Controller.ActiveGhost.transform.position;
@@ -36,9 +35,18 @@ namespace RotationAnarchy.Internal
             _initialRotation = rotation;
             _hemisphereRadius = radius;
 
-            var mouseRay = _camera.ScreenPointToRay(dragStartPos);
+            _mouseRay = _camera.ScreenPointToRay(dragStartPos);
 
-            if (RA.Controller.HoldingChangeHeightKey && SelectedAxis != null)
+            if(RA.Controller.HoldingChangeHeightKey)
+            {
+                _viewPlane.Value.Raycast(_mouseRay, out var distance);
+                _dragStart = SnapToHemisphere(
+                    ghostPos,
+                    _viewPlane.Value.normal,
+                    _hemisphereRadius.Value,
+                    _mouseRay.GetPoint(distance));
+            }
+            else if (SelectedAxis != null && _axisRayPos != null)
             {
                 _dragStart = ClosestPointForAxis(
                     ghostPos,
@@ -46,15 +54,6 @@ namespace RotationAnarchy.Internal
                     _hemisphereRadius.Value,
                     _axisRayPos.Value
                     );
-            }
-            else
-            {
-                _viewPlane.Value.Raycast(_mouseRay, out var distance);
-                _dragStart = SnapToHemisphere(
-                    ghostPos,
-                    _viewPlane.Value.normal,
-                    _hemisphereRadius.Value,
-                    mouseRay.GetPoint(distance));
             }
         }
 
@@ -122,18 +121,18 @@ namespace RotationAnarchy.Internal
             
             if (RA.Controller.GameState != ParkitectState.Trackball) return;
             if (_dragStart != null) return; // Avoid changing the axis while dragging
-            if (!RA.Controller.HoldingChangeHeightKey)
-            {
-                SelectedAxis = null;
-                return;
-            }
             if (_camera == null)
             {
                 _camera = Camera.main;
                 if (_camera == null) return;
             }
-
             _mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
+            if (RA.Controller.HoldingChangeHeightKey)
+            {
+                SelectedAxis = null;
+                return;
+            }
+            
             if (!Physics.Raycast(_mouseRay, out var hitInfo)) return;
 
             switch (hitInfo.collider.name)
