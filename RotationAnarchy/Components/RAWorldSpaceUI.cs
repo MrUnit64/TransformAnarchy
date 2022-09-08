@@ -1,4 +1,6 @@
-﻿namespace RotationAnarchy 
+﻿using System;
+
+namespace RotationAnarchy 
 {
 
     using UnityEngine;
@@ -20,7 +22,7 @@
         };
 
         // Named in order of X, Y, Z
-        public static string[] directionAxesNames = new string[]
+        private static string[] directionAxesNames = new string[]
 {
             "Pitch",    // X
             "Yaw",      // Y
@@ -42,7 +44,7 @@
 
         public override void OnUpdate()
         {
-            if (RA.Controller.ActiveGhost && RA.Controller.ActiveBuilder && RA.Controller.GameState == ParkitectState.Placement)
+            if (RA.Controller.ActiveGhost && RA.Controller.ActiveBuilder && RA.Controller.GameState != ParkitectState.None)
             {
                 var Ghost = RA.Controller.ActiveGhost;
 
@@ -63,8 +65,8 @@
 
                 LocalSpaceText.transform.position = vector - forwardVec * 1.5f;
 
-                string rotationSpaceText = RA.Controller.IsLocalRotation ? "Local" : "Global";
-                string axesText = directionAxesNames[(int)RA.Controller.CurrentRotationAxis];
+                var rotationSpaceText = RA.Controller.IsLocalRotation ? "Local" : "Global";
+                var axesText = GetAxisText();
 
                 LocalSpaceText.text.text = rotationSpaceText + "\n" + axesText;
                 LocalSpaceText.text.alignment = TextAlignmentOptions.TopLeft;
@@ -75,6 +77,23 @@
             else
             {
                 LocalSpaceText.gameObject.SetActive(false);
+            }
+        }
+
+        private static string GetAxisText()
+        {
+            switch (RA.Controller.GameState)
+            {
+                case ParkitectState.None:
+                    return "";
+                case ParkitectState.Placement:
+                    return directionAxesNames[(int)RA.Controller.CurrentRotationAxis];
+                case ParkitectState.Trackball when RA.TrackballController.SelectedAxis != null:
+                    return directionAxesNames[(int)RA.TrackballController.SelectedAxis];
+                case ParkitectState.Trackball when RA.TrackballController.SelectedAxis == null:
+                    return "Free Axis";
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
