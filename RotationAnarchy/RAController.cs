@@ -28,7 +28,6 @@
         public float CurrentZoom { get; private set; }
         public bool IsPickingObject { get; private set; }
         public bool GizmoActive { get; private set; }
-        public bool AngleSnapActive { get; private set; }
 
         /// <summary>
         /// Also acts as "invert" rotation direction.
@@ -92,7 +91,6 @@
             RA.DirectionHotkey.onKeyDown += ToggleDirection;
             RA.SelectObjectHotkey.onKeyDown += StartPickingObject;
             RA.DragRotationHotkey.onKeyDown += ToggleDragRotation;
-            RA.AngleSnapHotkey.onKeyDown += ToggleAngleSnap;
         }
 
         public override void OnStart()
@@ -211,11 +209,6 @@
                 default:
                     throw new ArgumentOutOfRangeException(nameof(GameState));
             }
-        }
-        
-        private void ToggleAngleSnap()
-        {
-            AngleSnapActive = !AngleSnapActive;
         }
 
         public void NotifyWindowState(bool opened)

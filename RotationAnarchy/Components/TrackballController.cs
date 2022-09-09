@@ -19,6 +19,7 @@ namespace RotationAnarchy.Internal
         public float? AngleAmount { get; private set; }
 
         public Axis? SelectedAxis { get; private set; }
+        public bool AngleSnapActive { get; private set; }
 
 
         public void Reset()
@@ -95,7 +96,7 @@ namespace RotationAnarchy.Internal
                 var currentVec = closestOnAxis - ghostPos;
                 
                 AngleAmount = Vector3.SignedAngle(startVec, currentVec, _localRotAxis.Value);
-                if (RA.Controller.AngleSnapActive)
+                if (AngleSnapActive)
                     AngleAmount = AngleAmount.Value.RoundToMultipleOf(RA.RotationAngle.Value);
                 trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, _localRotAxis.Value);
             }
@@ -115,7 +116,7 @@ namespace RotationAnarchy.Internal
 
                 var rotationAxis = Vector3.Cross(startVec, currentVec).normalized;
                 AngleAmount = Vector3.Angle(startVec, currentVec);
-                if (RA.Controller.AngleSnapActive)
+                if (AngleSnapActive)
                     AngleAmount = AngleAmount.Value.RoundToMultipleOf(RA.RotationAngle.Value);
                 trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, rotationAxis);
             }
@@ -123,10 +124,20 @@ namespace RotationAnarchy.Internal
             Rotation = trackballRotation * _initialRotation.Value;
         }
 
+        #region Keybinds
+
         public override void OnApplied()
         {
-            // TODO: Extract from Update?
+            RA.AngleSnapHotkey.onKeyDown += ToggleAngleSnap;
         }
+
+        private void ToggleAngleSnap()
+        {
+            AngleSnapActive = !AngleSnapActive;
+        }
+
+        #endregion
+
 
         public override void OnReverted()
         {
