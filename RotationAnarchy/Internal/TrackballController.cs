@@ -13,12 +13,13 @@ namespace RotationAnarchy.Internal
         private Ray _mouseRay;
         private Camera _camera;
 
+        private Vector3? _axisRayPos;
+        private Vector3? _localRotAxis;
         public Quaternion Rotation { get; private set; }
         public float? AngleAmount { get; private set; }
 
         public Axis? SelectedAxis { get; private set; }
 
-        private Vector3? _axisRayPos;
 
         public void Reset()
         {
@@ -26,6 +27,7 @@ namespace RotationAnarchy.Internal
             _initialRotation = null;
             _hemisphereRadius = null;
             _camera = null;
+            _localRotAxis = null;
             SelectedAxis = null;
             AngleAmount = null;
         }
@@ -53,13 +55,13 @@ namespace RotationAnarchy.Internal
             }
             else if (SelectedAxis != null && _axisRayPos != null)
             {
-                var normal = RA.Controller.IsLocalRotation
+                _localRotAxis = RA.Controller.IsLocalRotation
                     ? Rotation * GetAxisVector(SelectedAxis.Value)
                     : GetAxisVector(SelectedAxis.Value);
-                    
+                
                 _dragStart = ClosestPointForAxis(
                     ghostPos,
-                    normal,
+                    _localRotAxis.Value,
                     _hemisphereRadius.Value,
                     _axisRayPos.Value
                     );
@@ -77,12 +79,9 @@ namespace RotationAnarchy.Internal
             _mouseRay = _camera.ScreenPointToRay(dragPos);
 
             Quaternion trackballRotation;
-            if (SelectedAxis != null)
+            if (SelectedAxis != null && _localRotAxis != null)
             {
-                var axisNormal = RA.Controller.IsLocalRotation
-                    ? Rotation * GetAxisVector(SelectedAxis.Value)
-                    : GetAxisVector(SelectedAxis.Value);   
-                var axisPlane = new Plane(axisNormal, ghostPos);
+                var axisPlane = new Plane(_localRotAxis.Value, ghostPos);
                 axisPlane.Raycast(_mouseRay, out var distance);
                 var planeIntersect = _mouseRay.GetPoint(distance);
                 var closestOnAxis = ClosestPointWithinDistance(ghostPos, _hemisphereRadius.Value, planeIntersect);
@@ -91,10 +90,10 @@ namespace RotationAnarchy.Internal
                 var startVec = _dragStart.Value - ghostPos;
                 var currentVec = closestOnAxis - ghostPos;
                 
-                AngleAmount = Vector3.SignedAngle(startVec, currentVec, axisNormal);
+                AngleAmount = Vector3.SignedAngle(startVec, currentVec, _localRotAxis.Value);
                 if (RA.Controller.AngleSnapActive)
                     AngleAmount = AngleAmount.Value.RoundToMultipleOf(RA.RotationAngle.Value);
-                trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, axisNormal);
+                trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, _localRotAxis.Value);
             }
             else
             {
