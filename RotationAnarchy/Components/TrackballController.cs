@@ -210,12 +210,9 @@ namespace RotationAnarchy.Internal
             var distance = Vector3.Dot(offsetFromCenter, axisNormal);
             var projected = position - distance * axisNormal;
 
-            Debug.Log(
-                $"Closest from {position} in plane {projected} at distance {Vector3.Distance(position, projected)}");
-
+            RA.Instance.LOG($"Closest from {position} in plane {projected} at distance {Vector3.Distance(position, projected)}");
             var circlePosition = ClosestPointWithinDistance(center, radius, projected);
-
-            Debug.Log($"Snapped onto circle at {circlePosition}");
+            RA.Instance.LOG($"Snapped onto circle at {circlePosition}");
             return circlePosition;
         }
 
