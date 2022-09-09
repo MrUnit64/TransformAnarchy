@@ -30,6 +30,7 @@
         public static BaseHotkey DirectionHotkey { get; private set; }
         public static BaseHotkey LocalRotationHotkey { get; private set; }
         public static BaseHotkey DragRotationHotkey { get; private set; }
+        public static BaseHotkey AngleSnapHotkey { get; private set; }
 
         // Features    -------------------------------------------------------
         public static RAController Controller { get; private set; }
@@ -74,6 +75,7 @@
             DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftControl);
             LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
             DragRotationHotkey = NewHotkey("dragRotation", "Drag Rotation", "Toggle to a Trackball-Style dragging mode, use Height-Change Key to lock Axis", KeyCode.Keypad3);
+            AngleSnapHotkey = NewHotkey("angleSnap", "Angle Snapping", "Toggle angle snapping for drag rotation", KeyCode.Keypad1);
 
             // Mod changes registration --------------------------------------------------------
             RegisterComponent(Controller = new RAController());

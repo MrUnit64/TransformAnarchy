@@ -1,4 +1,5 @@
 ﻿using System;
+using RotationAnarchy.Internal.Utils;
 using UnityEngine;
 
 namespace RotationAnarchy.Internal
@@ -91,6 +92,8 @@ namespace RotationAnarchy.Internal
                 var currentVec = closestOnAxis - ghostPos;
                 
                 AngleAmount = Vector3.SignedAngle(startVec, currentVec, axisNormal);
+                if (RA.Controller.AngleSnapActive)
+                    AngleAmount = AngleAmount.Value.RoundToMultipleOf(RA.RotationAngle.Value);
                 trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, axisNormal);
             }
             else
@@ -109,6 +112,8 @@ namespace RotationAnarchy.Internal
 
                 var rotationAxis = Vector3.Cross(startVec, currentVec).normalized;
                 AngleAmount = Vector3.Angle(startVec, currentVec);
+                if (RA.Controller.AngleSnapActive)
+                    AngleAmount = AngleAmount.Value.RoundToMultipleOf(RA.RotationAngle.Value);
                 trackballRotation = Quaternion.AngleAxis(AngleAmount.Value, rotationAxis);
             }
 

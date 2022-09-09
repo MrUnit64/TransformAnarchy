@@ -118,6 +118,7 @@
     <Compile Include="Internal\TrackballController.cs" />
     <Compile Include="Internal\Utils\ColorExtensions.cs" />
     <Compile Include="Internal\Utils\DebugGUI.cs" />
+    <Compile Include="Internal\Utils\FloatExtensions.cs" />
     <Compile Include="Internal\Utils\GameObjectWrapper.cs" />
     <Compile Include="Internal\Utils\TransformInterpolator.cs" />
     <Compile Include="Components\RADebug.cs" />
