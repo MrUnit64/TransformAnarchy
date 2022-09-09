@@ -55,6 +55,8 @@ namespace RotationAnarchy.Internal
             }
             else if (SelectedAxis != null && _axisRayPos != null)
             {
+                // Set the axis here to avoid axis shifts towards the "poles" of the gizmo axes
+                // Free rotation mode is unaffected as the rotation cannot exceed a hemisphere
                 _localRotAxis = RA.Controller.IsLocalRotation
                     ? Rotation * GetAxisVector(SelectedAxis.Value)
                     : GetAxisVector(SelectedAxis.Value);
