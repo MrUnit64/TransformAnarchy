@@ -1,15 +1,15 @@
 ﻿using System;
+using RotationAnarchy.Internal;
 using RotationAnarchy.Internal.Utils;
 using UnityEngine;
 
-namespace RotationAnarchy.Internal
+namespace RotationAnarchy.Components
 {
     public class TrackballController : ModComponent
     {
         private Vector3? _dragStart;
         private Quaternion? _initialRotation;
         private float? _hemisphereRadius;
-        private Plane? _viewPlane;
         private Ray _mouseRay;
         private Camera _camera;
         private Vector3? _localRotAxis;
@@ -36,7 +36,6 @@ namespace RotationAnarchy.Internal
             if (_camera == null) throw new InvalidOperationException("Camera was null");
 
             var ghostPos = RA.Controller.ActiveGhost.transform.position;
-            _viewPlane = new Plane(_camera.transform.forward * -1, ghostPos);
             _initialRotation = rotation;
             _hemisphereRadius = radius;
             AngleAmount = null;
@@ -44,14 +43,15 @@ namespace RotationAnarchy.Internal
             _mouseRay = _camera.ScreenPointToRay(dragStartPos);
 
             // View axis rotation
-            if(RA.Controller.HoldingChangeHeightKey)
+            if (RA.Controller.HoldingChangeHeightKey)
             {
-                _viewPlane.Value.Raycast(_mouseRay, out var distance);
+                var normal = _camera.transform.forward * -1;
+                var (planeIntersect,_) = IntersectMouseRayWithPlane(normal, ghostPos);
                 _dragStart = SnapToHemisphere(
                     ghostPos,
-                    _viewPlane.Value.normal,
+                    normal,
                     _hemisphereRadius.Value,
-                    _mouseRay.GetPoint(distance));
+                    planeIntersect);
             }
             // Axis rotation
             else if (SelectedAxis != null)
@@ -62,22 +62,17 @@ namespace RotationAnarchy.Internal
                     ? Rotation * GetAxisVector(SelectedAxis.Value)
                     : GetAxisVector(SelectedAxis.Value);
 
-                var axisPlane = new Plane(_localRotAxis.Value, ghostPos);
-                axisPlane.Raycast(_mouseRay, out var distance);
-                var planeIntersect = _mouseRay.GetPoint(distance);
-                
+                var (planeIntersect, _) = IntersectMouseRayWithPlane(_localRotAxis.Value, ghostPos);
                 _dragStart = ClosestPointForAxis(
                     ghostPos,
                     _localRotAxis.Value,
                     _hemisphereRadius.Value,
-                    planeIntersect
-                    );
+                    planeIntersect);
             }
         }
 
         public void UpdateDragPos(Vector3 dragPos)
         {
-            if (_viewPlane == null) throw new InvalidOperationException($"{nameof(_viewPlane)} was null");
             if (_hemisphereRadius == null) throw new InvalidOperationException($"{nameof(_hemisphereRadius)} was null");
             if (_initialRotation == null) throw new InvalidOperationException($"{nameof(_initialRotation)} was null");
             if (_dragStart == null) return;
@@ -88,9 +83,7 @@ namespace RotationAnarchy.Internal
             Quaternion trackballRotation;
             if (SelectedAxis != null && _localRotAxis != null)
             {
-                var axisPlane = new Plane(_localRotAxis.Value, ghostPos);
-                axisPlane.Raycast(_mouseRay, out var distance);
-                var planeIntersect = _mouseRay.GetPoint(distance);
+                var (planeIntersect, _) = IntersectMouseRayWithPlane(_localRotAxis.Value, ghostPos);
                 var closestOnAxis = ClosestPointWithinDistance(ghostPos, _hemisphereRadius.Value, planeIntersect);
                 
                 if (Vector3.Distance(_dragStart.Value, closestOnAxis) <= float.Epsilon) return;
@@ -104,12 +97,13 @@ namespace RotationAnarchy.Internal
             }
             else
             {
-                _viewPlane.Value.Raycast(_mouseRay, out var distance);
+                var normal = _camera.transform.forward * -1;
+                var (planeIntersect, _) = IntersectMouseRayWithPlane(normal, ghostPos);
                 var currentPos = SnapToHemisphere(
                     ghostPos,
-                    _viewPlane.Value.normal,
+                    normal,
                     _hemisphereRadius.Value,
-                    _mouseRay.GetPoint(distance));
+                    planeIntersect);
 
                 if (Vector3.Distance(_dragStart.Value, currentPos) <= float.Epsilon) return;
 
@@ -193,6 +187,15 @@ namespace RotationAnarchy.Internal
                 default:
                     throw new ArgumentOutOfRangeException(nameof(axis), axis, null);
             }
+        }
+
+        private (Vector3 position, float distance) IntersectMouseRayWithPlane(Vector3 planeNormal, Vector3 planePosition)
+        {
+            var axisPlane = new Plane(planeNormal, planePosition);
+            axisPlane.Raycast(_mouseRay, out var distance);
+            var planeIntersect = _mouseRay.GetPoint(distance);
+
+            return (planeIntersect, distance);
         }
 
         private static Vector3 ClosestPointForAxis(

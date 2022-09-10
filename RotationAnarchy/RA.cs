@@ -1,4 +1,6 @@
-﻿namespace RotationAnarchy
+﻿using RotationAnarchy.Components;
+
+namespace RotationAnarchy
 {
     using UnityEngine;
     using RotationAnarchy.Internal;
