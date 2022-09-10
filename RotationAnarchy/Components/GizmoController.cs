@@ -7,8 +7,8 @@
 
     public class GizmoController : ModComponent
     {
-        PlacementModeGizmo placementRotationGizmo;
-        TranslationGizmo translationGizmo;
+        private PlacementModeGizmo placementRotationGizmo;
+        private TranslationGizmo translationGizmo;
         private TrackballModeGizmo _trackballModeGizmo;
 
         private List<AbstractGizmo> gizmos = new List<AbstractGizmo>();

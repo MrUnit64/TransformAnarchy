@@ -44,6 +44,7 @@ namespace RotationAnarchy.Internal
 
             _mouseRay = _camera.ScreenPointToRay(dragStartPos);
 
+            // View axis rotation
             if(RA.Controller.HoldingChangeHeightKey)
             {
                 _viewPlane.Value.Raycast(_mouseRay, out var distance);
@@ -53,6 +54,7 @@ namespace RotationAnarchy.Internal
                     _hemisphereRadius.Value,
                     _mouseRay.GetPoint(distance));
             }
+            // Axis rotation
             else if (SelectedAxis != null && _axisRayPos != null)
             {
                 // Set the axis here to avoid axis shifts towards the "poles" of the gizmo axes

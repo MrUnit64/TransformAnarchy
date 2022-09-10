@@ -115,7 +115,7 @@
     <Compile Include="Components\Gizmos\PlacementModeGizmo.cs" />
     <Compile Include="Components\Gizmos\TrackballModeGizmo.cs" />
     <Compile Include="Components\Gizmos\TranslationGizmo.cs" />
-    <Compile Include="Internal\TrackballController.cs" />
+    <Compile Include="Components\TrackballController.cs" />
     <Compile Include="Internal\Utils\ColorExtensions.cs" />
     <Compile Include="Internal\Utils\DebugGUI.cs" />
     <Compile Include="Internal\Utils\FloatExtensions.cs" />
