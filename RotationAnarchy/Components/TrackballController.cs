@@ -12,12 +12,10 @@ namespace RotationAnarchy.Internal
         private Plane? _viewPlane;
         private Ray _mouseRay;
         private Camera _camera;
-
-        private Vector3? _axisRayPos;
         private Vector3? _localRotAxis;
+
         public Quaternion Rotation { get; private set; }
         public float? AngleAmount { get; private set; }
-
         public Axis? SelectedAxis { get; private set; }
         public bool AngleSnapActive { get; private set; }
 
@@ -56,19 +54,23 @@ namespace RotationAnarchy.Internal
                     _mouseRay.GetPoint(distance));
             }
             // Axis rotation
-            else if (SelectedAxis != null && _axisRayPos != null)
+            else if (SelectedAxis != null)
             {
                 // Set the axis here to avoid axis shifts towards the "poles" of the gizmo axes
                 // Free rotation mode is unaffected as the rotation cannot exceed a hemisphere
                 _localRotAxis = RA.Controller.IsLocalRotation
                     ? Rotation * GetAxisVector(SelectedAxis.Value)
                     : GetAxisVector(SelectedAxis.Value);
+
+                var axisPlane = new Plane(_localRotAxis.Value, ghostPos);
+                axisPlane.Raycast(_mouseRay, out var distance);
+                var planeIntersect = _mouseRay.GetPoint(distance);
                 
                 _dragStart = ClosestPointForAxis(
                     ghostPos,
                     _localRotAxis.Value,
                     _hemisphereRadius.Value,
-                    _axisRayPos.Value
+                    planeIntersect
                     );
             }
         }
@@ -175,11 +177,6 @@ namespace RotationAnarchy.Internal
                 case TrackballModeGizmo.TorusZName:
                     SelectedAxis = Axis.Z;
                     break;
-            }
-
-            if (SelectedAxis != null)
-            {
-                _axisRayPos = _mouseRay.GetPoint(hitInfo.distance);
             }
         }
 
