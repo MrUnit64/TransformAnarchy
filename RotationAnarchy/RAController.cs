@@ -11,6 +11,7 @@
     {
         None,
         Placement,
+        Trackball
     }
 
     public class RAController : ModComponent
@@ -89,6 +90,7 @@
             RA.LocalRotationHotkey.onKeyDown += ToggleLocalRotationActive;
             RA.DirectionHotkey.onKeyDown += ToggleDirection;
             RA.SelectObjectHotkey.onKeyDown += StartPickingObject;
+            RA.DragRotationHotkey.onKeyDown += ToggleDragRotation;
         }
 
         public override void OnStart()
@@ -188,6 +190,24 @@
                     CurrentRotationAxis = Axis.Y;
 
                     break;
+            }
+        }
+
+        private void ToggleDragRotation()
+        {
+            switch (GameState)
+            {
+                case ParkitectState.Placement:
+                    GameState = ParkitectState.Trackball;
+                    break;
+                case ParkitectState.Trackball:
+                    GameState = ParkitectState.Placement;
+                    break;
+                case ParkitectState.None:
+                    // NoOp
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(GameState));
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace RotationAnarchy
+﻿using RotationAnarchy.Components;
+
+namespace RotationAnarchy
 {
     using UnityEngine;
     using RotationAnarchy.Internal;
@@ -29,9 +31,12 @@
         public static BaseHotkey RAActiveHotkey { get; private set; }
         public static BaseHotkey DirectionHotkey { get; private set; }
         public static BaseHotkey LocalRotationHotkey { get; private set; }
+        public static BaseHotkey DragRotationHotkey { get; private set; }
+        public static BaseHotkey AngleSnapHotkey { get; private set; }
 
         // Features    -------------------------------------------------------
         public static RAController Controller { get; private set; }
+        public static TrackballController TrackballController { get; private set; }
 
         // Params      -------------------------------------------------------
         public static Color SelectedBuildableHighlightColor { get; private set; } = new Color32(0, 162, 232, 255);
@@ -71,9 +76,12 @@
             RAActiveHotkey = NewHotkey("active", "Toggle RA", "Toggle Rotation Anarchy active, without disabling it.", KeyCode.Y);
             DirectionHotkey = NewHotkey("direction", "Rotation direction", "Change the rotation axes from horizontal to vertical", KeyCode.LeftControl);
             LocalRotationHotkey = NewHotkey("localSpace", "Local space", "Change the rotation axes from local space (object axes) to global space (world axes)", KeyCode.CapsLock);
+            DragRotationHotkey = NewHotkey("dragRotation", "Drag Rotation", "Toggle to a Trackball-Style dragging mode, use Height-Change Key to lock Axis", KeyCode.Keypad3);
+            AngleSnapHotkey = NewHotkey("angleSnap", "Angle Snapping", "Toggle angle snapping for drag rotation", KeyCode.Keypad1);
 
             // Mod changes registration --------------------------------------------------------
             RegisterComponent(Controller = new RAController());
+            RegisterComponent(TrackballController = new TrackballController());
             RegisterComponent(new ChangeUIBackgroundGraphics());
             RegisterComponent(new ConstructWindowToggle());
             RegisterComponent(new RADebug());

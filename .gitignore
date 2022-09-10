@@ -129,6 +129,7 @@ $tf/
 *.gpState
 
 # ReSharper is a .NET coding add-in
+.idea
 _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user

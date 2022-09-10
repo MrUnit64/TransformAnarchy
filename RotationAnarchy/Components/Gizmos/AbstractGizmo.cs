@@ -18,11 +18,9 @@
             get => _axis;
             set
             {
-                if (_axis != value)
-                {
-                    _axis = value;
-                    OnAxisChanged();
-                }
+                if (_axis == value) return;
+                _axis = value;
+                OnAxisChanged();
             }
         }
 
@@ -71,21 +69,31 @@
 
             if (target != null)
             {
-                // we are going to do a funny hack here
-                var originalRotation = target.transform.rotation;
-                target.transform.rotation = Quaternion.identity;
-                TargetBounds = GameObjectUtil.ComputeTotalBounds(target);
-                target.transform.rotation = originalRotation;
+                TargetBounds = GetBoundsFromTarget(target);
             }
-
-            float xWidth = TargetBounds.max.x - TargetBounds.min.x;
-            float zWidth = TargetBounds.max.z - TargetBounds.min.z;
-            BoundsMax = Mathf.Max(xWidth, zWidth);
+            BoundsMax = GetMaxBoundsFromBounds(TargetBounds);
 
             foreach (var component in gizmoComponents)
             {
                 component.Update();
             }
+        }
+
+        protected virtual Bounds GetBoundsFromTarget(GameObject target)
+        {
+            // we are going to do a funny hack here
+            var originalRotation = target.transform.rotation;
+            target.transform.rotation = Quaternion.identity;
+            var bounds = GameObjectUtil.ComputeTotalBounds(target);
+            target.transform.rotation = originalRotation;
+            return bounds;
+        }
+
+        protected virtual float GetMaxBoundsFromBounds(Bounds bounds)
+        {
+            var xWidth = bounds.max.x - bounds.min.x;
+            var zWidth = bounds.max.z - bounds.min.z;
+            return Mathf.Max(xWidth, zWidth);
         }
 
         public virtual void SnapTo(Vector3 position, Quaternion rotation)
@@ -106,11 +114,9 @@
 
         public virtual void SnapToActiveGhost()
         {
-            if (RA.Controller.ActiveGhost)
-            {
-                var tr = RA.Controller.ActiveGhost.transform;
-                SnapTo(tr.position, tr.rotation);
-            }
+            if (!RA.Controller.ActiveGhost) return;
+            var tr = RA.Controller.ActiveGhost.transform;
+            SnapTo(tr.position, tr.rotation);
         }
 
         public virtual void SnapToSelectedBuildable()
