@@ -75,7 +75,7 @@
         private ChunkedMesh[] selectedBuildableChunkedMeshes;
 
 
-        private HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
+        public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
             typeof(DecoBuilder),
             typeof(FlatRideBuilder)
@@ -261,7 +261,7 @@
         private bool ShouldWindowBeOpened()
         {
             return false;
-            return Active || GameState == ParkitectState.Placement;
+            //return Active || GameState == ParkitectState.Placement;
         }
 
         private void OpenWindow()

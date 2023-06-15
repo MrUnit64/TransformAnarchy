@@ -12,7 +12,7 @@
 
         protected override bool isPickableObject(BuildableObject buildableObject)
         {
-            return (buildableObject is Deco || buildableObject is FlatRide) && buildableObject.isAvailable();
+            return RAController.AllowedBuilderTypes.Contains(typeof(BuildableObject)) && buildableObject.isAvailable();
         }
     } 
 }

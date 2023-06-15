@@ -15,6 +15,17 @@ namespace RotationAnarchy
         protected override string SettingsInfoString => "Settings";
         protected override Assembly AssemblyGetter => Assembly.GetExecutingAssembly();
 
+        // New, lets see if it works
+        public override bool isMultiplayerModeCompatible()
+        {
+            return true;
+        }
+
+        public override bool isRequiredByAllPlayersInMultiplayerMode()
+        {
+            return false;
+        }
+
         // Prefs values -------------------------------------------------------
         public static PrefsBool ActiveOnLoad { get; private set; }
         public static PrefsFloatSnapped RotationAngle { get; private set; }
@@ -64,6 +75,7 @@ namespace RotationAnarchy
 
             // Version registration      -------------------------------------------------------
             NewVersion("1.0", "Phase 1 of Rotation Anarchy");
+            NewVersion("1.1", "Phase 1 of Rotation Anarchy - Now with experimental support for Multiplayer!");
 
             // Prefs values registration -------------------------------------------------------
             RegisterAndLoadPrefsValue(ActiveOnLoad = new PrefsBool("activeOnLoad", true, "Active On Load"));
