@@ -23,29 +23,6 @@ namespace RotationAnarchyEvolved
         protected int sId_Color;
         protected int sId_MainTex;
 
-        public void Start()
-        {
-
-            sId_Color = Shader.PropertyToID("_Color");
-            sId_MainTex = Shader.PropertyToID("_MainTex");
-
-            this.stencilMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlayStencil"));
-            this.baseMaterial = new Material(Shader.Find("Unlit/Color"));
-
-            renderers = GetComponentsInChildren<Renderer>().ToList();
-
-            foreach (Renderer r in renderers)
-            {
-                r.material = baseMaterial;
-            }
-
-            if (overlayHandle == null && HighlightOverlayController.Instance != null && renderers != null && renderers.Count > 0)
-                overlayHandle = HighlightOverlayController.Instance.add(renderers, fixedCustomColor: _color);
-
-            Debug.Log($"All done: {overlayHandle}");
-
-        }
-
         public abstract Plane GetPlane();
 
         public Vector3 GetPlaneOffset(Ray ray)
@@ -67,10 +44,15 @@ namespace RotationAnarchyEvolved
             }
 
         }
+        
         public virtual void OnDestroy()
         {
             if (overlayHandle != null)
                 overlayHandle.remove();
+
+            Destroy(stencilMaterial);
+            Destroy(baseMaterial);
+
         }
         public virtual void OnDisable()
         {
@@ -80,13 +62,34 @@ namespace RotationAnarchyEvolved
                 overlayHandle.remove();
                 overlayHandle = null;
             }
+        }
 
-            Destroy(stencilMaterial);
-            Destroy(baseMaterial);
+        public virtual void OnEnable()
+        {
+            sId_Color = Shader.PropertyToID("_Color");
+            sId_MainTex = Shader.PropertyToID("_MainTex");
+
+            this.stencilMaterial = new Material(Shader.Find("Rollercoaster/GhostOverlayStencil"));
+            this.baseMaterial = new Material(Shader.Find("Unlit/Color"));
+
+            renderers = GetComponentsInChildren<Renderer>().ToList();
+
+            foreach (Renderer r in renderers)
+            {
+                r.material = baseMaterial;
+            }
+
+            if (overlayHandle == null && HighlightOverlayController.Instance != null && renderers != null && renderers.Count > 0)
+                overlayHandle = HighlightOverlayController.Instance.add(renderers, fixedCustomColor: _color);
         }
 
         public void Render(CommandBuffer commandBuffer, CommandBuffer commandBufferStencil)
         {
+
+            if (!this.enabled)
+            {
+                return;
+            }
 
             foreach (Renderer r in renderers)
             {

@@ -6,6 +6,13 @@ using UnityEngine.Rendering;
 
 namespace RotationAnarchyEvolved
 {
+
+    public enum ToolSpace
+    {
+        LOCAL,
+        GLOBAL
+    };
+
     public abstract class Gizmo<T> : MonoBehaviour where T : GizmoComponent
     {
 
@@ -24,16 +31,10 @@ namespace RotationAnarchyEvolved
         protected T _currentlyDragging;
         protected Camera _cachedMaincam;
 
-        public enum Mode
-        {
-            LOCAL,
-            GLOBAL
-        };
-
         [SerializeField]
-        protected Mode _rotationMode;
+        protected ToolSpace _rotationMode;
 
-        public Mode CurrentRotationMode
+        public ToolSpace CurrentRotationMode
         {
             get
             {
@@ -41,8 +42,11 @@ namespace RotationAnarchyEvolved
             }
             set
             {
-                _rotationMode = value;
-                UpdateGizmoTransforms();
+                if (_rotationMode != value)
+                {
+                    _rotationMode = value;
+                    UpdateGizmoTransforms();
+                }
             }
         }
 
@@ -98,6 +102,8 @@ namespace RotationAnarchyEvolved
         protected CommandBuffer _commandBuffer;
         protected CommandBuffer _commandBufferStencil;
 
+        private bool _gizmoActive = false;
+
         public abstract Quaternion XAxisRotation();
         public abstract Quaternion YAxisRotation();
         public abstract Quaternion ZAxisRotation();
@@ -106,19 +112,13 @@ namespace RotationAnarchyEvolved
         public virtual Color ZAxisColor() => Color.blue;
         public virtual Color DeselectedColor() => Color.white * 0.5f;
         public virtual Color SelectedColor() => Color.yellow;
-
-        // Stencils
-        public virtual void OnEnable()
+        public virtual void OnCreate()
         {
             this._commandBuffer = new CommandBuffer();
             this._commandBuffer.name = gameObject.name;
 
             this._commandBufferStencil = new CommandBuffer();
             this._commandBufferStencil.name = gameObject.name + ".stencil";
-        }
-
-        public virtual void Start()
-        {
 
             GameObject wo = Instantiate<GameObject>(SpawnIn, transform);
             ZComponent = wo.AddComponent<T>();
@@ -138,6 +138,10 @@ namespace RotationAnarchyEvolved
             wo.layer = LAYER;
             wo.name = "XComponent";
 
+            OnStartDrag = new UnityEvent<DragInformation>();
+            OnDuringDrag = new UnityEvent<DragInformation>();
+            OnEndDrag = new UnityEvent<DragInformation>();
+
             OnDuringDrag.AddListener(OnDrag);
 
             UpdateGizmoTransforms();
@@ -153,15 +157,27 @@ namespace RotationAnarchyEvolved
             YComponent.SetColor((_currentlyDragging == YComponent) ? selCol : (_currentlyDragging == null ? YAxisColor() : deselCol));
             XComponent.SetColor((_currentlyDragging == XComponent) ? selCol : (_currentlyDragging == null ? XAxisColor() : deselCol));
         }
+        public void SetActiveGizmo(bool active)
+        {
+            XComponent.gameObject.SetActive(active); 
+            YComponent.gameObject.SetActive(active);
+            ZComponent.gameObject.SetActive(active);
+            _gizmoActive = active;
+        }
         public virtual void OnDrag(DragInformation eventInfo) { UpdateGizmoTransforms(); }
         protected virtual void UpdateGizmoTransforms()
         {
-            XComponent.transform.rotation = (_rotationMode == Mode.GLOBAL) ? XAxisRotation() : transform.rotation * XAxisRotation();
-            YComponent.transform.rotation = (_rotationMode == Mode.GLOBAL) ? YAxisRotation() : transform.rotation * YAxisRotation();
-            ZComponent.transform.rotation = (_rotationMode == Mode.GLOBAL) ? ZAxisRotation() : transform.rotation * ZAxisRotation();
+            XComponent.transform.rotation = (_rotationMode == ToolSpace.GLOBAL) ? XAxisRotation() : transform.rotation * XAxisRotation();
+            YComponent.transform.rotation = (_rotationMode == ToolSpace.GLOBAL) ? YAxisRotation() : transform.rotation * YAxisRotation();
+            ZComponent.transform.rotation = (_rotationMode == ToolSpace.GLOBAL) ? ZAxisRotation() : transform.rotation * ZAxisRotation();
         }
         public virtual void OnDragCheck()
         {
+
+            if (!_gizmoActive)
+            {
+                return;
+            }
 
             // Get cam
             if (_cachedMaincam == null)
@@ -169,7 +185,6 @@ namespace RotationAnarchyEvolved
                 _cachedMaincam = Camera.main;
                 return;
             }
-
 
             // do raycast
             RaycastHit hit;

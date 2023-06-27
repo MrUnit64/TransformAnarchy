@@ -410,6 +410,7 @@
     <Compile Include="RotationAnarchyEvolved\KeybindManager.cs" />
     <Compile Include="RotationAnarchyEvolved\Patches\BuilderOnDisablePatch.cs" />
     <Compile Include="RotationAnarchyEvolved\Patches\BuilderOnEnablePatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\BuilderUpdatePatch.cs" />
     <Compile Include="RotationAnarchyEvolved\RAE.cs" />
     <Compile Include="RotationAnarchyEvolved\RAEController.cs" />
     <Compile Include="RotationAnarchyEvolved\StencilHander.cs" />

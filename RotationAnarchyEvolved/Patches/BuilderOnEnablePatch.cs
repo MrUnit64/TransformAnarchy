@@ -14,6 +14,6 @@ public class BuilderOnEnablePatch
     [HarmonyPrefix]
     public static void PreOnEnable(Builder __instance)
     {
-        RAE.MainController.SetBuilder(__instance);
+        RAE.MainController.OnBuilderEnable(__instance);
     }
 }

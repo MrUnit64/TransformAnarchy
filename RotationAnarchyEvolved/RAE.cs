@@ -21,10 +21,16 @@ namespace RotationAnarchyEvolved
         private string _modPath;
 
         public static RAEController MainController;
+        public static RAE Instance;
         private Harmony _harmony;
+
+        public static GameObject ArrowGO;
+        public static GameObject RingGO;
 
         public override void onEnabled()
         {
+
+            Instance = this;
 
             Debug.LogWarning("Loading RAE");
 
@@ -32,10 +38,6 @@ namespace RotationAnarchyEvolved
 
             RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
-
-            GameObject go = new GameObject();
-            go.name = "RAE Main";
-            MainController = go.AddComponent<RAEController>();
 
             var loadedAB = AssetBundle.LoadFromFile(_modPath + "\\Res\\rae_mesh");
 
@@ -48,13 +50,17 @@ namespace RotationAnarchyEvolved
 
             Debug.Log("We are go for launch! Loading prefabs");
 
-            MainController.ArrowGO = loadedAB.LoadAsset<GameObject>("assets/arrowgizmo.prefab");
-            Debug.Log($"Loaded prefab ArrowGO = {MainController.ArrowGO}");
+            ArrowGO = loadedAB.LoadAsset<GameObject>("assets/arrowgizmo.prefab");
+            Debug.Log($"Loaded prefab ArrowGO = {ArrowGO}");
 
-            MainController.RingGO = loadedAB.LoadAsset<GameObject>("assets/ringgizmo.prefab");
-            Debug.Log($"Loaded prefab RingGO = {MainController.RingGO}");
+            RingGO = loadedAB.LoadAsset<GameObject>("assets/ringgizmo.prefab");
+            Debug.Log($"Loaded prefab RingGO = {RingGO}");
 
             loadedAB.Unload(false);
+
+            GameObject go = new GameObject();
+            go.name = "RAE Main";
+            MainController = go.AddComponent<RAEController>();
 
             Debug.Log("Harmony patch coming!");
             foreach (string str in AccessTools.GetMethodNames(typeof(Builder)))

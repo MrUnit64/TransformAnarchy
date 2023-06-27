@@ -18,15 +18,15 @@ namespace RotationAnarchyEvolved
                     return;
 
                 case Axis.X:
-                    AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.right : transform.right;
+                    AxisChange = (_rotationMode == ToolSpace.GLOBAL) ? Vector3.right : transform.right;
                     break;
 
                 case Axis.Y:
-                    AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
+                    AxisChange = (_rotationMode == ToolSpace.GLOBAL) ? Vector3.up : transform.up;
                     break;
 
                 case Axis.Z:
-                    AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.forward : transform.forward;
+                    AxisChange = (_rotationMode == ToolSpace.GLOBAL) ? Vector3.forward : transform.forward;
                     break;
 
             }
