@@ -7,7 +7,6 @@
     public static class HighlightOverlayControllerUtil
     {
         private static MaterialPropertyBlock materialPropertyBlock;
-
         public static void ChangeHighlightColor(Renderer renderer, Color color)
         {
             if (materialPropertyBlock == null)

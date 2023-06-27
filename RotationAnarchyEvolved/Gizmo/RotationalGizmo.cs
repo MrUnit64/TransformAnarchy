@@ -2,49 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RotationalGizmo : Gizmo<RotationalGizmoComponent>
+namespace RotationAnarchyEvolved
 {
-
-    public override void OnDrag(DragInformation eventInfo)
+    public class RotationalGizmo : Gizmo<RotationalGizmoComponent>
     {
 
-        Vector3 AxisChange = Vector3.zero;
-        Vector3 RotationCalcAxis = Vector3.zero;
-
-        switch (eventInfo.ModifyAxis)
+        public override void OnDrag(DragInformation eventInfo)
         {
-            case Axis.NONE:
-                return;
 
-            case Axis.X:
-                AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.right : transform.right;
-                RotationCalcAxis = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
-                break;
+            Vector3 AxisChange = Vector3.zero;
+            Vector3 RotationCalcAxis = Vector3.zero;
 
-            case Axis.Y:
-                AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
-                RotationCalcAxis = (_rotationMode == Mode.GLOBAL) ? -Vector3.forward : -transform.forward;
-                break;
+            switch (eventInfo.ModifyAxis)
+            {
+                case Axis.NONE:
+                    return;
 
-            case Axis.Z:
-                AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.forward : transform.forward;
-                RotationCalcAxis = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
-                break;
+                case Axis.X:
+                    AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.right : transform.right;
+                    RotationCalcAxis = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
+                    break;
+
+                case Axis.Y:
+                    AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
+                    RotationCalcAxis = (_rotationMode == Mode.GLOBAL) ? -Vector3.forward : -transform.forward;
+                    break;
+
+                case Axis.Z:
+                    AxisChange = (_rotationMode == Mode.GLOBAL) ? Vector3.forward : transform.forward;
+                    RotationCalcAxis = (_rotationMode == Mode.GLOBAL) ? Vector3.up : transform.up;
+                    break;
+
+            }
+
+            Vector3 lastLocalPosition = (eventInfo.CurrentDragPosition - eventInfo.DragDelta) - transform.position;
+            Vector3 thisLocalPosition = eventInfo.CurrentDragPosition - transform.position;
+
+            float rotationDelta = Vector3.SignedAngle(lastLocalPosition, thisLocalPosition, AxisChange);
+
+            transform.rotation = Quaternion.AngleAxis(rotationDelta, AxisChange) * transform.rotation;
+
+            UpdateGizmoTransforms();
 
         }
 
-        Vector3 lastLocalPosition = (eventInfo.CurrentDragPosition - eventInfo.DragDelta) - transform.position;
-        Vector3 thisLocalPosition = eventInfo.CurrentDragPosition - transform.position;
-
-        float rotationDelta = Vector3.SignedAngle(lastLocalPosition, thisLocalPosition, AxisChange);
-
-        transform.rotation = Quaternion.AngleAxis(rotationDelta, AxisChange) * transform.rotation;
-
-        UpdateGizmoTransforms();
-
+        public override Quaternion XAxisRotation() => Quaternion.LookRotation(Vector3.right, Vector3.up);
+        public override Quaternion YAxisRotation() => Quaternion.LookRotation(Vector3.up, -Vector3.forward);
+        public override Quaternion ZAxisRotation() => Quaternion.LookRotation(Vector3.forward, Vector3.up);
     }
-
-    public override Quaternion XAxisRotation() => Quaternion.LookRotation(Vector3.right, Vector3.up);
-    public override Quaternion YAxisRotation() => Quaternion.LookRotation(Vector3.up, -Vector3.forward);
-    public override Quaternion ZAxisRotation() => Quaternion.LookRotation(Vector3.forward, Vector3.up);
 }

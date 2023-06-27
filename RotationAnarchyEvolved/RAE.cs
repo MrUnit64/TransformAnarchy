@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Parkitect;
 using UnityEngine;
+using HarmonyLib;
 
 namespace RotationAnarchyEvolved
 {
@@ -20,11 +21,14 @@ namespace RotationAnarchyEvolved
         private string _modPath;
 
         public static RAEController MainController;
+        private Harmony _harmony;
 
         public override void onEnabled()
         {
 
             Debug.LogWarning("Loading RAE");
+
+            _harmony = new Harmony(getIdentifier());
 
             RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
@@ -52,12 +56,25 @@ namespace RotationAnarchyEvolved
 
             loadedAB.Unload(false);
 
+            Debug.Log("Harmony patch coming!");
+            foreach (string str in AccessTools.GetMethodNames(typeof(Builder)))
+            {
+                Debug.Log(str);
+            }
+
+            _harmony.PatchAll();
+
         }
 
         public override void onDisabled()
         {
             UnregisterHotkeys();
             UnityEngine.Object.Destroy(MainController.gameObject);
+
+            if (_harmony != null)
+            {
+                _harmony.UnpatchAll(getIdentifier());
+            }
         }
 
         public void RegisterHotkeys()

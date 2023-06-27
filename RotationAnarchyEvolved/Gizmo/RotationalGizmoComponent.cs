@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RotationalGizmoComponent : GizmoComponent
+namespace RotationAnarchyEvolved
 {
-    public override Plane GetPlane()
+    public class RotationalGizmoComponent : GizmoComponent
     {
-        return new Plane(transform.forward, transform.position);
+        public override Plane GetPlane()
+        {
+            return new Plane(transform.forward, transform.position);
+        }
     }
 }
