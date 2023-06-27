@@ -88,8 +88,8 @@ namespace RotationAnarchyEvolved
                 ___ghostPos = curPos;
                 ___rotation = curRot;
 
-
-                if (Input.GetMouseButtonUp(0) && !RAE.MainController.GizmoControlsBeingUsed)
+                // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
+                if (Input.GetMouseButtonUp(0) && !RAE.MainController.GizmoControlsBeingUsed && !UIUtility.isMouseOverUIElement())
                 {
                     InvokeParamless(typeof(Builder), b, "buildObjects");
                 }

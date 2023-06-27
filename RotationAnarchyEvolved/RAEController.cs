@@ -40,7 +40,6 @@ namespace RotationAnarchyEvolved
         public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
             typeof(DecoBuilder),
-            typeof(FlatRideBuilder),
         };
 
         public void OnBuilderEnable(Builder builder)
