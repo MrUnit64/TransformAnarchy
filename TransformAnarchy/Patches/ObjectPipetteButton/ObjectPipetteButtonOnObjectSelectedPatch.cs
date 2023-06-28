@@ -4,6 +4,7 @@ using Parkitect;
 using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
+using Parkitect.UI;
 
 namespace RotationAnarchyEvolved
 {
@@ -11,14 +12,13 @@ namespace RotationAnarchyEvolved
     {
 
         // Get protected method and make it public so we can patch
-        static MethodBase TargetMethod() => AccessTools.Method(typeof(ObjectPipetteTool), "onObjectSelected", parameters: new Type[] { typeof(BuildableObject) });
+        static MethodBase TargetMethod() => AccessTools.Method(typeof(ObjectPipetteButton), "onObjectSelected", parameters: new Type[] { typeof(BuildableObject) });
 
         [HarmonyPrefix]
-        public static bool Prefix(BuildableObject buildableObject)
+        public static void Prefix(BuildableObject buildableObject)
         {
-            return false;
+            throw new Exception("Running object pipette");
             Debug.Log("Hello from Object Pipette selected method!");
-
         }
 
 
