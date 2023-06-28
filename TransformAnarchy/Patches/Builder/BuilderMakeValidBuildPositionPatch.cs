@@ -20,7 +20,7 @@ namespace RotationAnarchyEvolved
         {
 
             // Skip 
-            if (RAE.MainController.CurrentBuilder != null && RAE.MainController.GizmoEnabled)
+            if (TA.MainController.CurrentBuilder != null && TA.MainController.GizmoEnabled)
             {
                 __result = position;
                 return false;

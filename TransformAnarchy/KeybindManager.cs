@@ -19,7 +19,7 @@ namespace RotationAnarchyEvolved
                 this.id = id;
                 this.name = name;
                 this.description = description;
-                mapping = new KeyMapping(id, key, key);
+                mapping = new KeyMapping(id, key, UnityEngine.KeyCode.None);
                 mapping.keyName = this.name;
                 mapping.keyDescription = this.description;
                 mapping.keyGroupIdentifier = keyGroupID;

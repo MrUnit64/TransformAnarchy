@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using Parkitect;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace RotationAnarchyEvolved
 {
     [DefaultExecutionOrder(-10)]
-    public class RAEController : MonoBehaviour
+    public class TAController : MonoBehaviour
     {
 
         public GameObject ArrowGO;
@@ -38,7 +34,8 @@ namespace RotationAnarchyEvolved
         public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
             typeof(DecoBuilder),
-            typeof(FlatRideBuilder)
+            typeof(FlatRideBuilder),
+            typeof(BlueprintBuilder)
         };
 
         public void OnBuilderEnable(Builder builder)
@@ -53,7 +50,8 @@ namespace RotationAnarchyEvolved
             {
                 if (!AllowedBuilderTypes.Contains(builder.GetType()))
                 {
-                    return; // TESTING
+                    OnBuilderDisable();
+                    return;
                 }
             }
 
@@ -77,8 +75,8 @@ namespace RotationAnarchyEvolved
 
         public void InitGizmoTransform(GameObject ghost, Vector3 position, Quaternion rotation)
         {
-            positionalGizmo.transform.position = position;
-            rotationalGizmo.transform.rotation = rotation;
+
+            SetGizmoTransform(position, rotation);
 
             float sizeExtent = Mathf.Clamp(ghost.GetRecursiveBounds().size.magnitude * 1.1f, 1f, 50f);
 
@@ -93,6 +91,12 @@ namespace RotationAnarchyEvolved
             wsRot = rotationalGizmo.transform.rotation;
         }
 
+        public void SetGizmoTransform(Vector3 position, Quaternion rotation)
+        {
+            positionalGizmo.transform.position = position;
+            rotationalGizmo.transform.rotation = rotation;
+        }
+
         public void SetGizmoMoving(bool moving)
         {
             GizmoControlsBeingUsed = moving;
@@ -103,13 +107,13 @@ namespace RotationAnarchyEvolved
             // Positional Gizmo
             positionalGizmo = (new GameObject()).AddComponent<PositionalGizmo>();
             positionalGizmo.gameObject.name = "Positional Gizmo";
-            positionalGizmo.SpawnIn = RAE.ArrowGO;
+            positionalGizmo.SpawnIn = TA.ArrowGO;
             positionalGizmo.OnCreate();
 
             // Rotational Gizmo
             rotationalGizmo = (new GameObject()).AddComponent<RotationalGizmo>();
             rotationalGizmo.gameObject.name = "Rotational Gizmo";
-            rotationalGizmo.SpawnIn = RAE.RingGO;
+            rotationalGizmo.SpawnIn = TA.RingGO;
             rotationalGizmo.OnCreate();
 
             positionalGizmo.OnDuringDrag.AddListener(a => SetGizmoMoving(true));
@@ -118,8 +122,7 @@ namespace RotationAnarchyEvolved
             rotationalGizmo.OnDuringDrag.AddListener(a => SetGizmoMoving(true));
             rotationalGizmo.OnEndDrag.AddListener(a => StartCoroutine(WaitToSetMovingOff()));
 
-            Debug.Log($"RAE - Enabled");
-            Debug.Log($"Created {positionalGizmo} and {rotationalGizmo}");
+            Debug.Log($"TA - Enabled");
 
         }
 
@@ -144,14 +147,12 @@ namespace RotationAnarchyEvolved
             if (_cachedMaincam == null) return;
             _cachedMaincam.cullingMask = _cachedMaincam.cullingMask & (~Gizmo<PositionalGizmoComponent>.LAYER_MASK);
 
-            Debug.Log($"RAE - Disabled");
+            Debug.Log($"TA - Disabled");
 
         }
 
         public void OnBuilderUpdate()
         {
-
-            Debug.Log($"Builder update, Gizmo's: {positionalGizmo}, {rotationalGizmo}");
 
             if (_cachedMaincam == null)
             {

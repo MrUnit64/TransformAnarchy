@@ -401,24 +401,26 @@
     <Content Include="Res\ui_icon_rotationGizmoDisabled.png" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RotationAnarchyEvolved\Gizmo\Gizmo.cs" />
-    <Compile Include="RotationAnarchyEvolved\Gizmo\GizmoComponent.cs" />
-    <Compile Include="RotationAnarchyEvolved\Gizmo\PositionalGizmo.cs" />
-    <Compile Include="RotationAnarchyEvolved\Gizmo\PositionalGizmoComponent.cs" />
-    <Compile Include="RotationAnarchyEvolved\Gizmo\RotationalGizmo.cs" />
-    <Compile Include="RotationAnarchyEvolved\Gizmo\RotationalGizmoComponent.cs" />
-    <Compile Include="RotationAnarchyEvolved\KeybindManager.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\BuilderUpdateSharedCode.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderMakeValidBuildPositionPatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderOnDisablePatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderOnEnablePatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderUpdatePatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\DecoBuilder\DecoBuilderMakeValidBuildPositionPatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\RAE.cs" />
-    <Compile Include="RotationAnarchyEvolved\RAEController.cs" />
-    <Compile Include="RotationAnarchyEvolved\StencilHander.cs" />
-    <Compile Include="RotationAnarchyEvolved\Util\GameObjectExtensions.cs" />
-    <Compile Include="RotationAnarchyEvolved\Util\HighlightOverlayControllerUtil.cs" />
+    <Compile Include="TransformAnarchy\Gizmo\Gizmo.cs" />
+    <Compile Include="TransformAnarchy\Gizmo\GizmoComponent.cs" />
+    <Compile Include="TransformAnarchy\Gizmo\PositionalGizmo.cs" />
+    <Compile Include="TransformAnarchy\Gizmo\PositionalGizmoComponent.cs" />
+    <Compile Include="TransformAnarchy\Gizmo\RotationalGizmo.cs" />
+    <Compile Include="TransformAnarchy\Gizmo\RotationalGizmoComponent.cs" />
+    <Compile Include="TransformAnarchy\KeybindManager.cs" />
+    <Compile Include="TransformAnarchy\Patches\BlueprintBuilder\BlueprintBuilderMakeValidBuildPositionPatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\ObjectPipetteButton\ObjectPipetteButtonOnObjectSelectedPatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\PatchUtils.cs" />
+    <Compile Include="TransformAnarchy\Patches\Builder\BuilderMakeValidBuildPositionPatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\Builder\BuilderOnDisablePatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\Builder\BuilderOnEnablePatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\Builder\BuilderUpdatePatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\DecoBuilder\DecoBuilderMakeValidBuildPositionPatch.cs" />
+    <Compile Include="TransformAnarchy\TA.cs" />
+    <Compile Include="TransformAnarchy\TAController.cs" />
+    <Compile Include="TransformAnarchy\StencilHander.cs" />
+    <Compile Include="TransformAnarchy\Util\GameObjectExtensions.cs" />
+    <Compile Include="TransformAnarchy\Util\HighlightOverlayControllerUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".git\objects\info\" />

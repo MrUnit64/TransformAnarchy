@@ -14,6 +14,6 @@ public class BuilderOnDisablePatch
     [HarmonyPrefix]
     public static void Prefix()
     {
-        RAE.MainController.OnBuilderDisable();
+        TA.MainController.OnBuilderDisable();
     }
 }

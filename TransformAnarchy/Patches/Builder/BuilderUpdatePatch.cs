@@ -5,32 +5,40 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
 
-namespace RotationAnarchyEvolved {
+namespace RotationAnarchyEvolved
+{
 
-    public static class BuilderUpdateSharedCode
+    [HarmonyPatch]
+    public class BuilderUpdatePatch
     {
 
-        static object InvokeParamless(System.Type type, object instance, string methodName)
-        {
-            return AccessTools.Method(type, methodName).Invoke(instance, new object[] { });
-        }
+        // Get protected method and make it public so we can patch
+        static MethodBase TargetMethod() => AccessTools.Method(typeof(Builder), "Update");
 
-        public static bool Update<T>(ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation, ref List<BuildableObject> ___actualBuiltObjects, ref Material ___ghostMaterial) where T : Builder
+        [HarmonyPrefix]
+        public static bool Prefix(ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation, ref Vector3 ___forward, ref List<BuildableObject> ___actualBuiltObjects, ref Material ___ghostMaterial)
         {
-            // INJECT RAE CODE
-            RAE.MainController.OnBuilderUpdate();
+
+            // Builder is actually editable?
+            if (TA.MainController.CurrentBuilder == null)
+            {
+                return true;
+            }
+
+            // INJECT TA CODE
+            TA.MainController.OnBuilderUpdate();
 
             // This init's the special ghost glowing stuff when an object is placed
             if (!___ghost.activeSelf)
             {
 
-                MethodInfo method = AccessTools.Method(typeof(T), "turnIntoGhostMaterial");
+                MethodInfo method = AccessTools.Method(typeof(Builder), "turnIntoGhostMaterial");
 
                 for (int i = 0; i < ___actualBuiltObjects.Count; i++)
                 {
                     BuildableObject buildableObject = ___actualBuiltObjects[i];
 
-                    method.Invoke(RAE.MainController.CurrentBuilder, new object[] { buildableObject.transform, ___ghostMaterial });
+                    method.Invoke(TA.MainController.CurrentBuilder, new object[] { buildableObject.transform, ___ghostMaterial });
                 }
 
                 ___ghost.SetActive(true);
@@ -39,22 +47,22 @@ namespace RotationAnarchyEvolved {
 
             // Just turn off the
 
-            if (RAE.MainController.CurrentBuilder != null && RAE.MainController.GizmoEnabled)
+            if (TA.MainController.CurrentBuilder != null && TA.MainController.GizmoEnabled)
             {
 
-                T b = (T)RAE.MainController.CurrentBuilder;
+                Builder b = TA.MainController.CurrentBuilder;
 
                 // Do first init of gizmo
-                if (!RAE.MainController.GizmoCurrentState)
+                if (!TA.MainController.GizmoCurrentState)
                 {
-                    RAE.MainController.InitGizmoTransform(___ghost, ___ghostPos, ___rotation);
-                    RAE.MainController.GizmoCurrentState = RAE.MainController.GizmoEnabled;
+                    TA.MainController.InitGizmoTransform(___ghost, ___ghostPos, ___rotation);
+                    TA.MainController.GizmoCurrentState = TA.MainController.GizmoEnabled;
                 }
 
                 Vector3 curPos;
                 Quaternion curRot;
 
-                RAE.MainController.GetGizmoTransform(out curPos, out curRot);
+                TA.MainController.GetGizmoTransform(out curPos, out curRot);
 
                 bool changedPosFlag = curPos != ___ghost.transform.position;
                 bool changedRotFlag = curRot != ___ghost.transform.rotation;
@@ -75,7 +83,7 @@ namespace RotationAnarchyEvolved {
                 // Basically moves the money label if the gizmos are moved
                 if (changedPosFlag || changedRotFlag)
                 {
-                    InvokeParamless(typeof(T), b, "updatePriceTag");
+                    PatchUtils.InvokeParamless(typeof(Builder), b, "updatePriceTag");
                 }
 
                 // Update visual ghost position
@@ -85,11 +93,12 @@ namespace RotationAnarchyEvolved {
                 // Update place at ghost position
                 ___ghostPos = curPos;
                 ___rotation = curRot;
+                ___forward = ___rotation * Vector3.forward;
 
                 // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
-                if (Input.GetMouseButtonUp(0) && !RAE.MainController.GizmoControlsBeingUsed && !UIUtility.isMouseOverUIElement())
+                if (Input.GetMouseButtonUp(0) && !TA.MainController.GizmoControlsBeingUsed && !UIUtility.isMouseOverUIElement())
                 {
-                    InvokeParamless(typeof(T), b, "buildObjects");
+                    PatchUtils.InvokeParamless(typeof(Builder), b, "buildObjects");
                 }
 
                 return false;

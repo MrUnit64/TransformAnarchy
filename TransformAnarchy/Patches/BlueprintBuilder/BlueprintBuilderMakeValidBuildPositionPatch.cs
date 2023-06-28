@@ -9,19 +9,20 @@ namespace RotationAnarchyEvolved
 {
 
     [HarmonyPatch]
-    public class DecoBuilderMakeValidBuildPositionPatch
+    public class BlueprintBuilderMakeValidBuildPositionPatch
     {
 
         // Get protected method and make it public so we can patch
-        static MethodBase TargetMethod() => AccessTools.Method(typeof(DecoBuilder), "makeValidBuildPosition", parameters: new Type[]{typeof(Vector3)});
+        static MethodBase TargetMethod() => AccessTools.Method(typeof(BlueprintBuilder), "makeValidBuildPosition", parameters: new Type[]{typeof(Vector3)});
 
         [HarmonyPrefix]
         public static bool Prefix(Vector3 position, ref Vector3 __result)
         {
 
             // Skip 
-            if (RAE.MainController.CurrentBuilder != null && RAE.MainController.GizmoEnabled)
+            if (TA.MainController.CurrentBuilder != null && TA.MainController.GizmoEnabled)
             {
+                Debug.Log("BlueprintBuilder: Position valid position was changed.");
                 __result = position;
                 return false;
             }

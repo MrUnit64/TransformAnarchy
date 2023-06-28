@@ -194,7 +194,7 @@ namespace RotationAnarchyEvolved
             if (raycastRes) Debug.Log($"Raycast hit obj {hit.collider.name}");
 
             // Started drag
-            if (Input.GetKeyDown(KeyCode.Mouse0) && raycastRes)
+            if (Input.GetKeyDown(KeyCode.Mouse0) && raycastRes && !UIUtility.isMouseOverUIElement())
             {
 
                 Debug.Log($"Raycast hit obj {hit.collider.name}");
