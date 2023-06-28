@@ -9,9 +9,6 @@ using System.Collections;
 
 namespace RotationAnarchyEvolved
 {
-
-    // Needs to happen before builder.
-    [DefaultExecutionOrder(-1)]
     public class RAEController : MonoBehaviour
     {
 
@@ -40,6 +37,7 @@ namespace RotationAnarchyEvolved
         public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
             typeof(DecoBuilder),
+            typeof(FlatRideBuilder)
         };
 
         public void OnBuilderEnable(Builder builder)
@@ -54,9 +52,11 @@ namespace RotationAnarchyEvolved
             {
                 if (!AllowedBuilderTypes.Contains(builder.GetType()))
                 {
-                    return;
+                    return; // TESTING
                 }
             }
+
+            Debug.Log("Builder enabled");
 
             CurrentBuilder = builder;
 
@@ -64,19 +64,22 @@ namespace RotationAnarchyEvolved
 
         public void OnBuilderDisable()
         {
+            Debug.Log("Builder disabled");
             CurrentBuilder = null;
             GizmoEnabled = false;
             GizmoCurrentState = false;
+            positionalGizmo.SetActiveGizmo(false);
+            rotationalGizmo.SetActiveGizmo(false);
             CurrentTool = Tool.MOVE;
             CurrentSpace = ToolSpace.LOCAL;
-    }
+        }
 
         public void InitGizmoTransform(GameObject ghost, Vector3 position, Quaternion rotation)
         {
             positionalGizmo.transform.position = position;
             rotationalGizmo.transform.rotation = rotation;
 
-            float sizeExtent = Mathf.Clamp(ghost.GetRecursiveBounds().extents.magnitude * 1.5f, 1f, 50f);
+            float sizeExtent = Mathf.Clamp(ghost.GetRecursiveBounds().size.magnitude * 1.1f, 1f, 50f);
 
             positionalGizmo.transform.localScale = Vector3.one * sizeExtent;
             rotationalGizmo.transform.localScale = Vector3.one * sizeExtent;
@@ -144,18 +147,37 @@ namespace RotationAnarchyEvolved
 
         }
 
-        public void Update()
+        public void OnBuilderUpdate()
         {
 
-            Debug.Log($"RAEController - PositionalGizmo = {positionalGizmo}");
-            Debug.Log($"RAEController - RotationalGizmo = {rotationalGizmo}");
+            if (_cachedMaincam == null)
+            {
+                _cachedMaincam = Camera.main;
+
+                if (_cachedMaincam != null)
+                {
+                    _cachedMaincam.cullingMask = _cachedMaincam.cullingMask | Gizmo<PositionalGizmoComponent>.LAYER_MASK;
+                }
+                else
+                {
+                    return;
+                }
+            }
 
             if (InputManager.getKeyDown("toggleGizmoOn") && CurrentBuilder != null)
             {
-                GizmoEnabled = true;
-            }
+                GizmoEnabled = !GizmoEnabled;
 
-            if (!GizmoEnabled)
+                if (!GizmoEnabled)
+                {
+                    GizmoCurrentState = false;
+                }
+            }
+            else if (CurrentBuilder == null)
+            {
+                OnBuilderDisable();
+            }
+            else if (!GizmoEnabled)
             {
                 positionalGizmo.SetActiveGizmo(false);
                 rotationalGizmo.SetActiveGizmo(false);
@@ -202,20 +224,6 @@ namespace RotationAnarchyEvolved
                 rotationalGizmo.SetActiveGizmo(true);
                 rotationalGizmo.CurrentRotationMode = CurrentSpace;
                 rotationalGizmo.OnDragCheck();
-            }
-
-            if (_cachedMaincam == null)
-            {
-                _cachedMaincam = Camera.main;
-
-                if (_cachedMaincam != null)
-                {
-                    _cachedMaincam.cullingMask = _cachedMaincam.cullingMask | Gizmo<PositionalGizmoComponent>.LAYER_MASK;
-                }
-                else
-                {
-                    return;
-                }
             }
 
             rotationalGizmo.transform.position = positionalGizmo.transform.position;

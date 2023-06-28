@@ -5,30 +5,26 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
 
-namespace RotationAnarchyEvolved
-{
+namespace RotationAnarchyEvolved {
 
-    [HarmonyPatch]
-    public class BuilderUpdatePatch
+    public static class BuilderUpdateSharedCode
     {
-
-        // Get protected method and make it public so we can patch
-        static MethodBase TargetMethod() => AccessTools.Method(typeof(Builder), "Update");
 
         static object InvokeParamless(System.Type type, object instance, string methodName)
         {
             return AccessTools.Method(type, methodName).Invoke(instance, new object[] { });
         }
 
-        [HarmonyPrefix]
-        public static bool PreOnUpdate(ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation, ref List<BuildableObject> ___actualBuiltObjects, ref Material ___ghostMaterial)
+        public static bool Update<T>(ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation, ref List<BuildableObject> ___actualBuiltObjects, ref Material ___ghostMaterial) where T : Builder
         {
+            // INJECT RAE CODE
+            RAE.MainController.OnBuilderUpdate();
 
             // This init's the special ghost glowing stuff when an object is placed
             if (!___ghost.activeSelf)
             {
 
-                MethodInfo method = AccessTools.Method(typeof(Builder), "turnIntoGhostMaterial");
+                MethodInfo method = AccessTools.Method(typeof(T), "turnIntoGhostMaterial");
 
                 for (int i = 0; i < ___actualBuiltObjects.Count; i++)
                 {
@@ -44,7 +40,7 @@ namespace RotationAnarchyEvolved
             if (RAE.MainController.CurrentBuilder != null && RAE.MainController.GizmoEnabled)
             {
 
-                Builder b = RAE.MainController.CurrentBuilder;
+                T b = (T)RAE.MainController.CurrentBuilder;
 
                 // Do first init of gizmo
                 if (!RAE.MainController.GizmoCurrentState)
@@ -77,7 +73,7 @@ namespace RotationAnarchyEvolved
                 // Basically moves the money label if the gizmos are moved
                 if (changedPosFlag || changedRotFlag)
                 {
-                    InvokeParamless(typeof(Builder), b, "updatePriceTag");
+                    InvokeParamless(typeof(T), b, "updatePriceTag");
                 }
 
                 // Update visual ghost position
@@ -91,15 +87,12 @@ namespace RotationAnarchyEvolved
                 // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
                 if (Input.GetMouseButtonUp(0) && !RAE.MainController.GizmoControlsBeingUsed && !UIUtility.isMouseOverUIElement())
                 {
-                    InvokeParamless(typeof(Builder), b, "buildObjects");
+                    InvokeParamless(typeof(T), b, "buildObjects");
                 }
 
                 return false;
 
             }
-
-
-
 
             return true;
 

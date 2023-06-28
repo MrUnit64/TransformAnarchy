@@ -191,9 +191,13 @@ namespace RotationAnarchyEvolved
             Ray mouseRay = _cachedMaincam.ScreenPointToRay(Input.mousePosition);
             bool raycastRes = Physics.Raycast(mouseRay, out hit, Mathf.Infinity, LAYER_MASK);
 
+            if (raycastRes) Debug.Log($"Raycast hit obj {hit.collider.name}");
+
             // Started drag
-            if (Input.GetKeyDown(KeyCode.Mouse0) && raycastRes && !UIUtility.isMouseOverUIElement())
+            if (Input.GetKeyDown(KeyCode.Mouse0) && raycastRes)
             {
+
+                Debug.Log($"Raycast hit obj {hit.collider.name}");
 
                 GizmoComponent hitComponent = hit.collider.GetComponent<GizmoComponent>();
                 Axis axis = Axis.NONE;

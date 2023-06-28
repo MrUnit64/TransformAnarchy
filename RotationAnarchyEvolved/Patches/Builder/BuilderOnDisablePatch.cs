@@ -12,7 +12,7 @@ public class BuilderOnDisablePatch
     static MethodBase TargetMethod() => AccessTools.Method(typeof(Builder), "OnDisable");
 
     [HarmonyPrefix]
-    public static void PreOnDisable()
+    public static void Prefix()
     {
         RAE.MainController.OnBuilderDisable();
     }

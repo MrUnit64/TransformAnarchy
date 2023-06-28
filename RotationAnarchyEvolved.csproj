@@ -408,12 +408,17 @@
     <Compile Include="RotationAnarchyEvolved\Gizmo\RotationalGizmo.cs" />
     <Compile Include="RotationAnarchyEvolved\Gizmo\RotationalGizmoComponent.cs" />
     <Compile Include="RotationAnarchyEvolved\KeybindManager.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\BuilderOnDisablePatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\BuilderOnEnablePatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\BuilderUpdatePatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\BuilderUpdateSharedCode.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderMakeValidBuildPositionPatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderOnDisablePatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderOnEnablePatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderUpdatePatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\DecoBuilder\DecoBuilderUpdatePatch.cs" />
+    <Compile Include="RotationAnarchyEvolved\Patches\DecoBuilder\DecoBuilderMakeValidBuildPositionPatch.cs" />
     <Compile Include="RotationAnarchyEvolved\RAE.cs" />
     <Compile Include="RotationAnarchyEvolved\RAEController.cs" />
     <Compile Include="RotationAnarchyEvolved\StencilHander.cs" />
+    <Compile Include="RotationAnarchyEvolved\Util\GameObjectExtensions.cs" />
     <Compile Include="RotationAnarchyEvolved\Util\HighlightOverlayControllerUtil.cs" />
   </ItemGroup>
   <ItemGroup>
