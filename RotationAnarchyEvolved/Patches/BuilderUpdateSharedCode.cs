@@ -37,6 +37,8 @@ namespace RotationAnarchyEvolved {
 
             }
 
+            // Just turn off the
+
             if (RAE.MainController.CurrentBuilder != null && RAE.MainController.GizmoEnabled)
             {
 

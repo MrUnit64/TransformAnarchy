@@ -9,6 +9,7 @@ using System.Collections;
 
 namespace RotationAnarchyEvolved
 {
+    [DefaultExecutionOrder(-10)]
     public class RAEController : MonoBehaviour
     {
 
@@ -149,6 +150,8 @@ namespace RotationAnarchyEvolved
 
         public void OnBuilderUpdate()
         {
+
+            Debug.Log($"Builder update, Gizmo's: {positionalGizmo}, {rotationalGizmo}");
 
             if (_cachedMaincam == null)
             {

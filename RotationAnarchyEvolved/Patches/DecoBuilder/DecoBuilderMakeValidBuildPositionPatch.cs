@@ -16,7 +16,7 @@ namespace RotationAnarchyEvolved
         static MethodBase TargetMethod() => AccessTools.Method(typeof(DecoBuilder), "makeValidBuildPosition", parameters: new Type[]{typeof(Vector3)});
 
         [HarmonyPrefix]
-        public static bool PreOnMVBP(Vector3 position, ref Vector3 __result)
+        public static bool Prefix(Vector3 position, ref Vector3 __result)
         {
 
             // Skip 

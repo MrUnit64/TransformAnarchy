@@ -12,7 +12,7 @@ public class BuilderOnEnablePatch
     static MethodBase TargetMethod() => AccessTools.Method(typeof(Builder), "OnEnable");
 
     [HarmonyPrefix]
-    public static void PreOnEnable(Builder __instance)
+    public static void Prefix(Builder __instance)
     {
         RAE.MainController.OnBuilderEnable(__instance);
     }

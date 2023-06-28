@@ -413,7 +413,6 @@
     <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderOnDisablePatch.cs" />
     <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderOnEnablePatch.cs" />
     <Compile Include="RotationAnarchyEvolved\Patches\Builder\BuilderUpdatePatch.cs" />
-    <Compile Include="RotationAnarchyEvolved\Patches\DecoBuilder\DecoBuilderUpdatePatch.cs" />
     <Compile Include="RotationAnarchyEvolved\Patches\DecoBuilder\DecoBuilderMakeValidBuildPositionPatch.cs" />
     <Compile Include="RotationAnarchyEvolved\RAE.cs" />
     <Compile Include="RotationAnarchyEvolved\RAEController.cs" />

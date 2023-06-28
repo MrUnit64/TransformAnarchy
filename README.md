@@ -1,4 +1,4 @@
-# RotationAnarchy
+# Rotation Anarchy - Evolved
 A mod created to freely rotate objects in Parkitect.
 
 ## Cloning

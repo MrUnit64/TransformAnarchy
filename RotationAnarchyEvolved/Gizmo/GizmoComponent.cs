@@ -23,13 +23,7 @@ namespace RotationAnarchyEvolved
         protected int sId_Color;
         protected int sId_MainTex;
 
-        public abstract Plane GetPlane();
-
-        public Vector3 GetPlaneOffset(Ray ray)
-        {
-            GetPlane().Raycast(ray, out float enter);
-            return ray.GetPoint(enter);
-        }
+        public abstract Vector3 GetPlaneOffset(Ray ray);
 
         public void SetColor(Color col)
         {

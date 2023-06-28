@@ -63,7 +63,7 @@ namespace RotationAnarchyEvolved
             MainController = go.AddComponent<RAEController>();
 
             Debug.Log("Harmony patch coming!");
-            foreach (string str in AccessTools.GetMethodNames(typeof(Builder)))
+            foreach (string str in AccessTools.GetMethodNames(typeof(DecoBuilder)))
             {
                 Debug.Log(str);
             }
