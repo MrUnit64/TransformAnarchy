@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-namespace RotationAnarchyEvolved
+namespace TA
 {
     [DefaultExecutionOrder(-10)]
     public class TAController : MonoBehaviour
@@ -13,6 +14,7 @@ namespace RotationAnarchyEvolved
         public GameObject RingGO;
 
         public Builder CurrentBuilder;
+        public float BuilderSize;
         public bool GizmoCurrentState = false;
         public bool GizmoEnabled = false;
         public bool GizmoControlsBeingUsed = false;
@@ -30,6 +32,12 @@ namespace RotationAnarchyEvolved
         public RotationalGizmo rotationalGizmo;
         private Camera _cachedMaincam;
 
+        public GameObject UITransform;
+        public Button UIToolButton;
+        public Button UISpaceButton;
+        public Image UIToolIcon;
+        public Image UISpaceIcon;
+
         // Allowed builder types
         public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
         {
@@ -40,6 +48,8 @@ namespace RotationAnarchyEvolved
 
         public void OnBuilderEnable(Builder builder)
         {
+
+            Debug.Log($"Builder: {builder}, type {builder.GetType()}");
 
             if (builder == CurrentBuilder)
             {
@@ -59,10 +69,13 @@ namespace RotationAnarchyEvolved
 
             CurrentBuilder = builder;
 
+            UpdateUIContent();
+
         }
 
         public void OnBuilderDisable()
         {
+
             Debug.Log("Builder disabled");
             CurrentBuilder = null;
             GizmoEnabled = false;
@@ -71,6 +84,9 @@ namespace RotationAnarchyEvolved
             rotationalGizmo.SetActiveGizmo(false);
             CurrentTool = Tool.MOVE;
             CurrentSpace = ToolSpace.LOCAL;
+
+            UpdateUIContent();
+
         }
 
         public void InitGizmoTransform(GameObject ghost, Vector3 position, Quaternion rotation)
@@ -78,10 +94,10 @@ namespace RotationAnarchyEvolved
 
             SetGizmoTransform(position, rotation);
 
-            float sizeExtent = Mathf.Clamp(ghost.GetRecursiveBounds().size.magnitude * 1.1f, 1f, 50f);
+            BuilderSize = Mathf.Clamp(ghost.GetRecursiveBounds().size.magnitude * 1.1f, 1f, 50f);
 
-            positionalGizmo.transform.localScale = Vector3.one * sizeExtent;
-            rotationalGizmo.transform.localScale = Vector3.one * sizeExtent;
+            positionalGizmo.transform.localScale = Vector3.one * BuilderSize;
+            rotationalGizmo.transform.localScale = Vector3.one * BuilderSize;
 
         }
 
@@ -102,13 +118,74 @@ namespace RotationAnarchyEvolved
             GizmoControlsBeingUsed = moving;
         }
 
+        public void ToggleGizmoTool()
+        {
+            switch (CurrentTool)
+            {
+                case Tool.MOVE:
+                    CurrentTool = Tool.ROTATE;
+                    break;
+                case Tool.ROTATE:
+                    CurrentTool = Tool.MOVE;
+                    break;
+            }
+
+            UpdateUIContent();
+
+        }
+
+        public void ToggleGizmoSpace()
+        {
+            switch (CurrentSpace)
+            {
+                case ToolSpace.LOCAL:
+                    CurrentSpace = ToolSpace.GLOBAL;
+                    break;
+                case ToolSpace.GLOBAL:
+                    CurrentSpace = ToolSpace.LOCAL;
+                    break;
+            }
+
+            UpdateUIContent();
+
+        }
+
+        public void UpdateUIContent()
+        {
+            UIToolIcon.sprite = TA.MoveSprite;
+            UISpaceIcon.sprite = TA.RotateSprite;
+            UITransform.SetActive(CurrentBuilder != null && GizmoEnabled);
+        }
+
+        public void UpdateUIPosition()
+        {
+
+            if (_cachedMaincam == null)
+            {
+                return;
+            }
+
+            Vector3 diag = Vector3.right + Vector3.up;
+
+            // left and up relative to cam from position of gizmo, with width calced
+            UITransform.transform.position = _cachedMaincam.WorldToScreenPoint(
+                positionalGizmo.transform.position +
+                _cachedMaincam.transform.rotation * (diag * BuilderSize));
+
+        }
+
         public void OnEnable()
         {
+
+            Debug.Log("Enabling TAController");
+
             // Positional Gizmo
             positionalGizmo = (new GameObject()).AddComponent<PositionalGizmo>();
             positionalGizmo.gameObject.name = "Positional Gizmo";
             positionalGizmo.SpawnIn = TA.ArrowGO;
             positionalGizmo.OnCreate();
+
+            Debug.Log("Positional gizmo Init");
 
             // Rotational Gizmo
             rotationalGizmo = (new GameObject()).AddComponent<RotationalGizmo>();
@@ -116,13 +193,45 @@ namespace RotationAnarchyEvolved
             rotationalGizmo.SpawnIn = TA.RingGO;
             rotationalGizmo.OnCreate();
 
+            Debug.Log("Rotational gizmo Init");
+
             positionalGizmo.OnDuringDrag.AddListener(a => SetGizmoMoving(true));
             positionalGizmo.OnEndDrag.AddListener(a => StartCoroutine(WaitToSetMovingOff()));
 
             rotationalGizmo.OnDuringDrag.AddListener(a => SetGizmoMoving(true));
             rotationalGizmo.OnEndDrag.AddListener(a => StartCoroutine(WaitToSetMovingOff()));
 
-            Debug.Log($"TA - Enabled");
+            Debug.Log("Gizmo events Init");
+
+            Debug.Log("Creating UI for TA");
+
+            // Ui window time.
+            TA.UiHolder.SetActive(false);
+            UITransform = Instantiate(TA.UiHolder, Parkitect.UI.UIWorldOverlayController.Instance.transform);
+
+            Debug.Log("Inited main transform");
+
+            // Get stuff
+            UIToolButton = UITransform.transform.Find("Gizmo_Button").GetComponent<Button>();
+            UIToolIcon = UIToolButton.transform.Find("Image").GetComponent<Image>();
+
+            Debug.Log("Inited UIToolButton");
+            Debug.Log($"UIToolButton: {UIToolButton.name}");
+            Debug.Log($"UIToolIcon parent: {UIToolIcon.transform.parent.name}");
+
+            UISpaceButton = UITransform.transform.Find("Space_Button").GetComponent<Button>();
+            UISpaceIcon = UIToolButton.transform.Find("Image").GetComponent<Image>();
+
+            Debug.Log("Inited UISpaceButton");
+            Debug.Log($"UISpaceButton: {UISpaceButton.name}");
+            Debug.Log($"UIToolIcon parent: {UISpaceIcon.transform.parent.name}");
+
+            UIToolButton.onClick.AddListener(ToggleGizmoTool);
+            UISpaceButton.onClick.AddListener(ToggleGizmoSpace);
+
+            Debug.Log("Inited Events");
+
+            UpdateUIContent();
 
         }
 
@@ -134,6 +243,11 @@ namespace RotationAnarchyEvolved
 
         public void OnDisable()
         {
+
+            UIToolButton.onClick.RemoveListener(ToggleGizmoTool);
+            UISpaceButton.onClick.RemoveListener(ToggleGizmoSpace);
+
+            Destroy(UITransform);
 
             positionalGizmo.OnDuringDrag.RemoveListener(a => SetGizmoMoving(true));
             positionalGizmo.OnEndDrag.RemoveListener(a => StartCoroutine(WaitToSetMovingOff()));
@@ -172,6 +286,8 @@ namespace RotationAnarchyEvolved
             {
                 GizmoEnabled = !GizmoEnabled;
 
+                UpdateUIContent();
+
                 if (!GizmoEnabled)
                 {
                     GizmoCurrentState = false;
@@ -191,28 +307,12 @@ namespace RotationAnarchyEvolved
             // toggles
             if (InputManager.getKeyDown("toggleGizmoSpace"))
             {
-                switch (CurrentSpace)
-                {
-                    case ToolSpace.LOCAL: 
-                        CurrentSpace = ToolSpace.GLOBAL;
-                        break;
-                    case ToolSpace.GLOBAL: 
-                        CurrentSpace = ToolSpace.LOCAL;
-                        break;
-                }
+                ToggleGizmoSpace();
             }
 
             if (InputManager.getKeyDown("toggleGizmoTool"))
             {
-                switch (CurrentTool)
-                {
-                    case Tool.MOVE:
-                        CurrentTool = Tool.ROTATE;
-                        break;
-                    case Tool.ROTATE:
-                        CurrentTool = Tool.MOVE;
-                        break;
-                }
+                ToggleGizmoTool();
             }
 
             if (CurrentTool == Tool.MOVE && GizmoEnabled)
@@ -232,6 +332,9 @@ namespace RotationAnarchyEvolved
 
             rotationalGizmo.transform.position = positionalGizmo.transform.position;
             positionalGizmo.transform.rotation = rotationalGizmo.transform.rotation;
+
+            // Update UI position
+            UpdateUIPosition();
 
         }
     }

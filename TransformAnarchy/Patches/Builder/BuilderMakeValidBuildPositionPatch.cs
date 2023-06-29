@@ -5,7 +5,7 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
 
-namespace RotationAnarchyEvolved
+namespace TA
 {
 
     [HarmonyPatch]

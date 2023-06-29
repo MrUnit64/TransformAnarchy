@@ -1,4 +1,4 @@
-﻿namespace RotationAnarchyEvolved
+﻿namespace TA
 {
     using System;
     using System.Collections.Generic;

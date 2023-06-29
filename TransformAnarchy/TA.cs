@@ -5,7 +5,7 @@ using Parkitect;
 using UnityEngine;
 using HarmonyLib;
 
-namespace RotationAnarchyEvolved
+namespace TA
 {
     public class TA : AbstractMod
     {
@@ -41,6 +41,12 @@ Notes:
 
         public static GameObject ArrowGO;
         public static GameObject RingGO;
+        public static GameObject UiHolder;
+
+        public static Sprite MoveSprite;
+        public static Sprite RotateSprite;
+        public static Sprite LocalSprite;
+        public static Sprite GlobalSprite;
 
         public override void onEnabled()
         {
@@ -54,13 +60,37 @@ Notes:
             RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
 
-            var loadedAB = AssetBundle.LoadFromFile(_modPath + "\\Res\\rae_mesh");
+            var loadedAB = AssetBundle.LoadFromFile(_modPath + "\\Res\\ta_assets");
 
             // Load from Asset Bundles
             Debug.Log("Loading assetbundle stuff:");
+
+            // Gizmo meshes
             ArrowGO = loadedAB.LoadAsset<GameObject>("assets/arrowgizmo.prefab");
             RingGO = loadedAB.LoadAsset<GameObject>("assets/ringgizmo.prefab");
+
+            // Button prefab
+            UiHolder = loadedAB.LoadAsset<GameObject>("assets/ta_uiholder.prefab");
+
+            // Sprites
+            MoveSprite = loadedAB.LoadAsset<Sprite>("assets/ui_icon_move.png");
+            RotateSprite = loadedAB.LoadAsset<Sprite>("assets/ui_icon_rotation.png");
+            LocalSprite = loadedAB.LoadAsset<Sprite>("assets/ui_icon_local.png");
+            GlobalSprite = loadedAB.LoadAsset<Sprite>("assets/ui_icon_global.png");
+
             loadedAB.Unload(false);
+
+            Debug.Log("Asset bundle vals");
+            Debug.Log($"{nameof(ArrowGO)}: {ArrowGO}");
+            Debug.Log($"{nameof(RingGO)}: {RingGO}");
+            Debug.Log($"{nameof(UiHolder)}: {UiHolder}");
+            Debug.Log($"{nameof(MoveSprite)}: {MoveSprite}, {MoveSprite.name}");
+            Debug.Log($"{nameof(RotateSprite)}: {RotateSprite}, {RotateSprite.name}");
+            Debug.Log($"{nameof(LocalSprite)}: {LocalSprite}, {LocalSprite.name}");
+            Debug.Log($"{nameof(GlobalSprite)}: {GlobalSprite}, {GlobalSprite.name}");
+            Debug.Log("Loaded assetbundle!");
+
+            Debug.Log("Loaded assetbundle!");
 
             Debug.Log("Initing Main RA handler");
             GameObject go = new GameObject();

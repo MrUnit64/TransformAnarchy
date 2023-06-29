@@ -5,7 +5,7 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
 
-namespace RotationAnarchyEvolved
+namespace TA
 {
 
     [HarmonyPatch]
@@ -16,7 +16,13 @@ namespace RotationAnarchyEvolved
         static MethodBase TargetMethod() => AccessTools.Method(typeof(Builder), "Update");
 
         [HarmonyPrefix]
-        public static bool Prefix(ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation, ref Vector3 ___forward, ref List<BuildableObject> ___actualBuiltObjects, ref Material ___ghostMaterial)
+        public static bool Prefix(
+            ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation, 
+            ref Vector3 ___forward, ref List<BuildableObject> ___actualBuiltObjects, 
+            ref Material ___ghostMaterial, ref Material ___ghostCantBuildMaterial,
+            ref Material ___ghostIntersectMaterial,
+            ref Dictionary<BuildableObject, BuildableObject.CanBuild> ___builtObjectsCanBuildCache,
+            ref BuildableObject.CanBuild ___canBuild)
         {
 
             // Builder is actually editable?
@@ -25,6 +31,8 @@ namespace RotationAnarchyEvolved
                 return true;
             }
 
+            Builder b = TA.MainController.CurrentBuilder;
+
             // INJECT TA CODE
             TA.MainController.OnBuilderUpdate();
 
@@ -32,25 +40,16 @@ namespace RotationAnarchyEvolved
             if (!___ghost.activeSelf)
             {
 
-                MethodInfo method = AccessTools.Method(typeof(Builder), "turnIntoGhostMaterial");
-
-                for (int i = 0; i < ___actualBuiltObjects.Count; i++)
-                {
-                    BuildableObject buildableObject = ___actualBuiltObjects[i];
-
-                    method.Invoke(TA.MainController.CurrentBuilder, new object[] { buildableObject.transform, ___ghostMaterial });
-                }
-
                 ___ghost.SetActive(true);
+
+                RedoBuildables(b, ref ___canBuild, ref ___ghostCantBuildMaterial,
+                    ref ___ghostIntersectMaterial, ref ___ghostMaterial,
+                    ref ___builtObjectsCanBuildCache, ref ___actualBuiltObjects, true);
 
             }
 
-            // Just turn off the
-
-            if (TA.MainController.CurrentBuilder != null && TA.MainController.GizmoEnabled)
+            if (TA.MainController.GizmoEnabled)
             {
-
-                Builder b = TA.MainController.CurrentBuilder;
 
                 // Do first init of gizmo
                 if (!TA.MainController.GizmoCurrentState)
@@ -83,7 +82,14 @@ namespace RotationAnarchyEvolved
                 // Basically moves the money label if the gizmos are moved
                 if (changedPosFlag || changedRotFlag)
                 {
-                    PatchUtils.InvokeParamless(typeof(Builder), b, "updatePriceTag");
+                    RedoBuildables(b, ref ___canBuild, ref ___ghostCantBuildMaterial,
+                        ref ___ghostIntersectMaterial, ref ___ghostMaterial,
+                        ref ___builtObjectsCanBuildCache, ref ___actualBuiltObjects);
+
+                    if (changedPosFlag)
+                    {
+                        PatchUtils.InvokeParamless(typeof(Builder), b, "checkEnableUndergroundMode");
+                    }
                 }
 
                 // Update visual ghost position
@@ -98,7 +104,16 @@ namespace RotationAnarchyEvolved
                 // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
                 if (Input.GetMouseButtonUp(0) && !TA.MainController.GizmoControlsBeingUsed && !UIUtility.isMouseOverUIElement())
                 {
-                    PatchUtils.InvokeParamless(typeof(Builder), b, "buildObjects");
+
+                    // Actually can build
+                    if (___canBuild.result)
+                    {
+                        PatchUtils.InvokeParamless(typeof(Builder), b, "buildObjects");
+                    }
+                    else
+                    {
+                        ErrorMessageController.showErrorMessage(___canBuild.message);
+                    }
                 }
 
                 return false;
@@ -107,6 +122,61 @@ namespace RotationAnarchyEvolved
 
             return true;
 
+        }
+
+        public static void RedoBuildables(Builder b, 
+            ref BuildableObject.CanBuild ___canBuild, ref Material ___ghostCantBuildMaterial,
+            ref Material ___ghostIntersectMaterial, ref Material ___ghostMaterial,
+            ref Dictionary<BuildableObject, BuildableObject.CanBuild> ___builtObjectsCanBuildCache,
+            ref List<BuildableObject> ___actualBuiltObjects, bool forceUpdate = false)
+        {
+            // Redo all materials and checks
+            PatchUtils.InvokeParamless(typeof(Builder), b, "updatePriceTag");
+            ___builtObjectsCanBuildCache.Clear();
+            BuildableObject.CanBuild canBuildNew = (BuildableObject.CanBuild)PatchUtils.InvokeParamless(typeof(Builder), b, "canBuildAt");
+
+            if (!canBuildNew.isEquivalent(___canBuild) || forceUpdate)
+            {
+
+                PatchUtils.InvokeParamless(typeof(Builder), b, "destroyBuildIndicator");
+
+                if (!canBuildNew.result)
+                {
+                    PatchUtils.InvokeParamless(typeof(Builder), b, "instantiateNoBuildIndicator");
+                }
+                else
+                {
+                    PatchUtils.InvokeParamless(typeof(Builder), b, "instantiateBuildIndicator");
+                }
+
+                // Clear and redo materials
+                PatchUtils.InvokeParamless(typeof(Builder), b, "clearGhostMaterial");
+                Material material;
+
+                if (!canBuildNew.result)
+                {
+                    material = ___ghostCantBuildMaterial;
+                }
+                else if (canBuildNew.removesObjects)
+                {
+                    material = ___ghostIntersectMaterial;
+                }
+                else
+                {
+                    material = ___ghostMaterial;
+                }
+
+                MethodInfo method = AccessTools.Method(typeof(Builder), "turnIntoGhostMaterial");
+
+                for (int i = 0; i < ___actualBuiltObjects.Count; i++)
+                {
+                    BuildableObject buildableObject = ___actualBuiltObjects[i];
+                    method.Invoke(b, new object[] { buildableObject.transform, material });
+                }
+
+                ___canBuild = canBuildNew;
+
+            }
         }
     }
 }

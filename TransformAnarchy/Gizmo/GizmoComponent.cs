@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace RotationAnarchyEvolved
+namespace TA
 {
     public abstract class GizmoComponent : MonoBehaviour
     {

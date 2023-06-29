@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 
-namespace RotationAnarchyEvolved
+namespace TA
 {
 
     public enum ToolSpace

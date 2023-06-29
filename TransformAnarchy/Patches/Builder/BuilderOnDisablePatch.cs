@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using RotationAnarchyEvolved;
+using TA;
 using System.Reflection;
 using UnityEngine;
 using System.Collections.Generic;
@@ -14,6 +14,6 @@ public class BuilderOnDisablePatch
     [HarmonyPrefix]
     public static void Prefix()
     {
-        TA.MainController.OnBuilderDisable();
+        TA.TA.MainController.OnBuilderDisable();
     }
 }
