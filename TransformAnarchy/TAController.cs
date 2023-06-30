@@ -94,7 +94,7 @@ namespace TransformAnarchy
 
             Debug.Log("Builder disabled");
 
-            UseTransformFromLastBuilder = GizmoEnabled;
+            UseTransformFromLastBuilder = GizmoEnabled && CurrentBuilder.GetType() == typeof(DecoBuilder);
             StartCoroutine(StoppedBuildingWatch());
 
             CurrentBuilder = null;
