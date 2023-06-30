@@ -5,7 +5,7 @@ using Parkitect;
 using UnityEngine;
 using HarmonyLib;
 
-namespace TA
+namespace TransformAnarchy
 {
     public class TA : AbstractMod
     {

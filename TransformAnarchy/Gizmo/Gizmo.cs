@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 
-namespace TA
+namespace TransformAnarchy
 {
 
     public enum ToolSpace
@@ -142,7 +142,9 @@ namespace TA
             OnDuringDrag = new UnityEvent<DragInformation>();
             OnEndDrag = new UnityEvent<DragInformation>();
 
+            OnStartDrag.AddListener(OnDragStart);
             OnDuringDrag.AddListener(OnDrag);
+            OnEndDrag.AddListener(OnDragEnd);
 
             UpdateGizmoTransforms();
 
@@ -164,7 +166,13 @@ namespace TA
             ZComponent.gameObject.SetActive(active);
             _gizmoActive = active;
         }
+        
+        
+        public virtual void OnDragStart(DragInformation eventInfo) { }
         public virtual void OnDrag(DragInformation eventInfo) { UpdateGizmoTransforms(); }
+        public virtual void OnDragEnd(DragInformation eventInfo) { }
+        
+        
         protected virtual void UpdateGizmoTransforms()
         {
             XComponent.transform.rotation = (_rotationMode == ToolSpace.GLOBAL) ? XAxisRotation() : transform.rotation * XAxisRotation();
@@ -191,13 +199,9 @@ namespace TA
             Ray mouseRay = _cachedMaincam.ScreenPointToRay(Input.mousePosition);
             bool raycastRes = Physics.Raycast(mouseRay, out hit, Mathf.Infinity, LAYER_MASK);
 
-            if (raycastRes) Debug.Log($"Raycast hit obj {hit.collider.name}");
-
             // Started drag
             if (Input.GetKeyDown(KeyCode.Mouse0) && raycastRes && !UIUtility.isMouseOverUIElement())
             {
-
-                Debug.Log($"Raycast hit obj {hit.collider.name}");
 
                 GizmoComponent hitComponent = hit.collider.GetComponent<GizmoComponent>();
                 Axis axis = Axis.NONE;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Parkitect;
 
-namespace TA
+namespace TransformAnarchy
 {
     public class KeybindManager
     {

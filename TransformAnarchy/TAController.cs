@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TA
+namespace TransformAnarchy
 {
     [DefaultExecutionOrder(-10)]
     public class TAController : MonoBehaviour
@@ -15,6 +15,8 @@ namespace TA
 
         public Builder CurrentBuilder;
         public float BuilderSize;
+        public float GridSubdivision = 1f;
+        public bool ShouldSnap = false;
         public bool GizmoCurrentState = false;
         public bool GizmoEnabled = false;
         public bool GizmoControlsBeingUsed = false;
@@ -35,8 +37,18 @@ namespace TA
         public GameObject UITransform;
         public Button UIToolButton;
         public Button UISpaceButton;
+        public Button UIBuildButton;
+        public Button UIGizmoToggleButton;
+        public Button UIResetRotationButton;
         public Image UIToolIcon;
         public Image UISpaceIcon;
+
+        public Toggle DecoBuilderTab;
+        public bool UseTransformFromLastBuilder = false;
+        public bool PipetteWaitForMouseUp = false;
+
+        // We cannot directly build the builder. So we instead do this.
+        public bool ForceBuildThisFrame = false;
 
         // Allowed builder types
         public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
@@ -68,7 +80,6 @@ namespace TA
             Debug.Log("Builder enabled");
 
             CurrentBuilder = builder;
-
             UpdateUIContent();
 
         }
@@ -76,7 +87,16 @@ namespace TA
         public void OnBuilderDisable()
         {
 
+            if (CurrentBuilder == null)
+            {
+                return;
+            }
+
             Debug.Log("Builder disabled");
+
+            UseTransformFromLastBuilder = GizmoEnabled;
+            StartCoroutine(StoppedBuildingWatch());
+
             CurrentBuilder = null;
             GizmoEnabled = false;
             GizmoCurrentState = false;
@@ -111,11 +131,25 @@ namespace TA
         {
             positionalGizmo.transform.position = position;
             rotationalGizmo.transform.rotation = rotation;
+            UpdateBuilderGridToGizmo();
         }
 
         public void SetGizmoMoving(bool moving)
         {
             GizmoControlsBeingUsed = moving;
+        }
+
+        public void SetGizmoEnabled(bool setTo, bool setGizmoCurrentState = false)
+        {
+            GizmoEnabled = setTo;
+            GizmoCurrentState = setGizmoCurrentState;
+            UpdateUIContent();
+        }
+
+        public void ResetGizmoRotation()
+        {
+            rotationalGizmo.transform.rotation = Quaternion.identity;
+            UpdateBuilderGridToGizmo();
         }
 
         public void ToggleGizmoTool()
@@ -152,8 +186,8 @@ namespace TA
 
         public void UpdateUIContent()
         {
-            UIToolIcon.sprite = TA.MoveSprite;
-            UISpaceIcon.sprite = TA.RotateSprite;
+            UIToolIcon.sprite = (CurrentTool == Tool.MOVE) ? TA.RotateSprite : TA.MoveSprite;
+            UISpaceIcon.sprite = (CurrentSpace == ToolSpace.LOCAL) ? TA.GlobalSprite : TA.LocalSprite;
             UITransform.SetActive(CurrentBuilder != null && GizmoEnabled);
         }
 
@@ -165,13 +199,19 @@ namespace TA
                 return;
             }
 
-            Vector3 diag = Vector3.right + Vector3.up;
-
             // left and up relative to cam from position of gizmo, with width calced
             UITransform.transform.position = _cachedMaincam.WorldToScreenPoint(
                 positionalGizmo.transform.position +
-                _cachedMaincam.transform.rotation * (diag * BuilderSize));
+                _cachedMaincam.transform.rotation * (new Vector3(0.75f, 0.75f, 0) * BuilderSize));
 
+        }
+
+        public void UpdateBuilderGridToGizmo()
+        {
+            GameController.Instance.terrainGridProjector.transform.position = positionalGizmo.transform.position;
+            GameController.Instance.terrainGridBuilderProjector.transform.position = positionalGizmo.transform.position;
+            GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, rotationalGizmo.transform.forward);
+            GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, rotationalGizmo.transform.forward);
         }
 
         public void OnEnable()
@@ -202,7 +242,6 @@ namespace TA
             rotationalGizmo.OnEndDrag.AddListener(a => StartCoroutine(WaitToSetMovingOff()));
 
             Debug.Log("Gizmo events Init");
-
             Debug.Log("Creating UI for TA");
 
             // Ui window time.
@@ -220,19 +259,36 @@ namespace TA
             Debug.Log($"UIToolIcon parent: {UIToolIcon.transform.parent.name}");
 
             UISpaceButton = UITransform.transform.Find("Space_Button").GetComponent<Button>();
-            UISpaceIcon = UIToolButton.transform.Find("Image").GetComponent<Image>();
+            UISpaceIcon = UISpaceButton.transform.Find("Image").GetComponent<Image>();
 
             Debug.Log("Inited UISpaceButton");
             Debug.Log($"UISpaceButton: {UISpaceButton.name}");
             Debug.Log($"UIToolIcon parent: {UISpaceIcon.transform.parent.name}");
 
+            UIBuildButton = UITransform.transform.Find("Build_Button").GetComponent<Button>();
+            UIGizmoToggleButton = UITransform.transform.Find("Cancel_Button").GetComponent<Button>();
+            UIResetRotationButton = UITransform.transform.Find("Reset_Button").GetComponent<Button>(); 
+
             UIToolButton.onClick.AddListener(ToggleGizmoTool);
             UISpaceButton.onClick.AddListener(ToggleGizmoSpace);
+
+            UIBuildButton.onClick.AddListener(() => ForceBuildThisFrame = true);
+            UIGizmoToggleButton.onClick.AddListener(() => SetGizmoEnabled(!GizmoEnabled));
+            UIResetRotationButton.onClick.AddListener(() => rotationalGizmo.transform.rotation = Quaternion.identity);
+
 
             Debug.Log("Inited Events");
 
             UpdateUIContent();
 
+        }
+
+        // basically wait two frames in order to make sure 
+        public IEnumerator StoppedBuildingWatch()
+        {
+            yield return null;
+            yield return null;
+            UseTransformFromLastBuilder = false;
         }
 
         public IEnumerator WaitToSetMovingOff()
@@ -246,6 +302,10 @@ namespace TA
 
             UIToolButton.onClick.RemoveListener(ToggleGizmoTool);
             UISpaceButton.onClick.RemoveListener(ToggleGizmoSpace);
+
+            UIBuildButton.onClick.RemoveListener(() => ForceBuildThisFrame = true);
+            UIGizmoToggleButton.onClick.RemoveListener(() => SetGizmoEnabled(!GizmoEnabled));
+            UIResetRotationButton.onClick.RemoveListener(() => rotationalGizmo.transform.rotation = Quaternion.identity);
 
             Destroy(UITransform);
 
@@ -265,9 +325,8 @@ namespace TA
 
         }
 
-        public void OnBuilderUpdate()
+        public void OnBeforeInit()
         {
-
             if (_cachedMaincam == null)
             {
                 _cachedMaincam = Camera.main;
@@ -282,16 +341,12 @@ namespace TA
                 }
             }
 
+            bool snap = InputManager.getKey("BuildingSnapToGrid");
+            bool setGizmoOn = InputManager.getKeyDown("toggleGizmoOn");
+
             if (InputManager.getKeyDown("toggleGizmoOn") && CurrentBuilder != null)
             {
-                GizmoEnabled = !GizmoEnabled;
-
-                UpdateUIContent();
-
-                if (!GizmoEnabled)
-                {
-                    GizmoCurrentState = false;
-                }
+                SetGizmoEnabled(!GizmoEnabled);
             }
             else if (CurrentBuilder == null)
             {
@@ -301,20 +356,72 @@ namespace TA
             {
                 positionalGizmo.SetActiveGizmo(false);
                 rotationalGizmo.SetActiveGizmo(false);
-                return;
+                GameController.Instance.terrainGridProjector.transform.position = Vector3.zero;
+                GameController.Instance.terrainGridBuilderProjector.transform.position = Vector3.zero;
+                GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
+                GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
+
+                GridSubdivision = 1;
             }
 
-            // toggles
-            if (InputManager.getKeyDown("toggleGizmoSpace"))
+            if (snap != ShouldSnap)
+            {
+                UpdateBuilderGridToGizmo();
+                GameController.Instance.terrainGridProjector.setHighIntensityEnabled(snap);
+                GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(snap);
+                ShouldSnap = snap;
+            }
+
+            if (ShouldSnap)
+            {
+
+                float currentSub = GridSubdivision;
+
+                if (setGizmoOn && GizmoEnabled)
+                {
+                    GridSubdivision = 1;
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.Alpha0))
+                    {
+                        GridSubdivision = 10f;
+                    }
+                    else
+                    {
+                        for (int i = 1; i <= 9; i++)
+                        {
+                            if (Input.GetKeyDown(i.ToString() ?? "") || Input.GetKeyDown("[" + i.ToString() + "]"))
+                            {
+                                GridSubdivision = (float)i;
+                            }
+                        }
+                    }
+
+                    if (currentSub != GridSubdivision)
+                    {
+                        GameController.Instance.terrainGridBuilderProjector.setGridSubdivision(GridSubdivision);
+                    }
+                }
+            }
+        }
+
+        public void OnBuilderUpdate()
+        {
+
+            bool gridMode = InputManager.getKey("BuildingSnapToGrid");
+
+            // Keybinds
+            if (InputManager.getKeyDown("toggleGizmoSpace") && !gridMode)
             {
                 ToggleGizmoSpace();
             }
-
-            if (InputManager.getKeyDown("toggleGizmoTool"))
+            if (InputManager.getKeyDown("toggleGizmoTool") && !gridMode)
             {
                 ToggleGizmoTool();
             }
 
+            // Toggle tools based on the current state
             if (CurrentTool == Tool.MOVE && GizmoEnabled)
             {
                 positionalGizmo.SetActiveGizmo(true);
@@ -330,6 +437,7 @@ namespace TA
                 rotationalGizmo.OnDragCheck();
             }
 
+            // Keep both gizmos sync'd with eachother
             rotationalGizmo.transform.position = positionalGizmo.transform.position;
             positionalGizmo.transform.rotation = rotationalGizmo.transform.rotation;
 

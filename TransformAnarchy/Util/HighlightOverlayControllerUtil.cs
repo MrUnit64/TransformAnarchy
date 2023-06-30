@@ -1,4 +1,4 @@
-﻿namespace TA
+﻿namespace TransformAnarchy
 {
     using System;
     using System.Collections.Generic;

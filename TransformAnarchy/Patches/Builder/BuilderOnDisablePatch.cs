@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
-using TA;
+using TransformAnarchy;
 using System.Reflection;
 using UnityEngine;
 using System.Collections.Generic;
+using Parkitect;
+using Parkitect.UI;
 
 [HarmonyPatch]
 public class BuilderOnDisablePatch
@@ -14,6 +16,6 @@ public class BuilderOnDisablePatch
     [HarmonyPrefix]
     public static void Prefix()
     {
-        TA.TA.MainController.OnBuilderDisable();
+        TransformAnarchy.TA.MainController.OnBuilderDisable();
     }
 }

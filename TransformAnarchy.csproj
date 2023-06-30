@@ -389,8 +389,6 @@
     <None Include="Res\Gizmos.blend" />
     <None Include="Res\Gizmos.blend1" />
     <None Include="Res\rae.assetbundle" />
-    <None Include="ui_icon_rotationGizmo.psd" />
-    <None Include="ui_icon_rotationGizmoDisabled.psd" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitattributes" />
@@ -409,6 +407,8 @@
     <Compile Include="TransformAnarchy\Gizmo\RotationalGizmoComponent.cs" />
     <Compile Include="TransformAnarchy\KeybindManager.cs" />
     <Compile Include="TransformAnarchy\Patches\BlueprintBuilder\BlueprintBuilderMakeValidBuildPositionPatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\BuilderFunctions.cs" />
+    <Compile Include="TransformAnarchy\Patches\DecoBuilder\DecoBuilderUpdatePatch.cs" />
     <Compile Include="TransformAnarchy\Patches\ObjectPipetteButton\ObjectPipetteButtonOnObjectSelectedPatch.cs" />
     <Compile Include="TransformAnarchy\Patches\PatchUtils.cs" />
     <Compile Include="TransformAnarchy\Patches\Builder\BuilderMakeValidBuildPositionPatch.cs" />

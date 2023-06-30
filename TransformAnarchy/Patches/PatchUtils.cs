@@ -5,14 +5,14 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
 
-namespace TA {
+namespace TransformAnarchy {
 
     public static class PatchUtils
     {
 
-        public static object InvokeParamless(System.Type type, object instance, string methodName)
+        public static object InvokeParamless(System.Type type, object instance, MethodBase method)
         {
-            return AccessTools.Method(type, methodName, new Type[] { }).Invoke(instance, new object[] { });
+            return method.Invoke(instance, new object[] { });
         }
     }
 }

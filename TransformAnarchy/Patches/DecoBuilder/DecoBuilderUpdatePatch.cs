@@ -9,11 +9,11 @@ namespace TransformAnarchy
 {
 
     [HarmonyPatch]
-    public class BuilderUpdatePatch
+    public class DecoBuilderUpdatePatch
     {
 
         // Get protected method and make it public so we can patch
-        static MethodBase TargetMethod() => AccessTools.Method(typeof(Builder), "Update");
+        static MethodBase TargetMethod() => AccessTools.Method(typeof(DecoBuilder), "Update");
 
         /**
          *  WHAT A MONSTER!

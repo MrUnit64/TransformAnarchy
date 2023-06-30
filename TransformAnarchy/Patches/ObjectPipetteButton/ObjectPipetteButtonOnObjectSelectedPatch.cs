@@ -6,7 +6,7 @@ using HarmonyLib;
 using System.Reflection;
 using Parkitect.UI;
 
-namespace TA
+namespace TransformAnarchy
 {
     [HarmonyPatch]
     public class ObjectPipetteButtonOnObjectSelectedPatch
@@ -19,12 +19,22 @@ namespace TA
         public static void Postfix(BuildableObject buildableObject, Builder ___builder)
         {
 
-            Debug.Log("Hello from Object Pipette selected method!");
+            if (TA.MainController.UseTransformFromLastBuilder)
+            {
+                return;
+            }
+
+            // Run the stuff
+            TA.MainController.UseTransformFromLastBuilder = true;
+
 
             // We want to ALWAYS spawn with the gizmo. So we shall.
-            TA.MainController.GizmoEnabled = true;
-            TA.MainController.GizmoCurrentState = false;
+            TA.MainController.SetGizmoEnabled(true);
+            TA.MainController.SetGizmoTransform(buildableObject.logicTransform.position, buildableObject.logicTransform.rotation);
+            TA.MainController.UpdateUIContent();
+            TA.MainController.PipetteWaitForMouseUp = true;
 
+            // We cannot make this any faster unfortunately 
             Traverse builderTrv = Traverse.Create(___builder);
 
             // set ghost rot and loc

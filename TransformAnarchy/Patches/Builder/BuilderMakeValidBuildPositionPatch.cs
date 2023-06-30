@@ -5,7 +5,7 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection;
 
-namespace TA
+namespace TransformAnarchy
 {
 
     [HarmonyPatch]
