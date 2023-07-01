@@ -1,0 +1,12 @@
+﻿Build started...
+1>------ Build started: Project: TransformAnarchy, Configuration: Debug Any CPU ------
+1>  TransformAnarchy -> C:\Users\thoma\Documents\GitHub\RotationAnarchy\bin\Debug\RotationAnarchyEvolved.dll
+1>  A subdirectory or file C:\Users\thoma\Documents\Parkitect\Mods\TransformAnarchy already exists.
+1>  A subdirectory or file C:\Users\thoma\Documents\Parkitect\Mods\TransformAnarchy\Res already exists.
+1>          1 file(s) copied.
+1>          1 file(s) copied.
+1>  C:\Users\thoma\Documents\GitHub\RotationAnarchy\Res\Gizmos.blend
+1>  C:\Users\thoma\Documents\GitHub\RotationAnarchy\Res\Gizmos.blend1
+1>  C:\Users\thoma\Documents\GitHub\RotationAnarchy\Res\ta_assets
+1>  3 File(s) copied
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
