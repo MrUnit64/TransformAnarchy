@@ -406,7 +406,7 @@
     <Compile Include="TransformAnarchy\Gizmo\RotationalGizmo.cs" />
     <Compile Include="TransformAnarchy\Gizmo\RotationalGizmoComponent.cs" />
     <Compile Include="TransformAnarchy\KeybindManager.cs" />
-    <Compile Include="TransformAnarchy\Patches\BlueprintBuilder\BlueprintBuilderMakeValidBuildPositionPatch.cs" />
+    <Compile Include="TransformAnarchy\Patches\BlueprintBuilder\BlueprintBuilderMakeValidBuildPositionPatch - Copy.cs" />
     <Compile Include="TransformAnarchy\Patches\BuilderFunctions.cs" />
     <Compile Include="TransformAnarchy\Patches\DecoBuilder\DecoBuilderUpdatePatch.cs" />
     <Compile Include="TransformAnarchy\Patches\ObjectPipetteButton\ObjectPipetteButtonOnObjectSelectedPatch.cs" />

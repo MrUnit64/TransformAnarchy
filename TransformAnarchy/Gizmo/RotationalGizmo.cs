@@ -78,6 +78,12 @@ namespace TransformAnarchy
         private Quaternion _startingRotation;
         private Vector3 _startingAxis;
 
+        public void UpdatePosition(Vector3 newPos)
+        {
+            transform.position = newPos;
+            UpdateGizmoTransforms();
+        }
+
         public override Quaternion XAxisRotation() => Quaternion.LookRotation(Vector3.right, Vector3.up);
         public override Quaternion YAxisRotation() => Quaternion.LookRotation(Vector3.up, -Vector3.forward);
         public override Quaternion ZAxisRotation() => Quaternion.LookRotation(Vector3.forward, Vector3.up);

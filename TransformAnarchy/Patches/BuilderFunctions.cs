@@ -105,6 +105,15 @@ namespace TransformAnarchy
                     }
                 }
 
+                // Update visual ghost position
+                ___ghost.transform.position = curPos;
+                ___ghost.transform.rotation = curRot;
+
+                // Update place at ghost position
+                ___ghostPos = curPos;
+                ___rotation = curRot;
+                ___forward = ___rotation * Vector3.forward;
+
                 // Basically moves the money label if the gizmos are moved
                 if (refreshRepresentation)
                 {
@@ -115,15 +124,6 @@ namespace TransformAnarchy
 
                     PatchUtils.InvokeParamless(typeof(Builder), b, BuilderFunctions.checkEnableUndergroundMode);
                 }
-
-                // Update visual ghost position
-                ___ghost.transform.position = curPos;
-                ___ghost.transform.rotation = curRot;
-
-                // Update place at ghost position
-                ___ghostPos = curPos;
-                ___rotation = curRot;
-                ___forward = ___rotation * Vector3.forward;
 
                 bool mouseUp = Input.GetMouseButtonUp(0);
 

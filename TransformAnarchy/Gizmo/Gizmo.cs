@@ -112,6 +112,13 @@ namespace TransformAnarchy
         public virtual Color ZAxisColor() => Color.blue;
         public virtual Color DeselectedColor() => Color.white * 0.5f;
         public virtual Color SelectedColor() => Color.yellow;
+
+        private static float _nonHover = 0.6f;
+        private static Color _multNonHover = new Color(_nonHover, _nonHover, _nonHover);
+
+        // Why this specific shade of blue? It's the parkitect ui blue!
+        private static Color _outlineHover = new Color(0.6863f, 1f, 1f, 0.3608f);
+
         public virtual void OnCreate()
         {
             this._commandBuffer = new CommandBuffer();
@@ -122,19 +129,16 @@ namespace TransformAnarchy
 
             GameObject wo = Instantiate<GameObject>(SpawnIn, transform);
             ZComponent = wo.AddComponent<T>();
-            ZComponent.SetColor(ZAxisColor());
             wo.layer = LAYER;
             wo.name = "ZComponent";
 
             wo = Instantiate<GameObject>(SpawnIn, transform);
             YComponent = wo.AddComponent<T>();
-            YComponent.SetColor(YAxisColor());
             wo.layer = LAYER;
             wo.name = "YComponent";
 
             wo = Instantiate<GameObject>(SpawnIn, transform);
             XComponent = wo.AddComponent<T>();
-            XComponent.SetColor(XAxisColor());
             wo.layer = LAYER;
             wo.name = "XComponent";
 
@@ -149,16 +153,51 @@ namespace TransformAnarchy
             UpdateGizmoTransforms();
 
         }
-        public void SetColorsByActive()
+
+        public void SetGizmoColour(GizmoComponent checkGizmo, GizmoComponent hoverGizmo, Color axisCol)
         {
+            Color mainCol = axisCol;
+            Color outlineCol = axisCol;
 
-            Color selCol = SelectedColor();
-            Color deselCol = DeselectedColor();
+            // Dragging this
+            if (_currentlyDragging == checkGizmo)
+            {
+                Color selCol = SelectedColor();
+                mainCol = selCol;
+                outlineCol = selCol;
+            }
+            // Nobody is dragging
+            else if (_currentlyDragging == null)
+            {
+                if (hoverGizmo == checkGizmo)
+                {
+                    outlineCol = _outlineHover;
+                }
+                else
+                {
+                    mainCol *= _multNonHover;
+                    outlineCol = mainCol;
+                }
+            }
+            // Not this gizmo dragged
+            else
+            {
+                Color unSelCol = DeselectedColor();
+                mainCol = unSelCol;
+                outlineCol = unSelCol;
+            }
 
-            ZComponent.SetColor((_currentlyDragging == ZComponent) ? selCol : (_currentlyDragging == null ? ZAxisColor() : deselCol));
-            YComponent.SetColor((_currentlyDragging == YComponent) ? selCol : (_currentlyDragging == null ? YAxisColor() : deselCol));
-            XComponent.SetColor((_currentlyDragging == XComponent) ? selCol : (_currentlyDragging == null ? XAxisColor() : deselCol));
+            checkGizmo.SetColor(mainCol, outlineCol);
+
         }
+
+        public void SetColorsByActive(GizmoComponent HoverGizmo)
+        {
+            SetGizmoColour(ZComponent, HoverGizmo, ZAxisColor());
+            SetGizmoColour(YComponent, HoverGizmo, YAxisColor());
+            SetGizmoColour(XComponent, HoverGizmo, XAxisColor());
+        }
+
         public void SetActiveGizmo(bool active)
         {
             XComponent.gameObject.SetActive(active); 
@@ -166,13 +205,11 @@ namespace TransformAnarchy
             ZComponent.gameObject.SetActive(active);
             _gizmoActive = active;
         }
-        
-        
+
         public virtual void OnDragStart(DragInformation eventInfo) { }
         public virtual void OnDrag(DragInformation eventInfo) { UpdateGizmoTransforms(); }
         public virtual void OnDragEnd(DragInformation eventInfo) { }
-        
-        
+
         protected virtual void UpdateGizmoTransforms()
         {
             XComponent.transform.rotation = (_rotationMode == ToolSpace.GLOBAL) ? XAxisRotation() : transform.rotation * XAxisRotation();
@@ -199,18 +236,24 @@ namespace TransformAnarchy
             Ray mouseRay = _cachedMaincam.ScreenPointToRay(Input.mousePosition);
             bool raycastRes = Physics.Raycast(mouseRay, out hit, Mathf.Infinity, LAYER_MASK);
 
+            GizmoComponent Hover = null;
+
+            if (raycastRes && !UIUtility.isMouseOverUIElement())
+            {
+                Hover = hit.collider.GetComponent<GizmoComponent>();
+            }
+
             // Started drag
-            if (Input.GetKeyDown(KeyCode.Mouse0) && raycastRes && !UIUtility.isMouseOverUIElement())
+            if (Input.GetKeyDown(KeyCode.Mouse0) && Hover != null)
             {
 
-                GizmoComponent hitComponent = hit.collider.GetComponent<GizmoComponent>();
                 Axis axis = Axis.NONE;
 
-                if (hitComponent == XComponent) { _currentlyDragging = XComponent; axis = Axis.X; }
-                else if (hitComponent == YComponent) { _currentlyDragging = YComponent; axis = Axis.Y; }
-                else if (hitComponent == ZComponent) { _currentlyDragging = ZComponent; axis = Axis.Z; }
+                if (Hover == XComponent) { _currentlyDragging = XComponent; axis = Axis.X; }
+                else if (Hover == YComponent) { _currentlyDragging = YComponent; axis = Axis.Y; }
+                else if (Hover == ZComponent) { _currentlyDragging = ZComponent; axis = Axis.Z; }
 
-                _lastInfo = new DragInformation(hitComponent.GetPlaneOffset(mouseRay), axis);
+                _lastInfo = new DragInformation(_currentlyDragging.GetPlaneOffset(mouseRay), axis);
                 OnStartDrag.Invoke(_lastInfo);
 
             }
@@ -230,7 +273,7 @@ namespace TransformAnarchy
                 _currentlyDragging = null;
             }
 
-            SetColorsByActive();
+            SetColorsByActive(Hover);
 
             // Render objects
             _commandBuffer.Clear();

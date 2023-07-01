@@ -25,11 +25,10 @@ namespace TransformAnarchy
 
         public abstract Vector3 GetPlaneOffset(Ray ray);
 
-        public void SetColor(Color col)
+        public void SetColor(Color col, Color outlineCol)
         {
             _color = col;
-            _outlineColor = col;
-            _outlineColor.a = 0.1f;
+            _outlineColor = outlineCol;
 
             if (baseMaterial != null && stencilMaterial != null)
             {

@@ -43,12 +43,13 @@ namespace TransformAnarchy
         public Image UIToolIcon;
         public Image UISpaceIcon;
 
-        public Toggle DecoBuilderTab;
+        // Flags
         public bool UseTransformFromLastBuilder = false;
         public bool PipetteWaitForMouseUp = false;
 
         // We cannot directly build the builder. So we instead do this.
         public bool ForceBuildThisFrame = false;
+        private bool _dontUpdateGrid = false;
 
         // Allowed builder types
         public static HashSet<Type> AllowedBuilderTypes = new HashSet<Type>()
@@ -105,6 +106,7 @@ namespace TransformAnarchy
             CurrentTool = Tool.MOVE;
             CurrentSpace = ToolSpace.LOCAL;
 
+            ClearBuilderGrid();
             UpdateUIContent();
 
         }
@@ -148,7 +150,8 @@ namespace TransformAnarchy
 
         public void ResetGizmoRotation()
         {
-            rotationalGizmo.transform.rotation = Quaternion.identity;
+            rotationalGizmo.transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+            positionalGizmo.transform.rotation = rotationalGizmo.transform.rotation;
             UpdateBuilderGridToGizmo();
         }
 
@@ -212,6 +215,18 @@ namespace TransformAnarchy
             GameController.Instance.terrainGridBuilderProjector.transform.position = positionalGizmo.transform.position;
             GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, rotationalGizmo.transform.forward);
             GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, rotationalGizmo.transform.forward);
+            GameController.Instance.terrainGridProjector.setHighIntensityEnabled(true);
+            GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(true);
+        }
+
+        public void ClearBuilderGrid()
+        {
+            GameController.Instance.terrainGridProjector.transform.position = Vector3.zero;
+            GameController.Instance.terrainGridBuilderProjector.transform.position = Vector3.zero;
+            GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
+            GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
+            GameController.Instance.terrainGridProjector.setHighIntensityEnabled(false);
+            GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(false);
         }
 
         public void OnEnable()
@@ -341,11 +356,11 @@ namespace TransformAnarchy
                 }
             }
 
-            bool snap = InputManager.getKey("BuildingSnapToGrid");
-            bool setGizmoOn = InputManager.getKeyDown("toggleGizmoOn");
-
             if (InputManager.getKeyDown("toggleGizmoOn") && CurrentBuilder != null)
             {
+
+                _dontUpdateGrid = true;
+                GridSubdivision = GameController.Instance.terrainGridBuilderProjector.gridSubdivision;
                 SetGizmoEnabled(!GizmoEnabled);
             }
             else if (CurrentBuilder == null)
@@ -356,53 +371,6 @@ namespace TransformAnarchy
             {
                 positionalGizmo.SetActiveGizmo(false);
                 rotationalGizmo.SetActiveGizmo(false);
-                GameController.Instance.terrainGridProjector.transform.position = Vector3.zero;
-                GameController.Instance.terrainGridBuilderProjector.transform.position = Vector3.zero;
-                GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
-                GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
-
-                GridSubdivision = 1;
-            }
-
-            if (snap != ShouldSnap)
-            {
-                UpdateBuilderGridToGizmo();
-                GameController.Instance.terrainGridProjector.setHighIntensityEnabled(snap);
-                GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(snap);
-                ShouldSnap = snap;
-            }
-
-            if (ShouldSnap)
-            {
-
-                float currentSub = GridSubdivision;
-
-                if (setGizmoOn && GizmoEnabled)
-                {
-                    GridSubdivision = 1;
-                }
-                else
-                {
-                    if (Input.GetKeyDown(KeyCode.Alpha0))
-                    {
-                        GridSubdivision = 10f;
-                    }
-                    else
-                    {
-                        for (int i = 1; i <= 9; i++)
-                        {
-                            if (Input.GetKeyDown(i.ToString() ?? "") || Input.GetKeyDown("[" + i.ToString() + "]"))
-                            {
-                                GridSubdivision = (float)i;
-                            }
-                        }
-                    }
-
-                    if (currentSub != GridSubdivision)
-                    {
-                        GameController.Instance.terrainGridBuilderProjector.setGridSubdivision(GridSubdivision);
-                    }
-                }
             }
         }
 
@@ -410,6 +378,49 @@ namespace TransformAnarchy
         {
 
             bool gridMode = InputManager.getKey("BuildingSnapToGrid");
+            bool updateGizmo = ShouldSnap != gridMode || _dontUpdateGrid;
+            ShouldSnap = gridMode;
+
+            if (gridMode && !_dontUpdateGrid)
+            {
+
+                float currentSub = GridSubdivision;
+
+                if (Input.GetKeyDown(KeyCode.Alpha0))
+                {
+                    GridSubdivision = 10f;
+                }
+                else
+                {
+                    for (int i = 1; i <= 9; i++)
+                    {
+                        if (Input.GetKeyDown(i.ToString() ?? "") || Input.GetKeyDown("[" + i.ToString() + "]"))
+                        {
+                            GridSubdivision = (float)i;
+                        }
+                    }
+                }
+
+                if (currentSub != GridSubdivision)
+                {
+                    updateGizmo = true;
+                }
+            }
+            else
+            {
+                ClearBuilderGrid();
+            }
+
+            if (updateGizmo)
+            {
+                GameController.Instance.terrainGridBuilderProjector.setGridSubdivision(GridSubdivision);
+                UpdateBuilderGridToGizmo();
+            }
+
+            if (_dontUpdateGrid)
+            {
+                _dontUpdateGrid = false;
+            }
 
             // Keybinds
             if (InputManager.getKeyDown("toggleGizmoSpace") && !gridMode)
@@ -427,19 +438,21 @@ namespace TransformAnarchy
                 positionalGizmo.SetActiveGizmo(true);
                 rotationalGizmo.SetActiveGizmo(false);
                 positionalGizmo.CurrentRotationMode = CurrentSpace;
+                rotationalGizmo.CurrentRotationMode = CurrentSpace;
                 positionalGizmo.OnDragCheck();
             }
             else if (CurrentTool == Tool.ROTATE && GizmoEnabled)
             {
                 positionalGizmo.SetActiveGizmo(false);
                 rotationalGizmo.SetActiveGizmo(true);
+                positionalGizmo.CurrentRotationMode = CurrentSpace;
                 rotationalGizmo.CurrentRotationMode = CurrentSpace;
                 rotationalGizmo.OnDragCheck();
             }
 
             // Keep both gizmos sync'd with eachother
-            rotationalGizmo.transform.position = positionalGizmo.transform.position;
-            positionalGizmo.transform.rotation = rotationalGizmo.transform.rotation;
+            rotationalGizmo.UpdatePosition(positionalGizmo.transform.position);
+            positionalGizmo.UpdateRotation(rotationalGizmo.transform.rotation);
 
             // Update UI position
             UpdateUIPosition();
