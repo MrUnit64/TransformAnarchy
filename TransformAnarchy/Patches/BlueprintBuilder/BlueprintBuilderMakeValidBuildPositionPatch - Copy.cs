@@ -22,7 +22,6 @@ namespace TransformAnarchy
             // Skip 
             if (TA.MainController.CurrentBuilder != null && TA.MainController.GizmoEnabled)
             {
-                Debug.Log("BlueprintBuilder: Position valid position was changed.");
                 __result = position;
                 return false;
             }

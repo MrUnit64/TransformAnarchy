@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Parkitect.UI;
 
 namespace TransformAnarchy
 {
@@ -20,6 +21,7 @@ namespace TransformAnarchy
         public bool GizmoCurrentState = false;
         public bool GizmoEnabled = false;
         public bool GizmoControlsBeingUsed = false;
+        public bool IsEditingOrigin = false;
 
         public enum Tool
         {
@@ -34,14 +36,32 @@ namespace TransformAnarchy
         public RotationalGizmo rotationalGizmo;
         private Camera _cachedMaincam;
 
+        private Transform _gizmoHelperParent;
+        private Transform _gizmoHelperChild;
+
         public GameObject UITransform;
-        public Button UIToolButton;
-        public Button UISpaceButton;
-        public Button UIBuildButton;
-        public Button UIGizmoToggleButton;
-        public Button UIResetRotationButton;
-        public Image UIToolIcon;
-        public Image UISpaceIcon;
+
+        public struct UIButton
+        {
+            public Button button;
+            public Image icon;
+            public UITooltip tooltip;
+
+            public UIButton(Button b, Image i = null, UITooltip t = null)
+            {
+                this.button = b;
+                this.icon = i;
+                this.tooltip = t;
+            }
+        }
+
+        public UIButton UIToolButton;
+        public UIButton UISpaceButton;
+        public UIButton UIBuildButton;
+        public UIButton UIGizmoToggleButton;
+        public UIButton UIResetRotationButton;
+        public UIButton UIPivotEdit;
+        public UIButton UIPivotCancel;
 
         // Flags
         public bool UseTransformFromLastBuilder = false;
@@ -62,8 +82,6 @@ namespace TransformAnarchy
         public void OnBuilderEnable(Builder builder)
         {
 
-            Debug.Log($"Builder: {builder}, type {builder.GetType()}");
-
             if (builder == CurrentBuilder)
             {
                 return;
@@ -78,7 +96,11 @@ namespace TransformAnarchy
                 }
             }
 
-            Debug.Log("Builder enabled");
+            if (!UseTransformFromLastBuilder)
+            {
+                _gizmoHelperChild.transform.localPosition = Vector3.zero;
+                _gizmoHelperChild.transform.localRotation = Quaternion.identity;
+            }
 
             CurrentBuilder = builder;
             UpdateUIContent();
@@ -92,8 +114,6 @@ namespace TransformAnarchy
             {
                 return;
             }
-
-            Debug.Log("Builder disabled");
 
             UseTransformFromLastBuilder = GizmoEnabled && CurrentBuilder.GetType() == typeof(DecoBuilder);
             StartCoroutine(StoppedBuildingWatch());
@@ -123,6 +143,12 @@ namespace TransformAnarchy
 
         }
 
+        public void GetBuildTransform(out Vector3 wsPos, out Quaternion wsRot)
+        {
+            wsPos = _gizmoHelperChild.transform.position;
+            wsRot = _gizmoHelperChild.transform.rotation;
+        }
+
         public void GetGizmoTransform(out Vector3 wsPos, out Quaternion wsRot)
         {
             wsPos = positionalGizmo.transform.position;
@@ -133,6 +159,8 @@ namespace TransformAnarchy
         {
             positionalGizmo.transform.position = position;
             rotationalGizmo.transform.rotation = rotation;
+            _gizmoHelperParent.transform.position = positionalGizmo.transform.position;
+            _gizmoHelperParent.transform.rotation = rotationalGizmo.transform.rotation;
             UpdateBuilderGridToGizmo();
         }
 
@@ -143,16 +171,62 @@ namespace TransformAnarchy
 
         public void SetGizmoEnabled(bool setTo, bool setGizmoCurrentState = false)
         {
+
             GizmoEnabled = setTo;
             GizmoCurrentState = setGizmoCurrentState;
+
+            if (!GizmoEnabled)
+            {
+                _gizmoHelperChild.transform.localPosition = Vector3.zero;
+                _gizmoHelperChild.transform.localRotation = Quaternion.identity;
+                IsEditingOrigin = false;
+            }
+
             UpdateUIContent();
+
         }
 
         public void ResetGizmoRotation()
         {
-            rotationalGizmo.transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
-            positionalGizmo.transform.rotation = rotationalGizmo.transform.rotation;
+
+
+            Vector3 lastFullPosition = _gizmoHelperChild.transform.position;
+            Quaternion lastFullRotation = _gizmoHelperChild.transform.rotation;
+
+            _gizmoHelperParent.transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+
+            if (IsEditingOrigin)
+            {
+                _gizmoHelperChild.transform.position = lastFullPosition;
+                _gizmoHelperChild.transform.rotation = lastFullRotation;
+            }
+
+            positionalGizmo.transform.position = _gizmoHelperParent.transform.position;
+            rotationalGizmo.transform.rotation = _gizmoHelperParent.transform.rotation;
+
+            UpdateGizmoTransforms();
             UpdateBuilderGridToGizmo();
+
+        }
+
+        public void ResetPivot()
+        {
+
+            Vector3 cachedBuilderPos = _gizmoHelperChild.transform.position;
+            Quaternion cachedBuilderRot = _gizmoHelperChild.transform.rotation;
+
+            _gizmoHelperParent.transform.position = cachedBuilderPos;
+            _gizmoHelperParent.transform.rotation = cachedBuilderRot;
+            positionalGizmo.transform.position = cachedBuilderPos;
+            rotationalGizmo.transform.rotation = cachedBuilderRot;
+            _gizmoHelperChild.transform.localPosition = Vector3.zero;
+            _gizmoHelperChild.transform.localRotation = Quaternion.identity;
+
+            IsEditingOrigin = false;
+
+            UpdateGizmoTransforms();
+            UpdateUIContent();
+
         }
 
         public void ToggleGizmoTool()
@@ -187,10 +261,28 @@ namespace TransformAnarchy
 
         }
 
+        public void TogglePivotEdit()
+        {
+            IsEditingOrigin = !IsEditingOrigin;
+            UpdateUIContent();
+        }
+
         public void UpdateUIContent()
         {
-            UIToolIcon.sprite = (CurrentTool == Tool.MOVE) ? TA.RotateSprite : TA.MoveSprite;
-            UISpaceIcon.sprite = (CurrentSpace == ToolSpace.LOCAL) ? TA.GlobalSprite : TA.LocalSprite;
+
+            // Pivot editing update
+            UIBuildButton.button.interactable = !IsEditingOrigin;
+
+            UIPivotEdit.icon.sprite = (IsEditingOrigin) ? TA.TickSprite : TA.OriginMoveSprite;
+            UIPivotEdit.tooltip.text = (IsEditingOrigin) ? "Keep pivot changes" : "Change pivot";
+
+            // Icon updates
+            UIToolButton.icon.sprite = (CurrentTool == Tool.MOVE) ? TA.RotateSprite : TA.MoveSprite;
+            UIToolButton.tooltip.text = (CurrentTool == Tool.MOVE) ? "Rotate tool" : "Move tool";
+            UISpaceButton.icon.sprite = (CurrentSpace == ToolSpace.LOCAL) ? TA.GlobalSprite : TA.LocalSprite;
+            UISpaceButton.tooltip.text = (CurrentSpace == ToolSpace.LOCAL) ? "Global space" : "Local space";
+
+            // Main update
             UITransform.SetActive(CurrentBuilder != null && GizmoEnabled);
         }
 
@@ -219,6 +311,16 @@ namespace TransformAnarchy
             GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(true);
         }
 
+        private void UpdateGizmoTransforms()
+        {
+            // Keep both gizmos sync'd with eachother
+            rotationalGizmo.UpdatePosition(positionalGizmo.transform.position);
+            positionalGizmo.UpdateRotation(rotationalGizmo.transform.rotation);
+
+            _gizmoHelperParent.transform.position = positionalGizmo.transform.position;
+            _gizmoHelperParent.transform.rotation = rotationalGizmo.transform.rotation;
+        }
+
         public void ClearBuilderGrid()
         {
             GameController.Instance.terrainGridProjector.transform.position = Vector3.zero;
@@ -233,6 +335,18 @@ namespace TransformAnarchy
         {
 
             Debug.Log("Enabling TAController");
+
+            // Spawn gizmo offset helpers (i honestly tried to do this without them and I suffered)
+            _gizmoHelperParent = new GameObject().GetComponent<Transform>();
+            _gizmoHelperParent.SetParent(this.transform, false);
+            _gizmoHelperParent.transform.localPosition = Vector3.zero;
+            _gizmoHelperParent.transform.localRotation = Quaternion.identity;
+
+            _gizmoHelperChild = new GameObject().GetComponent<Transform>();
+            _gizmoHelperChild.SetParent(_gizmoHelperParent, false);
+            _gizmoHelperParent.transform.localPosition = Vector3.zero;
+            _gizmoHelperParent.transform.localRotation = Quaternion.identity;
+
 
             // Positional Gizmo
             positionalGizmo = (new GameObject()).AddComponent<PositionalGizmo>();
@@ -266,31 +380,66 @@ namespace TransformAnarchy
             Debug.Log("Inited main transform");
 
             // Get stuff
-            UIToolButton = UITransform.transform.Find("Gizmo_Button").GetComponent<Button>();
-            UIToolIcon = UIToolButton.transform.Find("Image").GetComponent<Image>();
+
+            // Temp vars
+            Button b;
+            Image i;
+            UITooltip t;
+
+            b = UITransform.transform.Find("Gizmo_Button").GetComponent<Button>();
+            i = b.transform.Find("Image").GetComponent<Image>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            UIToolButton = new UIButton(b, i, t);
 
             Debug.Log("Inited UIToolButton");
-            Debug.Log($"UIToolButton: {UIToolButton.name}");
-            Debug.Log($"UIToolIcon parent: {UIToolIcon.transform.parent.name}");
 
-            UISpaceButton = UITransform.transform.Find("Space_Button").GetComponent<Button>();
-            UISpaceIcon = UISpaceButton.transform.Find("Image").GetComponent<Image>();
+            b = UITransform.transform.Find("Space_Button").GetComponent<Button>();
+            i = b.transform.Find("Image").GetComponent<Image>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            UISpaceButton = new UIButton(b, i, t);
 
             Debug.Log("Inited UISpaceButton");
-            Debug.Log($"UISpaceButton: {UISpaceButton.name}");
-            Debug.Log($"UIToolIcon parent: {UISpaceIcon.transform.parent.name}");
 
-            UIBuildButton = UITransform.transform.Find("Build_Button").GetComponent<Button>();
-            UIGizmoToggleButton = UITransform.transform.Find("Cancel_Button").GetComponent<Button>();
-            UIResetRotationButton = UITransform.transform.Find("Reset_Button").GetComponent<Button>(); 
+            b = UITransform.transform.Find("Build_Button").GetComponent<Button>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            t.text = "Build";
+            UIBuildButton = new UIButton(b, null, t);
 
-            UIToolButton.onClick.AddListener(ToggleGizmoTool);
-            UISpaceButton.onClick.AddListener(ToggleGizmoSpace);
+            b = UITransform.transform.Find("Reset_Button").GetComponent<Button>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            t.text = "Reset rotation";
+            UIResetRotationButton = new UIButton(b, null, t);
 
-            UIBuildButton.onClick.AddListener(() => ForceBuildThisFrame = true);
-            UIGizmoToggleButton.onClick.AddListener(() => SetGizmoEnabled(!GizmoEnabled));
-            UIResetRotationButton.onClick.AddListener(() => rotationalGizmo.transform.rotation = Quaternion.identity);
+            b = UITransform.transform.Find("Cancel_Button").GetComponent<Button>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            t.text = "Use basic move";
+            UIGizmoToggleButton = new UIButton(b, null, t);
 
+            b = UITransform.transform.Find("Pivot_Set_Button").GetComponent<Button>();
+            i = b.transform.Find("Image").GetComponent<Image>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            UIPivotEdit = new UIButton(b, i, t);
+
+            b = UITransform.transform.Find("Pivot_Cancel_Button").GetComponent<Button>();
+            t = b.gameObject.AddComponent<UITooltip>();
+            t.context = "Transform Anarchy";
+            t.text = "Cancel pivot changes";
+            UIPivotCancel = new UIButton(b, null, t);
+
+            UIToolButton.button.onClick.AddListener(ToggleGizmoTool);
+            UISpaceButton.button.onClick.AddListener(ToggleGizmoSpace);
+            UIPivotEdit.button.onClick.AddListener(TogglePivotEdit);
+            UIPivotCancel.button.onClick.AddListener(ResetPivot);
+
+            UIBuildButton.button.onClick.AddListener(() => ForceBuildThisFrame = true && !IsEditingOrigin);
+            UIGizmoToggleButton.button.onClick.AddListener(() => SetGizmoEnabled(!GizmoEnabled));
+            UIResetRotationButton.button.onClick.AddListener(ResetGizmoRotation);
 
             Debug.Log("Inited Events");
 
@@ -315,12 +464,14 @@ namespace TransformAnarchy
         public void OnDisable()
         {
 
-            UIToolButton.onClick.RemoveListener(ToggleGizmoTool);
-            UISpaceButton.onClick.RemoveListener(ToggleGizmoSpace);
+            UIToolButton.button.onClick.RemoveListener(ToggleGizmoTool);
+            UISpaceButton.button.onClick.RemoveListener(ToggleGizmoSpace);
+            UIPivotEdit.button.onClick.RemoveListener(TogglePivotEdit);
+            UIPivotCancel.button.onClick.RemoveListener(ResetPivot);
 
-            UIBuildButton.onClick.RemoveListener(() => ForceBuildThisFrame = true);
-            UIGizmoToggleButton.onClick.RemoveListener(() => SetGizmoEnabled(!GizmoEnabled));
-            UIResetRotationButton.onClick.RemoveListener(() => rotationalGizmo.transform.rotation = Quaternion.identity);
+            UIBuildButton.button.onClick.RemoveListener(() => ForceBuildThisFrame = true && !IsEditingOrigin);
+            UIGizmoToggleButton.button.onClick.RemoveListener(() => SetGizmoEnabled(!GizmoEnabled));
+            UIResetRotationButton.button.onClick.RemoveListener(ResetGizmoRotation);
 
             Destroy(UITransform);
 
@@ -431,6 +582,14 @@ namespace TransformAnarchy
             {
                 ToggleGizmoTool();
             }
+            if (InputManager.getKeyDown("togglePivotEdit") && !gridMode)
+            {
+                TogglePivotEdit();
+            }
+            if (InputManager.getKeyDown("cancelPivotEdit") && !gridMode)
+            {
+                ResetPivot();
+            }
 
             // Toggle tools based on the current state
             if (CurrentTool == Tool.MOVE && GizmoEnabled)
@@ -439,7 +598,17 @@ namespace TransformAnarchy
                 rotationalGizmo.SetActiveGizmo(false);
                 positionalGizmo.CurrentRotationMode = CurrentSpace;
                 rotationalGizmo.CurrentRotationMode = CurrentSpace;
+
+                // cache position
+                Vector3 currentPosition = positionalGizmo.transform.position;
+
                 positionalGizmo.OnDragCheck();
+
+                if (IsEditingOrigin)
+                {
+                    _gizmoHelperParent.transform.position = positionalGizmo.transform.position;
+                    _gizmoHelperChild.transform.position -= (positionalGizmo.transform.position - currentPosition);
+                }
             }
             else if (CurrentTool == Tool.ROTATE && GizmoEnabled)
             {
@@ -447,12 +616,22 @@ namespace TransformAnarchy
                 rotationalGizmo.SetActiveGizmo(true);
                 positionalGizmo.CurrentRotationMode = CurrentSpace;
                 rotationalGizmo.CurrentRotationMode = CurrentSpace;
+
+                Quaternion lastFullRotation = _gizmoHelperChild.transform.rotation;
+                Vector3 lastFullPosition = _gizmoHelperChild.transform.position;
+
                 rotationalGizmo.OnDragCheck();
+
+                if (IsEditingOrigin)
+                {
+                    _gizmoHelperParent.transform.rotation = rotationalGizmo.transform.rotation;
+                    _gizmoHelperChild.transform.position = lastFullPosition;
+                    _gizmoHelperChild.transform.rotation = lastFullRotation;
+                }
             }
 
-            // Keep both gizmos sync'd with eachother
-            rotationalGizmo.UpdatePosition(positionalGizmo.transform.position);
-            positionalGizmo.UpdateRotation(rotationalGizmo.transform.rotation);
+            // Sync gizmos
+            UpdateGizmoTransforms();
 
             // Update UI position
             UpdateUIPosition();
