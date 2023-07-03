@@ -85,7 +85,7 @@ namespace TransformAnarchy
                 Vector3 curPos;
                 Quaternion curRot;
 
-                TA.MainController.GetGizmoTransform(out curPos, out curRot);
+                TA.MainController.GetBuildTransform(out curPos, out curRot);
 
                 bool changedPosFlag = curPos != ___ghost.transform.position;
                 bool changedRotFlag = curRot != ___ghost.transform.rotation;
@@ -117,7 +117,6 @@ namespace TransformAnarchy
                 // Basically moves the money label if the gizmos are moved
                 if (refreshRepresentation)
                 {
-                    Debug.Log("Refresh");
                     RedoBuildables(b, ref ___canBuild, ref ___ghostCantBuildMaterial,
                         ref ___ghostIntersectMaterial, ref ___ghostMaterial,
                         ref ___builtObjectsCanBuildCache, ref ___actualBuiltObjects, true);
@@ -130,7 +129,7 @@ namespace TransformAnarchy
                 // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
                 if (mouseUp && !TA.MainController.GizmoControlsBeingUsed
                     && !UIUtility.isMouseOverUIElement() && UIUtility.isMouseUsable()
-                    && !TA.MainController.PipetteWaitForMouseUp
+                    && !TA.MainController.PipetteWaitForMouseUp && !TA.MainController.IsEditingOrigin
                     || TA.MainController.ForceBuildThisFrame)
                 {
 
@@ -142,7 +141,6 @@ namespace TransformAnarchy
                     // Actually can build
                     if (___canBuild.result)
                     {
-                        Debug.Log("Doing build command");
                         PatchUtils.InvokeParamless(typeof(Builder), b, BuilderFunctions.buildObjects);
                     }
                     else

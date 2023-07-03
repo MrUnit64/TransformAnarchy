@@ -28,16 +28,25 @@ namespace TransformAnarchy
             ref Material ___ghostMaterial, ref Material ___ghostCantBuildMaterial,
             ref Material ___ghostIntersectMaterial,
             ref Dictionary<BuildableObject, BuildableObject.CanBuild> ___builtObjectsCanBuildCache,
-            ref BuildableObject.CanBuild ___canBuild)
+            ref BuildableObject.CanBuild ___canBuild, ref GameObject ___snapIndicator)
         {
 
-            return BuilderFunctions.MainTAPrefix(
+            bool runMethodAfter = BuilderFunctions.MainTAPrefix(
                 ref ___ghost, ref ___ghostPos, ref ___rotation,
                 ref ___forward, ref ___actualBuiltObjects,
                 ref ___ghostMaterial, ref ___ghostCantBuildMaterial,
                 ref ___ghostIntersectMaterial,
                 ref ___builtObjectsCanBuildCache,
                 ref ___canBuild);
+
+            if (!runMethodAfter && ___snapIndicator != null)
+            {
+                TA.MainController.GetGizmoTransform(out Vector3 pos, out Quaternion quat);
+                ___snapIndicator.transform.position = pos;
+                ___snapIndicator.transform.rotation = quat;
+            }
+
+            return runMethodAfter;
 
         }
     }
