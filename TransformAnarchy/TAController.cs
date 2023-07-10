@@ -184,6 +184,14 @@ namespace TransformAnarchy
 
             UpdateUIContent();
 
+            if (setTo)
+            {
+                UpdateBuilderGridToGizmo();
+            }
+            else
+            {
+                ClearBuilderGrid();
+            }
         }
 
         public void ResetGizmoRotation()
@@ -482,6 +490,8 @@ namespace TransformAnarchy
 
             Destroy(positionalGizmo.gameObject);
             Destroy(rotationalGizmo.gameObject);
+
+            ClearBuilderGrid();
 
             // Clear bit
             if (_cachedMaincam == null) return;
