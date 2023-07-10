@@ -66,6 +66,7 @@ namespace TransformAnarchy
         // Flags
         public bool UseTransformFromLastBuilder = false;
         public bool PipetteWaitForMouseUp = false;
+        private bool _alreadyToggledThisFrame = false;
 
         // We cannot directly build the builder. So we instead do this.
         public bool ForceBuildThisFrame = false;
@@ -182,6 +183,7 @@ namespace TransformAnarchy
                 IsEditingOrigin = false;
             }
 
+            StartCoroutine(WaitToAllowToggle());
             UpdateUIContent();
 
             if (setTo)
@@ -469,6 +471,13 @@ namespace TransformAnarchy
             SetGizmoMoving(false);
         }
 
+        public IEnumerator WaitToAllowToggle()
+        {
+            _alreadyToggledThisFrame = true;
+            yield return null;
+            _alreadyToggledThisFrame = false;
+        }
+
         public void OnDisable()
         {
 
@@ -503,6 +512,7 @@ namespace TransformAnarchy
 
         public void OnBeforeInit()
         {
+
             if (_cachedMaincam == null)
             {
                 _cachedMaincam = Camera.main;
@@ -517,12 +527,12 @@ namespace TransformAnarchy
                 }
             }
 
-            if (InputManager.getKeyDown("toggleGizmoOn") && CurrentBuilder != null)
+            if (InputManager.getKeyDown("toggleGizmoOn") && CurrentBuilder != null && !_alreadyToggledThisFrame)
             {
-
+                Debug.Log("Toggled building mode");
+                SetGizmoEnabled(!GizmoEnabled);
                 _dontUpdateGrid = true;
                 GridSubdivision = GameController.Instance.terrainGridBuilderProjector.gridSubdivision;
-                SetGizmoEnabled(!GizmoEnabled);
             }
             else if (CurrentBuilder == null)
             {
