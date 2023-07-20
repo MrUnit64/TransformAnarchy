@@ -19,7 +19,7 @@ namespace TransformAnarchy
         public static void Postfix(BuildableObject buildableObject, Builder ___builder)
         {
 
-            if (TA.MainController.UseTransformFromLastBuilder)
+            if (TA.MainController.UseTransformFromLastBuilder || !InputManager.getKey("usePipetteGizmo"))
             {
                 return;
             }

@@ -14,6 +14,8 @@ namespace TransformAnarchy
         public override string getIdentifier() => "com.parkitectCommunity.TA";
         public override string getName() => "Transform Anarchy";
         public override string getDescription() => @"Adds an advanced building gizmo for select building types.
+DEVELOP VERSION
+
 Features:
     Positional Gizmo
     Rotational Gizmo
@@ -116,6 +118,7 @@ Notes:
             _keys.AddKeybind("toggleGizmoSpace", "Toggle Gizmo Space", "Toggles the space the gizmo operates in, either local or global.", UnityEngine.KeyCode.Alpha7);
             _keys.AddKeybind("toggleGizmoTool", "Toggle Gizmo Tool", "Toggles the gizmo, either positional or rotational.", UnityEngine.KeyCode.Alpha8);
             _keys.AddKeybind("toggleGizmoOn", "Toggle Placement Mode", "Toggles whether to use the advanced gizmos or just the normal game logic.", UnityEngine.KeyCode.Alpha9);
+            _keys.AddKeybind("usePipetteGizmo", "Pipette Gizmo", "Enables gizmo automatically when pipette is used and this button is held.", UnityEngine.KeyCode.LeftAlt);
             _keys.RegisterAll();
 
         }
