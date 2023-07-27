@@ -349,6 +349,7 @@
     <Content Include="Res\ui_icon_rotationGizmoDisabled.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TransformAnarchy\Patches\VanillaRotationAngle\VanillaRotationAngle.cs" />
     <Compile Include="TransformAnarchy\TASettingsData.cs" />
     <Compile Include="TransformAnarchy\Gizmo\Gizmo.cs" />
     <Compile Include="TransformAnarchy\Gizmo\GizmoComponent.cs" />

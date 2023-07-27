@@ -8,5 +8,6 @@ namespace TransformAnarchy
     {
         public float gizmoSize = 1f;
         public int gizmoStyle = 0;
+        public float rotationAngle = 90f;
     }
 }

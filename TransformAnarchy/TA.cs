@@ -15,24 +15,8 @@ namespace TransformAnarchy
     {
         public const string VERSION_NUMBER = "1.2";
         public override string getIdentifier() => "com.parkitectCommunity.TA";
-        public override string getName() => "Transform Anarchy Experimental";
-        public override string getDescription() => @"Adds an advanced building gizmo for select building types.
-EXPERIMENTAL VERSION
-
-Features:
-    Positional Gizmo
-    Rotational Gizmo
-    Support for:
-        Deco
-        Blueprints*
-        Flatrides**
-    Local and Global modes for both gizmos
-    Gizmos can always be clicked, even through any objects.
-
-Notes:
-* (Z axis is not supported. Rotate on global Y for best results)
-** (will snap to grid, rotate on global Y for best results)
-        ";
+        public override string getName() => "Transform Anarchy";
+        public override string getDescription() => @"Adds an advanced building gizmo for select building types.";
 
         public override string getVersionNumber() => VERSION_NUMBER;
         public override bool isMultiplayerModeCompatible() => true;
@@ -44,6 +28,7 @@ Notes:
 
         // TA Settings, these are loaded in when OnSettingsOpened is called
         private string gizmoSizeString;
+        private string rotationAngleString;
 
         public static TASettingsData TASettings;
         public static TAController MainController;
@@ -148,16 +133,28 @@ Notes:
             GUILayout.Space(20);
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Gizmo style based on", guistyleTextLeft, GUILayout.Width(200));
+            GUILayout.Label("Default rotation angle", guistyleTextLeft, GUILayout.Width(200));
+            rotationAngleString = GUILayout.TextField(rotationAngleString, 7, guistyleField);
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(20);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Gizmo scale based on", guistyleTextLeft, GUILayout.Width(200));
             string[] gizmoStyleStrings = { "Fixed size", "Screen size", "Object size" };
             TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleStrings, 3, guistyleButton);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Gizmo scale", guistyleTextLeft, GUILayout.Width(200));
-            gizmoSizeString = GUILayout.TextField(gizmoSizeString, 5, guistyleField);
+            gizmoSizeString = GUILayout.TextField(gizmoSizeString, 7, guistyleField);
             GUILayout.EndHorizontal();
 
+            GUILayout.Space(40);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Vertical rotation on blueprints and flatrides is not supported", guistyleTextMiddle);
+            GUILayout.EndHorizontal();
 
             // Check the values when enter is pressed
             if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
@@ -166,14 +163,22 @@ Notes:
                 if (float.TryParse(gizmoSizeString, out float result))
                 {
                     // If successful and size > 0.01 update the value in the TASettingsData class
-                    if (result > 0.1 && result < 5)
+                    if (result >= 0.1 && result <= 5)
                     {
                         TASettings.gizmoSize = result;
                     }
                 }
+                if (float.TryParse(rotationAngleString, out float result2))
+                {
+                    // If successful and size > 0.01 update the value in the TASettingsData class
+                    if (result >= 0.01 && result <= 180)
+                    {
+                        TASettings.rotationAngle = result2;
+                    }
+                }
 
-                // Clear the focus from the TextField
-                GUI.FocusControl(null);
+        // Clear the focus from the TextField
+        GUI.FocusControl(null);
             }
 
             GUILayout.EndVertical();
@@ -238,6 +243,7 @@ Notes:
 
             // Load settings from TaSettings class to this script
             gizmoSizeString = TASettings.gizmoSize.ToString();
+            rotationAngleString = TASettings.rotationAngle.ToString();
         }
 
         // Save values to TA settings file
