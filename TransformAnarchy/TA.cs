@@ -57,6 +57,10 @@ namespace TransformAnarchy
 
             RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
+            _settingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
+
+            // Load TA settings
+            LoadTASettingsFromFile();
 
             var loadedAB = AssetBundle.LoadFromFile(_modPath + "\\Res\\ta_assets");
 
