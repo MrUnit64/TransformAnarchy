@@ -19,6 +19,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>TransformAnarchy</RootNamespace>
@@ -349,7 +351,7 @@
     <Content Include="Res\ui_icon_rotationGizmoDisabled.png" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TransformAnarchy\Patches\VanillaRotationAngle\VanillaRotationAngle.cs" />
+    <Compile Include="TransformAnarchy\Patches\VanillaPatches\VanillaRotationAngle.cs" />
     <Compile Include="TransformAnarchy\TASettingsData.cs" />
     <Compile Include="TransformAnarchy\Gizmo\Gizmo.cs" />
     <Compile Include="TransformAnarchy\Gizmo\GizmoComponent.cs" />

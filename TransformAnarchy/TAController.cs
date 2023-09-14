@@ -344,8 +344,6 @@ namespace TransformAnarchy
             GameController.Instance.terrainGridBuilderProjector.transform.position = positionalGizmo.transform.position;
             GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, rotationalGizmo.transform.forward);
             GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, rotationalGizmo.transform.forward);
-            GameController.Instance.terrainGridProjector.setHighIntensityEnabled(true);
-            GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(true);
         }
 
         private void UpdateGizmoTransforms()
