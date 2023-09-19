@@ -362,8 +362,6 @@ namespace TransformAnarchy
             GameController.Instance.terrainGridBuilderProjector.transform.position = Vector3.zero;
             GameController.Instance.terrainGridProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
             GameController.Instance.terrainGridBuilderProjector.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
-            GameController.Instance.terrainGridProjector.setHighIntensityEnabled(false);
-            GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(false);
         }
 
         public void OnEnable()

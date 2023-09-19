@@ -71,8 +71,6 @@ namespace TransformAnarchy
 
             UpdateGizmoTransforms();
             TA.MainController.UpdateBuilderGridToGizmo();
-            GameController.Instance.terrainGridProjector.setHighIntensityEnabled(true);
-            GameController.Instance.terrainGridBuilderProjector.setHighIntensityEnabled(true);
         }
 
         private float _totalRotationAngleSoFar;
