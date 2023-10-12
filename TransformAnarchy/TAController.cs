@@ -230,7 +230,13 @@ namespace TransformAnarchy
             Vector3 lastFullPosition = _gizmoHelperChild.transform.position;
             Quaternion lastFullRotation = _gizmoHelperChild.transform.rotation;
 
-            _gizmoHelperParent.transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+            try
+            {
+                _gizmoHelperParent.transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+            }
+            catch
+            {
+            }
 
             if (IsEditingOrigin)
             {

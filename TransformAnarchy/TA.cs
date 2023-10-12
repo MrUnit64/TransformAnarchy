@@ -24,7 +24,7 @@ namespace TransformAnarchy
 
         private KeybindManager _keys;
         private string _modPath;
-        public string _settingsFilePath;
+        public string _taSettingsFilePath;
 
         // TA Settings, these are loaded in when OnSettingsOpened is called
         private string gizmoSizeString;
@@ -57,7 +57,7 @@ namespace TransformAnarchy
 
             RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
-            _settingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
+            _taSettingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
 
             // Load TA settings
             LoadTASettingsFromFile();
@@ -85,7 +85,7 @@ namespace TransformAnarchy
             loadedAB.Unload(false);
             Debug.Log("Loaded assetbundle!");
 
-            Debug.Log("Initing Main RA handler");
+            Debug.Log("Initing Main TA handler");
             GameObject go = new GameObject();
             go.name = "TA Main";
             MainController = go.AddComponent<TAController>();
@@ -190,7 +190,7 @@ namespace TransformAnarchy
         public void onSettingsOpened()
         {
             // Get settings file path
-            _settingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
+            _taSettingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
 
             // Load TA settings
             LoadTASettingsFromFile();
@@ -227,11 +227,11 @@ namespace TransformAnarchy
         // Load or create TA settings file
         private void LoadTASettingsFromFile()
         {
-            if (File.Exists(_settingsFilePath))
+            if (File.Exists(_taSettingsFilePath))
             {
                 // Load existing settings from JSON file
                 Debug.Log("Loading TA settings from file");
-                string json = File.ReadAllText(_settingsFilePath);
+                string json = File.ReadAllText(_taSettingsFilePath);
                 TASettings = JsonUtility.FromJson<TASettingsData>(json);
             }
             else
@@ -258,7 +258,7 @@ namespace TransformAnarchy
             string json = JsonUtility.ToJson(TASettings, true);
 
             // Save JSON data to the TA settings file
-            File.WriteAllText(_settingsFilePath, json);
+            File.WriteAllText(_taSettingsFilePath, json);
         }
     }
 }
