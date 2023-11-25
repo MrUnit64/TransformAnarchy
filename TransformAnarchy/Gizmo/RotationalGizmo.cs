@@ -71,7 +71,6 @@ namespace TransformAnarchy
 
             UpdateGizmoTransforms();
             TA.MainController.UpdateBuilderGridToGizmo();
-
         }
 
         private float _totalRotationAngleSoFar;
