@@ -13,7 +13,7 @@ namespace TransformAnarchy
 {
     public class TA : AbstractMod, IModSettings
     {
-        public const string VERSION_NUMBER = "1.2";
+        public const string VERSION_NUMBER = "1.3";
         public override string getIdentifier() => "com.parkitectCommunity.TA";
         public override string getName() => "Transform Anarchy";
         public override string getDescription() => @"Adds an advanced building gizmo for select building types.";
@@ -145,13 +145,22 @@ namespace TransformAnarchy
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Gizmo scale based on", guistyleTextLeft, GUILayout.Width(200));
-            string[] gizmoStyleStrings = { "Fixed size", "Screen size", "Object size" };
-            TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleStrings, 3, guistyleButton);
+            string[] gizmoStyleString = { "Fixed size", "Screen size", "Object size" };
+            TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleString, 3, guistyleButton);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Gizmo scale", guistyleTextLeft, GUILayout.Width(200));
             gizmoSizeString = GUILayout.TextField(gizmoSizeString, 7, guistyleField);
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(20);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Pipette tool behaviour", guistyleTextLeft, GUILayout.Width(200));
+            string[] holdPipetteButtonString = { "Always show gimzo", "Show gizmo if key is held" };
+            TASettings.useButtonForPipette = GUILayout.SelectionGrid(TASettings.useButtonForPipette, holdPipetteButtonString, 2, guistyleButton);
+            //TASettings.useButtonForPipette = GUILayout.Toggle(TASettings.useButtonForPipette, "", guistyleButton);
             GUILayout.EndHorizontal();
 
             GUILayout.Space(40);
@@ -211,10 +220,11 @@ namespace TransformAnarchy
 
             _keys.AddKeybind("cancelPivotEdit", "Reset Pivot", "Will reset the pivot to the default for the object.", UnityEngine.KeyCode.Alpha5);
             _keys.AddKeybind("togglePivotEdit", "Toggle Pivot Offset", "Toggles whether the pivot or the object will move.", UnityEngine.KeyCode.Alpha6);
-            _keys.AddKeybind("toggleGizmoSpace", "Toggle Gizmo Space", "Toggles the space the gizmo operates in, either local or global.", UnityEngine.KeyCode.Alpha7);
-            _keys.AddKeybind("toggleGizmoTool", "Toggle Gizmo Tool", "Toggles the gizmo, either positional or rotational.", UnityEngine.KeyCode.Alpha8);
-            _keys.AddKeybind("toggleGizmoOn", "Toggle Placement Mode", "Toggles whether to use the advanced gizmos or just the normal game logic.", UnityEngine.KeyCode.Alpha9);
+            _keys.AddKeybind("toggleGizmoSpace", "Toggle Gizmo Space", "Toggles the space the gizmo operates in, either local or global.", UnityEngine.KeyCode.Y);
+            _keys.AddKeybind("toggleGizmoTool", "Toggle Gizmo Tool", "Toggles the gizmo, either positional or rotational.", UnityEngine.KeyCode.R);
+            _keys.AddKeybind("toggleGizmoOn", "Toggle Placement Mode", "Toggles whether to use the gizmo or just the normal game logic.", UnityEngine.KeyCode.Z);
             _keys.AddKeybind("usePipetteGizmo", "Pipette Gizmo", "Enables gizmo automatically when pipette is used and this button is held.", UnityEngine.KeyCode.LeftAlt);
+            _keys.AddKeybind("buildObject", "Build object", "Press this key to place down the object when using the gizmo.", UnityEngine.KeyCode.T);
             _keys.RegisterAll();
 
         }

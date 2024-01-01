@@ -125,12 +125,16 @@ namespace TransformAnarchy
                 }
 
                 bool mouseUp = Input.GetMouseButtonUp(0);
+                bool buildKeyUp = InputManager.getKeyUp("buildObject");
 
-                // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
-                if (mouseUp && !TA.MainController.GizmoControlsBeingUsed
-                    && !UIUtility.isMouseOverUIElement() && UIUtility.isMouseUsable()
+                // Only place if mouse clicked (or build key pressed), gizmos aren't in use and mouse isn't over a UI element
+                if ((mouseUp && !TA.MainController.GizmoControlsBeingUsed
+                    && !UIUtility.isMouseOverUIElement() && UIUtility.isMouseUsable() && !UIUtility.isInputFieldFocused()
                     && !TA.MainController.PipetteWaitForMouseUp && !TA.MainController.IsEditingOrigin
-                    || TA.MainController.ForceBuildThisFrame)
+                    || TA.MainController.ForceBuildThisFrame) || (buildKeyUp
+                    && !UIUtility.isMouseOverUIElement() && !UIUtility.isInputFieldFocused()
+                    && !TA.MainController.PipetteWaitForMouseUp && !TA.MainController.IsEditingOrigin
+                    || TA.MainController.ForceBuildThisFrame))
                 {
 
                     if (TA.MainController.ForceBuildThisFrame)
