@@ -8,6 +8,7 @@ using System.Windows.Markup;
 using System.IO;
 using MiniJSON;
 using Mono.Security.Authenticode;
+using System.Net.Sockets;
 
 namespace TransformAnarchy
 {
@@ -130,40 +131,55 @@ namespace TransformAnarchy
             GUILayout.BeginVertical();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Version", guistyleTextLeft, GUILayout.Width(200));
+            GUILayout.Label("Version", guistyleTextLeft, GUILayout.Width(175));
             GUILayout.Label(VERSION_NUMBER, guistyleTextMiddle);
+            if (GUILayout.Button("Advanced settings", guistyleButton, GUILayout.Width(125)))
+            {
+                TASettings.showAdvancedSettings = !TASettings.showAdvancedSettings;
+                onDrawSettingsUI();
+            }
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(20);
+            GUILayout.Space(30);
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Default rotation angle", guistyleTextLeft, GUILayout.Width(200));
+            GUILayout.Label("Default rotation angle", guistyleTextLeft, GUILayout.Width(175));
             rotationAngleString = GUILayout.TextField(rotationAngleString, 7, guistyleField);
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(20);
+            if (TASettings.showAdvancedSettings == true)
+            {
+                GUILayout.Space(30);
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Gizmo scale based on", guistyleTextLeft, GUILayout.Width(200));
-            string[] gizmoStyleString = { "Fixed size", "Screen size", "Object size" };
-            TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleString, 3, guistyleButton);
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Gizmo scale based on", guistyleTextLeft, GUILayout.Width(175));
+                string[] gizmoStyleString = { "Fixed size", "Screen size", "Object size" };
+                TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleString, 3, guistyleButton);
+                GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Gizmo scale", guistyleTextLeft, GUILayout.Width(200));
-            gizmoSizeString = GUILayout.TextField(gizmoSizeString, 7, guistyleField);
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Gizmo scale", guistyleTextLeft, GUILayout.Width(175));
+                gizmoSizeString = GUILayout.TextField(gizmoSizeString, 7, guistyleField);
+                GUILayout.EndHorizontal();
 
-            GUILayout.Space(20);
+                GUILayout.Space(30);
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Pipette tool behaviour", guistyleTextLeft, GUILayout.Width(200));
-            string[] holdPipetteButtonString = { "Always show gimzo", "Show gizmo if key is held" };
-            TASettings.useButtonForPipette = GUILayout.SelectionGrid(TASettings.useButtonForPipette, holdPipetteButtonString, 2, guistyleButton);
-            //TASettings.useButtonForPipette = GUILayout.Toggle(TASettings.useButtonForPipette, "", guistyleButton);
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Pipette tool behaviour", guistyleTextLeft, GUILayout.Width(175));
+                string[] holdPipetteButtonString = { "Always show gimzo", "Show gizmo if key is held" };
+                TASettings.useButtonForPipette = GUILayout.SelectionGrid(TASettings.useButtonForPipette, holdPipetteButtonString, 2, guistyleButton);
+                GUILayout.EndHorizontal();
 
-            GUILayout.Space(40);
+                GUILayout.Space(30);
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Gizmo render behaviour", guistyleTextLeft, GUILayout.Width(175));
+                string[] gizmoRenderBehaviourString = { "Render gizmo behind object", "Don't render behind object" };
+                TASettings.gizmoRenderBehaviourString = GUILayout.SelectionGrid(TASettings.gizmoRenderBehaviourString, gizmoRenderBehaviourString, 2, guistyleButton);
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(50);
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Vertical rotation on blueprints and flatrides is not supported", guistyleTextMiddle);
@@ -190,8 +206,8 @@ namespace TransformAnarchy
                     }
                 }
 
-        // Clear the focus from the TextField
-        GUI.FocusControl(null);
+                // Clear the focus from the TextField
+                GUI.FocusControl(null);
             }
 
             GUILayout.EndVertical();
@@ -212,14 +228,18 @@ namespace TransformAnarchy
 
             // Update the gizmo size value in the settings UI
             GUI.FocusControl(null);
+
+            //Reload the gizmos
+            MainController.SetGizmoCamera();
         }
 
         public void RegisterHotkeys()
         {
             _keys = new KeybindManager("TA_KEYS", "Transform Anarchy");
 
-            _keys.AddKeybind("cancelPivotEdit", "Reset Pivot", "Will reset the pivot to the default for the object.", UnityEngine.KeyCode.Alpha5);
-            _keys.AddKeybind("togglePivotEdit", "Toggle Pivot Offset", "Toggles whether the pivot or the object will move.", UnityEngine.KeyCode.Alpha6);
+            _keys.AddKeybind("togglePivotEdit", "Toggle Pivot Offset", "Toggles whether the pivot or the object will move.", UnityEngine.KeyCode.U);
+            _keys.AddKeybind("cancelPivotEdit", "Reset Pivot", "Will reset the pivot to the default for the object.", UnityEngine.KeyCode.L);
+            _keys.AddKeybind("resetGizmoTool", "Reset Rotation", "Will reset the rotation to the default for the object.", UnityEngine.KeyCode.L);
             _keys.AddKeybind("toggleGizmoSpace", "Toggle Gizmo Space", "Toggles the space the gizmo operates in, either local or global.", UnityEngine.KeyCode.Y);
             _keys.AddKeybind("toggleGizmoTool", "Toggle Gizmo Tool", "Toggles the gizmo, either positional or rotational.", UnityEngine.KeyCode.R);
             _keys.AddKeybind("toggleGizmoOn", "Toggle Placement Mode", "Toggles whether to use the gizmo or just the normal game logic.", UnityEngine.KeyCode.Z);

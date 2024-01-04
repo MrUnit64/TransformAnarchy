@@ -68,20 +68,8 @@
     <Reference Include="modio.UnityPlugin">
       <HintPath>Libs\modio.UnityPlugin.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Data.Sqlite">
-      <HintPath>Libs\Mono.Data.Sqlite.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Messaging">
-      <HintPath>Libs\Mono.Messaging.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix">
-      <HintPath>Libs\Mono.Posix.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Security">
       <HintPath>Libs\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.WebBrowser">
-      <HintPath>Libs\Mono.WebBrowser.dll</HintPath>
     </Reference>
     <Reference Include="Parkitect, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -351,6 +339,7 @@
     <Content Include="Res\ui_icon_rotationGizmoDisabled.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TransformAnarchy\Patches\Class1.cs" />
     <Compile Include="TransformAnarchy\Patches\VanillaPatches\VanillaRotationAngle.cs" />
     <Compile Include="TransformAnarchy\TASettingsData.cs" />
     <Compile Include="TransformAnarchy\Gizmo\Gizmo.cs" />
@@ -372,7 +361,6 @@
     <Compile Include="TransformAnarchy\Patches\DecoBuilder\DecoBuilderMakeValidBuildPositionPatch.cs" />
     <Compile Include="TransformAnarchy\TA.cs" />
     <Compile Include="TransformAnarchy\TAController.cs" />
-    <Compile Include="TransformAnarchy\StencilHander.cs" />
     <Compile Include="TransformAnarchy\Util\GameObjectExtensions.cs" />
     <Compile Include="TransformAnarchy\Util\HighlightOverlayControllerUtil.cs" />
   </ItemGroup>

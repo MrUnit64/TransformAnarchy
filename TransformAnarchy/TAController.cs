@@ -38,6 +38,7 @@ namespace TransformAnarchy
         public PositionalGizmo positionalGizmo;
         public RotationalGizmo rotationalGizmo;
         private Camera _cachedMaincam;
+        private Camera gizmoCamera;
 
         private Transform _gizmoHelperParent;
         private Transform _gizmoHelperChild;
@@ -160,15 +161,18 @@ namespace TransformAnarchy
         // Screen size based gizmo, run every frame in OnBuilderUpdate if enabled
         public void UpdateGizmoSize()
         {
-            // Get the distance between the gizmo position and the camera
-            float screenDistance = Vector3.Distance(positionalGizmo.transform.position, Camera.main.transform.position);
+            if (TA.TASettings.gizmoStyle == 1)
+            {
+                // Get the distance between the gizmo position and the camera
+                float screenDistance = Vector3.Distance(positionalGizmo.transform.position, Camera.main.transform.position);
 
-            // Calculate the gizmo size based on the screen size and the distance from the camera
-            BuilderSize = Mathf.Clamp((Screen.height/30000f) * screenDistance * TA.TASettings.gizmoSize, 0.2f, 50f);
+                // Calculate the gizmo size based on the screen size and the distance from the camera
+                BuilderSize = Mathf.Clamp((Screen.height / 30000f) * screenDistance * TA.TASettings.gizmoSize, 0.2f, 50f);
 
-            // Set the gizmo size
-            positionalGizmo.transform.localScale = Vector3.one * BuilderSize;
-            rotationalGizmo.transform.localScale = Vector3.one * BuilderSize;
+                // Set the gizmo size
+                positionalGizmo.transform.localScale = Vector3.one * BuilderSize;
+                rotationalGizmo.transform.localScale = Vector3.one * BuilderSize;
+            }
         }
 
         public void GetBuildTransform(out Vector3 wsPos, out Quaternion wsRot)
@@ -334,7 +338,7 @@ namespace TransformAnarchy
             // left and up relative to cam from position of gizmo, with width calced
             UITransform.transform.position = _cachedMaincam.WorldToScreenPoint(
                 positionalGizmo.transform.position +
-                _cachedMaincam.transform.rotation * (new Vector3(0.75f, 0.75f, 0) * BuilderSize));
+                _cachedMaincam.transform.rotation * (new Vector3(0.9f, 0.9f, 0) * BuilderSize));
 
         }
 
@@ -538,11 +542,28 @@ namespace TransformAnarchy
 
             if (_cachedMaincam == null)
             {
+                // Cache the main camera
                 _cachedMaincam = Camera.main;
 
                 if (_cachedMaincam != null)
                 {
-                    _cachedMaincam.cullingMask = _cachedMaincam.cullingMask | Gizmo<PositionalGizmoComponent>.LAYER_MASK;
+                    // Create a new camera for gizmo rendering
+                    GameObject gizmoCameraObject = new GameObject("GizmoCamera");
+                    gizmoCamera = gizmoCameraObject.AddComponent<Camera>();
+
+                    // Set gizmo camera as a child of the main camera
+                    gizmoCamera.transform.parent = _cachedMaincam.transform;
+
+                    // Copy relevant properties from the main camera
+                    gizmoCamera.CopyFrom(_cachedMaincam);
+
+                    // Set to only depth buffer
+                    gizmoCamera.clearFlags = CameraClearFlags.Depth;
+
+                    // Set the layer mask for gizmo rendering
+                    gizmoCamera.cullingMask = 1 << 28;
+
+                    SetGizmoCamera();
                 }
                 else
                 {
@@ -565,6 +586,31 @@ namespace TransformAnarchy
             {
                 positionalGizmo.SetActiveGizmo(false);
                 rotationalGizmo.SetActiveGizmo(false);
+            }
+        }
+
+        public void SetGizmoCamera()
+        {
+            if (_cachedMaincam != null)
+            {
+                // Configure gizmo camera settings
+                if (TA.TASettings.gizmoRenderBehaviourString == 0)
+                {
+                    gizmoCamera.cullingMask = 1 << 28;
+                    // Set depth to normal
+                    gizmoCamera.depth = _cachedMaincam.depth + 100;
+                }
+                else
+                {
+                    // Don't question this
+                    gizmoCamera.cullingMask = 1 << 31;
+                    // Set depth to render on top
+                    gizmoCamera.depth = _cachedMaincam.depth - 1;    
+                }
+            }
+            else
+            {
+                return;
             }
         }
 
@@ -616,6 +662,18 @@ namespace TransformAnarchy
                 _dontUpdateGrid = false;
             }
 
+            // Reimplement size hotkeys
+            if (InputManager.getKey("BuildingIncreaseObjectSize") && !UIUtility.isInputFieldFocused())
+            {
+                BuilderFunctions.changeSize.Invoke(CurrentBuilder, new object[] { 0.01f });
+
+
+            }
+            else if (InputManager.getKey("BuildingDecreaseObjectSize") && !UIUtility.isInputFieldFocused())
+            {
+                BuilderFunctions.changeSize.Invoke(CurrentBuilder, new object[] { -0.01f });
+            }
+
             // Keybinds
             if (InputManager.getKeyDown("toggleGizmoSpace") && !gridMode)
             {
@@ -624,6 +682,10 @@ namespace TransformAnarchy
             if (InputManager.getKeyDown("toggleGizmoTool") && !gridMode)
             {
                 ToggleGizmoTool();
+            }
+            if (InputManager.getKeyDown("resetGizmoTool") && !gridMode)
+            {
+                ResetGizmoRotation();
             }
             if (InputManager.getKeyDown("togglePivotEdit") && !gridMode)
             {
@@ -673,11 +735,8 @@ namespace TransformAnarchy
                 }
             }
 
-            // Update gizmo size if enabled
-            if (TA.TASettings.gizmoStyle == 1)
-            {
-                UpdateGizmoSize();
-            }
+            // Update gizmo size
+            UpdateGizmoSize();
 
             // Sync gizmos
             UpdateGizmoTransforms();

@@ -32,6 +32,8 @@ namespace TransformAnarchy
 
         public static MethodBase canBuildAt = AccessTools.Method(typeof(Builder), "canBuildAt");
 
+        public static MethodBase changeSize = AccessTools.Method(typeof(Builder), "changeSize", parameters: new Type[] { typeof(float) });
+
         public static bool MainTAPrefix(
                 ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation,
                 ref Vector3 ___forward, ref List<BuildableObject> ___actualBuiltObjects,
