@@ -47,26 +47,31 @@ namespace TransformAnarchy
         public static Sprite OriginMoveSprite;
         public static Sprite TickSprite;
 
+        public TA()
+        {
+            // Register hotkeys in advance so you can edit them from the main menu
+            RegisterHotkeys();
+        }
+
         public override void onEnabled()
         {
+            Debug.LogWarning("TA: Loading Transform Anarchy");
 
             Instance = this;
 
-            Debug.LogWarning("Loading TA");
-
-            _harmony = new Harmony(getIdentifier());
-
-            RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
             _taSettingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
 
             // Load TA settings
             LoadTASettingsFromFile();
 
+            _harmony = new Harmony(getIdentifier());
+
+            // Load Asset Bundles
             var loadedAB = AssetBundle.LoadFromFile(_modPath + "\\Res\\ta_assets");
 
             // Load from Asset Bundles
-            Debug.Log("Loading assetbundle stuff:");
+            Debug.Log("TA: Loading assetbundle stuff:");
 
             // Gizmo meshes
             ArrowGO = loadedAB.LoadAsset<GameObject>("assets/arrowgizmo.prefab");
@@ -84,14 +89,15 @@ namespace TransformAnarchy
             TickSprite = loadedAB.LoadAsset<Sprite>("assets/ui_icon_build.png");
 
             loadedAB.Unload(false);
-            Debug.Log("Loaded assetbundle!");
+            Debug.Log("TA: Loaded assetbundle!");
 
-            Debug.Log("Initing Main TA handler");
+            // Actually loading TA
+            Debug.Log("TA: Initing Main Transform Anarchy handler");
             GameObject go = new GameObject();
             go.name = "TA Main";
             MainController = go.AddComponent<TAController>();
 
-            Debug.Log("Harmony patch coming!");
+            Debug.Log("TA: Harmony patch coming");
             _harmony.PatchAll();
 
         }
@@ -260,15 +266,14 @@ namespace TransformAnarchy
             if (File.Exists(_taSettingsFilePath))
             {
                 // Load existing settings from JSON file
-                Debug.Log("Loading TA settings from file");
+                Debug.Log("TA: Loading Transform Anarchy settings from file");
                 string json = File.ReadAllText(_taSettingsFilePath);
                 TASettings = JsonUtility.FromJson<TASettingsData>(json);
             }
             else
             {
                 // Create new settings with default values
-                Debug.Log("TA settings file not found");
-                Debug.Log("Creating TA settings file");
+                Debug.Log("TA: Transform Anarchy settings file not found, creating new one");
                 TASettings = new TASettingsData();
 
                 // Load default values from TA Settings class
@@ -283,7 +288,7 @@ namespace TransformAnarchy
         // Save values to TA settings file
         private void SaveTASettingsToFile()
         {
-            Debug.Log("Saving TA settings");
+            Debug.Log("TA: Saving Transform Anarchy settings to file");
             // Convert TA settings data to JSON format
             string json = JsonUtility.ToJson(TASettings, true);
 
