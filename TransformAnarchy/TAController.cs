@@ -378,7 +378,7 @@ namespace TransformAnarchy
                 {
                     gizmoCamera.cullingMask = 1 << 28;
                     // Set depth to normal
-                    gizmoCamera.depth = _cachedMaincam.depth + 100;
+                    gizmoCamera.depth = _cachedMaincam.depth + 1000;
                 }
                 else
                 {

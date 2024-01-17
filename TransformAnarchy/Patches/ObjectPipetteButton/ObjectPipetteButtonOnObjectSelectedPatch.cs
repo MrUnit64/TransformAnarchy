@@ -18,11 +18,14 @@ namespace TransformAnarchy
         public static void Postfix(BuildableObject buildableObject, Builder ___builder)
         {
 
+            // We cannot make this any faster unfortunately 
+            Traverse builderTrv = Traverse.Create(___builder);
+
             if (TA.MainController.UseTransformFromLastBuilder || (TA.TASettings.useButtonForPipette == 1 && !InputManager.getKey("usePipetteGizmo")))
             {
+                builderTrv.Field("rotation").SetValue(buildableObject.logicTransform.rotation);
                 return;
             }
-
             // Run the stuff
             TA.MainController.UseTransformFromLastBuilder = true;
 
@@ -31,9 +34,6 @@ namespace TransformAnarchy
             TA.MainController.SetGizmoTransform(buildableObject.logicTransform.position, buildableObject.logicTransform.rotation);
             TA.MainController.UpdateUIContent();
             TA.MainController.PipetteWaitForMouseUp = true;
-
-            // We cannot make this any faster unfortunately 
-            Traverse builderTrv = Traverse.Create(___builder);
 
             // set ghost rot and loc
             builderTrv.Field("ghostPos").SetValue(buildableObject.logicTransform.position);
