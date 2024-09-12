@@ -32,6 +32,8 @@ namespace TransformAnarchy
 
         public static MethodBase canBuildAt = AccessTools.Method(typeof(Builder), "canBuildAt");
 
+        public static MethodBase changeSize = AccessTools.Method(typeof(Builder), "changeSize", parameters: new Type[] { typeof(float) });
+
         public static bool MainTAPrefix(
                 ref GameObject ___ghost, ref Vector3 ___ghostPos, ref Quaternion ___rotation,
                 ref Vector3 ___forward, ref List<BuildableObject> ___actualBuiltObjects,
@@ -125,12 +127,16 @@ namespace TransformAnarchy
                 }
 
                 bool mouseUp = Input.GetMouseButtonUp(0);
+                bool buildKeyUp = InputManager.getKeyUp("buildObject");
 
-                // Only place if mouse clicked, gizmos aren't in use and mouse isn't over a UI element
-                if (mouseUp && !TA.MainController.GizmoControlsBeingUsed
-                    && !UIUtility.isMouseOverUIElement() && UIUtility.isMouseUsable()
+                // Only place if mouse clicked (or build key pressed), gizmos aren't in use and mouse isn't over a UI element
+                if ((mouseUp && !TA.MainController.GizmoControlsBeingUsed
+                    && !UIUtility.isMouseOverUIElement() && UIUtility.isMouseUsable() && !UIUtility.isInputFieldFocused()
                     && !TA.MainController.PipetteWaitForMouseUp && !TA.MainController.IsEditingOrigin
-                    || TA.MainController.ForceBuildThisFrame)
+                    || TA.MainController.ForceBuildThisFrame) || (buildKeyUp
+                    && !UIUtility.isMouseOverUIElement() && !UIUtility.isInputFieldFocused()
+                    && !TA.MainController.PipetteWaitForMouseUp && !TA.MainController.IsEditingOrigin
+                    || TA.MainController.ForceBuildThisFrame))
                 {
 
                     if (TA.MainController.ForceBuildThisFrame)

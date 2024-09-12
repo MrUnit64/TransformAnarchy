@@ -8,12 +8,13 @@ using System.Windows.Markup;
 using System.IO;
 using MiniJSON;
 using Mono.Security.Authenticode;
+using System.Net.Sockets;
 
 namespace TransformAnarchy
 {
     public class TA : AbstractMod, IModSettings
     {
-        public const string VERSION_NUMBER = "1.2";
+        public const string VERSION_NUMBER = "1.3";
         public override string getIdentifier() => "com.parkitectCommunity.TA";
         public override string getName() => "Transform Anarchy";
         public override string getDescription() => @"Adds an advanced building gizmo for select building types.";
@@ -46,26 +47,31 @@ namespace TransformAnarchy
         public static Sprite OriginMoveSprite;
         public static Sprite TickSprite;
 
+        public TA()
+        {
+            // Register hotkeys in advance so you can edit them from the main menu
+            RegisterHotkeys();
+        }
+
         public override void onEnabled()
         {
+            Debug.LogWarning("TA: Loading Transform Anarchy");
 
             Instance = this;
 
-            Debug.LogWarning("Loading TA");
-
-            _harmony = new Harmony(getIdentifier());
-
-            RegisterHotkeys();
             _modPath = ModManager.Instance.getMod(this.getIdentifier()).path;
             _taSettingsFilePath = System.IO.Path.Combine(ModManager.Instance.getMod(this.getIdentifier()).path, "ta_settings.json");
 
             // Load TA settings
             LoadTASettingsFromFile();
 
+            _harmony = new Harmony(getIdentifier());
+
+            // Load Asset Bundles
             var loadedAB = AssetBundle.LoadFromFile(_modPath + "\\Res\\ta_assets");
 
             // Load from Asset Bundles
-            Debug.Log("Loading assetbundle stuff:");
+            Debug.Log("TA: Loading assetbundle stuff:");
 
             // Gizmo meshes
             ArrowGO = loadedAB.LoadAsset<GameObject>("assets/arrowgizmo.prefab");
@@ -83,14 +89,15 @@ namespace TransformAnarchy
             TickSprite = loadedAB.LoadAsset<Sprite>("assets/ui_icon_build.png");
 
             loadedAB.Unload(false);
-            Debug.Log("Loaded assetbundle!");
+            Debug.Log("TA: Loaded assetbundle!");
 
-            Debug.Log("Initing Main TA handler");
+            // Actually loading TA
+            Debug.Log("TA: Initing Main Transform Anarchy handler");
             GameObject go = new GameObject();
             go.name = "TA Main";
             MainController = go.AddComponent<TAController>();
 
-            Debug.Log("Harmony patch coming!");
+            Debug.Log("TA: Harmony patch coming");
             _harmony.PatchAll();
 
         }
@@ -130,31 +137,55 @@ namespace TransformAnarchy
             GUILayout.BeginVertical();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Version", guistyleTextLeft, GUILayout.Width(200));
+            GUILayout.Label("Version", guistyleTextLeft, GUILayout.Width(175));
             GUILayout.Label(VERSION_NUMBER, guistyleTextMiddle);
+            if (GUILayout.Button("Advanced settings", guistyleButton, GUILayout.Width(125)))
+            {
+                TASettings.showAdvancedSettings = !TASettings.showAdvancedSettings;
+                onDrawSettingsUI();
+            }
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(20);
+            GUILayout.Space(30);
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Default rotation angle", guistyleTextLeft, GUILayout.Width(200));
+            GUILayout.Label("Default rotation angle", guistyleTextLeft, GUILayout.Width(175));
             rotationAngleString = GUILayout.TextField(rotationAngleString, 7, guistyleField);
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(20);
+            if (TASettings.showAdvancedSettings == true)
+            {
+                GUILayout.Space(30);
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Gizmo scale based on", guistyleTextLeft, GUILayout.Width(200));
-            string[] gizmoStyleStrings = { "Fixed size", "Screen size", "Object size" };
-            TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleStrings, 3, guistyleButton);
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Gizmo scale based on", guistyleTextLeft, GUILayout.Width(175));
+                string[] gizmoStyleString = { "Fixed size", "Screen size", "Object size" };
+                TASettings.gizmoStyle = GUILayout.SelectionGrid(TASettings.gizmoStyle, gizmoStyleString, 3, guistyleButton);
+                GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Gizmo scale", guistyleTextLeft, GUILayout.Width(200));
-            gizmoSizeString = GUILayout.TextField(gizmoSizeString, 7, guistyleField);
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Gizmo scale", guistyleTextLeft, GUILayout.Width(175));
+                gizmoSizeString = GUILayout.TextField(gizmoSizeString, 7, guistyleField);
+                GUILayout.EndHorizontal();
 
-            GUILayout.Space(40);
+                GUILayout.Space(30);
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Pipette tool behaviour", guistyleTextLeft, GUILayout.Width(175));
+                string[] holdPipetteButtonString = { "Always show gimzo", "Show gizmo if key is held" };
+                TASettings.useButtonForPipette = GUILayout.SelectionGrid(TASettings.useButtonForPipette, holdPipetteButtonString, 2, guistyleButton);
+                GUILayout.EndHorizontal();
+
+                GUILayout.Space(30);
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Gizmo render behaviour", guistyleTextLeft, GUILayout.Width(175));
+                string[] gizmoRenderBehaviourString = { "Render gizmo behind object", "Don't render behind object" };
+                TASettings.gizmoRenderBehaviourString = GUILayout.SelectionGrid(TASettings.gizmoRenderBehaviourString, gizmoRenderBehaviourString, 2, guistyleButton);
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(50);
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Vertical rotation on blueprints and flatrides is not supported", guistyleTextMiddle);
@@ -181,8 +212,8 @@ namespace TransformAnarchy
                     }
                 }
 
-        // Clear the focus from the TextField
-        GUI.FocusControl(null);
+                // Clear the focus from the TextField
+                GUI.FocusControl(null);
             }
 
             GUILayout.EndVertical();
@@ -203,18 +234,23 @@ namespace TransformAnarchy
 
             // Update the gizmo size value in the settings UI
             GUI.FocusControl(null);
+
+            //Reload the gizmos
+            MainController.SetGizmoCamera();
         }
 
         public void RegisterHotkeys()
         {
             _keys = new KeybindManager("TA_KEYS", "Transform Anarchy");
 
-            _keys.AddKeybind("cancelPivotEdit", "Reset Pivot", "Will reset the pivot to the default for the object.", UnityEngine.KeyCode.Alpha5);
-            _keys.AddKeybind("togglePivotEdit", "Toggle Pivot Offset", "Toggles whether the pivot or the object will move.", UnityEngine.KeyCode.Alpha6);
-            _keys.AddKeybind("toggleGizmoSpace", "Toggle Gizmo Space", "Toggles the space the gizmo operates in, either local or global.", UnityEngine.KeyCode.Alpha7);
-            _keys.AddKeybind("toggleGizmoTool", "Toggle Gizmo Tool", "Toggles the gizmo, either positional or rotational.", UnityEngine.KeyCode.Alpha8);
-            _keys.AddKeybind("toggleGizmoOn", "Toggle Placement Mode", "Toggles whether to use the advanced gizmos or just the normal game logic.", UnityEngine.KeyCode.Alpha9);
+            _keys.AddKeybind("togglePivotEdit", "Toggle Pivot Offset", "Toggles whether the pivot or the object will move.", UnityEngine.KeyCode.U);
+            _keys.AddKeybind("cancelPivotEdit", "Reset Pivot", "Will reset the pivot to the default for the object.", UnityEngine.KeyCode.L);
+            _keys.AddKeybind("resetGizmoTool", "Reset Rotation", "Will reset the rotation to the default for the object.", UnityEngine.KeyCode.L);
+            _keys.AddKeybind("toggleGizmoSpace", "Toggle Gizmo Space", "Toggles the space the gizmo operates in, either local or global.", UnityEngine.KeyCode.Y);
+            _keys.AddKeybind("toggleGizmoTool", "Toggle Gizmo Tool", "Toggles the gizmo, either positional or rotational.", UnityEngine.KeyCode.R);
+            _keys.AddKeybind("toggleGizmoOn", "Toggle Placement Mode", "Toggles whether to use the gizmo or just the normal game logic.", UnityEngine.KeyCode.Z);
             _keys.AddKeybind("usePipetteGizmo", "Pipette Gizmo", "Enables gizmo automatically when pipette is used and this button is held.", UnityEngine.KeyCode.LeftAlt);
+            _keys.AddKeybind("buildObject", "Build object", "Press this key to place down the object when using the gizmo.", UnityEngine.KeyCode.T);
             _keys.RegisterAll();
 
         }
@@ -230,15 +266,14 @@ namespace TransformAnarchy
             if (File.Exists(_taSettingsFilePath))
             {
                 // Load existing settings from JSON file
-                Debug.Log("Loading TA settings from file");
+                Debug.Log("TA: Loading Transform Anarchy settings from file");
                 string json = File.ReadAllText(_taSettingsFilePath);
                 TASettings = JsonUtility.FromJson<TASettingsData>(json);
             }
             else
             {
                 // Create new settings with default values
-                Debug.Log("TA settings file not found");
-                Debug.Log("Creating TA settings file");
+                Debug.Log("TA: Transform Anarchy settings file not found, creating new one");
                 TASettings = new TASettingsData();
 
                 // Load default values from TA Settings class
@@ -253,7 +288,7 @@ namespace TransformAnarchy
         // Save values to TA settings file
         private void SaveTASettingsToFile()
         {
-            Debug.Log("Saving TA settings");
+            Debug.Log("TA: Saving Transform Anarchy settings to file");
             // Convert TA settings data to JSON format
             string json = JsonUtility.ToJson(TASettings, true);
 

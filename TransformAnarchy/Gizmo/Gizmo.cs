@@ -50,7 +50,8 @@ namespace TransformAnarchy
             }
         }
 
-        public const int LAYER = 31;
+        // Using Layer 28, because 31 was used for some other stuff apparently
+        public const int LAYER = 28;
         public const int LAYER_MASK = 1 << LAYER;
 
         protected DragInformation _lastInfo;

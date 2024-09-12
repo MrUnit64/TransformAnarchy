@@ -9,5 +9,8 @@ namespace TransformAnarchy
         public float gizmoSize = 1f;
         public int gizmoStyle = 0;
         public float rotationAngle = 90f;
+        public int useButtonForPipette = 1;
+        public int gizmoRenderBehaviourString = 0;
+        public bool showAdvancedSettings = false;
     }
 }
